@@ -1,0 +1,47 @@
+# Node
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Environment
+.env
+.env.local
+.env.development
+.env.production
+
+# Keep environment templates
+!.env.example
+
+# Hardhat
+packages/contracts/artifacts/
+packages/contracts/cache/
+packages/contracts/typechain-types/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database / temporary data
+*.sqlite
+*.db
+
+# Temporary files
+tmp/
+temp/
