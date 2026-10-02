@@ -1,0 +1,41 @@
+CONTRACTS
+
+EnergyTradingEscrow
+TestEnergyUSD
+
+
+ROLES
+
+DEFAULT_ADMIN_ROLE
+OPERATOR_ROLE
+ORACLE_ROLE
+PAUSER_ROLE
+
+
+CORE FUNCTIONS
+
+createTrade(...)
+fundTrade(...)
+confirmDelivery(...)
+expireTrade(...)
+refundTrade(...)
+cancelTrade(...)
+getTrade(...)
+
+
+MAIN FLOW
+
+CREATED
+→ FUNDED
+→ AWAITING_DELIVERY
+→ DELIVERED
+→ COMPLETED
+
+
+FAILURE FLOW
+
+CREATED → CANCELLED
+
+AWAITING_DELIVERY
+→ EXPIRED
+→ REFUNDED
