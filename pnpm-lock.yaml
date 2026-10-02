@@ -45,6 +45,9 @@ importers:
       chai:
         specifier: ^6.2.2
         version: 6.2.2
+      dotenv:
+        specifier: ^18.0.5
+        version: 18.0.5
       ethers:
         specifier: ^6.17.0
         version: 6.17.0
@@ -691,6 +694,11 @@ packages:
   diff@9.0.0:
     resolution: {integrity: sha512-svtcdpS8CgJyqAjEQIXdb3OjhFVVYjzGAPO8WGCmRbrml64SPw/jJD4GoE98aR7r25A0XcgrK3F02yw9R/vhQw==}
     engines: {node: '>=0.3.1'}
+
+  dotenv@18.0.5:
+    resolution: {integrity: sha512-aBrGvt6KhjxbEnatqMWOMidftwsrCiCvqh1yNIGB9QyF0J+VcWkKDMsvYOEm7ZS82oiV+BT1sTOtIlAmUlTpwQ==}
+    engines: {node: '>=12'}
+    hasBin: true
 
   elliptic@6.6.1:
     resolution: {integrity: sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==}
@@ -1706,6 +1714,8 @@ snapshots:
   deep-extend@0.6.0: {}
 
   diff@9.0.0: {}
+
+  dotenv@18.0.5: {}
 
   elliptic@6.6.1:
     dependencies:
