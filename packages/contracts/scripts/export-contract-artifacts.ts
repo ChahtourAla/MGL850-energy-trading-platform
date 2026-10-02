@@ -76,6 +76,7 @@ if (!testEnergyUsdAddress || !energyTradingEscrowAddress) {
 
 const deploymentMetadata = {
   schemaVersion: '1.0.0',
+  deploymentVersion: '1.0.0',
 
   network: {
     name: 'hedera-testnet',
@@ -94,7 +95,23 @@ const deploymentMetadata = {
     },
   },
 
+  // Contract returns numeric enum values.
+  // This is the canonical numeric -> name mapping
+  // required by the integration specification.
   tradeStatus: {
+    '0': 'CREATED',
+    '1': 'FUNDED',
+    '2': 'AWAITING_DELIVERY',
+    '3': 'DELIVERED',
+    '4': 'COMPLETED',
+    '5': 'CANCELLED',
+    '6': 'EXPIRED',
+    '7': 'FAILED',
+    '8': 'REFUNDED',
+  },
+
+  // Convenient reverse mapping for backend validation.
+  tradeStatusValue: {
     CREATED: 0,
     FUNDED: 1,
     AWAITING_DELIVERY: 2,
@@ -106,15 +123,21 @@ const deploymentMetadata = {
     REFUNDED: 8,
   },
 
-  events: [
-    'TradeCreated',
-    'TradeFunded',
-    'DeliveryConfirmed',
-    'TradeSettled',
-    'TradeRefunded',
-    'TradeCancelled',
-    'TradeExpired',
-  ],
+  events: {
+    TradeCreated: 'TradeCreated(uint256,bytes32,address,address,uint256,uint256)',
+
+    TradeFunded: 'TradeFunded(uint256,uint256)',
+
+    DeliveryConfirmed: 'DeliveryConfirmed(uint256,uint256,bytes32)',
+
+    TradeSettled: 'TradeSettled(uint256,address,uint256)',
+
+    TradeRefunded: 'TradeRefunded(uint256,address,uint256)',
+
+    TradeCancelled: 'TradeCancelled(uint256)',
+
+    TradeExpired: 'TradeExpired(uint256)',
+  },
 };
 
 await writeFile(
