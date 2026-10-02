@@ -10,5 +10,9 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9",
+    "prettier-plugin-solidity": "^2.4.1"
   }
 }
