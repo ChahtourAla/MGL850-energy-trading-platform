@@ -1,0 +1,172 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 8.1 users Table
+model User {
+  id                  String   @id @default(uuid()) @db.Uuid
+  name                String   @db.VarChar(255)
+  email               String   @unique @db.VarChar(255)
+  passwordHash        String   @map("password_hash") @db.Text
+  physicalAddress     String?  @map("physical_address") @db.Text
+  xKm                 Decimal? @map("x_km") @db.Decimal(10, 4)
+  yKm                 Decimal? @map("y_km") @db.Decimal(10, 4)
+  preferredEnergyType String?  @map("preferred_energy_type") @db.VarChar(50)
+  reputation          Int      @default(100) @db.SmallInt // Check constraint 0-100 à la migration si nécessaire
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  wallet               Wallet?
+  energyRecords        EnergyRecord[]
+  buyerMatches         Match[]               @relation("BuyerMatches")
+  sellerMatches        Match[]               @relation("SellerMatches")
+  buyerTrades          Trade[]               @relation("BuyerTrades")
+  sellerTrades         Trade[]               @relation("SellerTrades")
+  deliveryRecordsBuyer DeliveryRecord[]      @relation("BuyerDeliveryRecords")
+  deliveryRecordsSeller DeliveryRecord[]     @relation("SellerDeliveryRecords")
+
+  @@map("users")
+}
+
+// 8.2 wallets Table
+model Wallet {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @unique @map("user_id") @db.Uuid
+  hederaAccountId    String   @unique @map("hedera_account_id") @db.VarChar(50)
+  evmAddress         String   @unique @map("evm_address") @db.VarChar(42)
+  publicKey          String   @map("public_key") @db.Text
+  encryptedPrivateKey String  @map("encrypted_private_key") @db.Text
+  encryptionIv       String   @map("encryption_iv") @db.Text
+  encryptionAuthTag  String   @map("encryption_auth_tag") @db.Text
+  keyVersion         Int      @map("key_version") @db.Integer
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+// 8.3 energy_records Table
+model EnergyRecord {
+  id                     String   @id @default(uuid()) @db.Uuid
+  userId                 String   @map("user_id") @db.Uuid
+  timeSlot               DateTime @map("time_slot") @db.Timestamptz
+  productionWh           BigInt   @map("production_wh")
+  consumptionWh          BigInt   @map("consumption_wh")
+  netEnergyWh            BigInt   @map("net_energy_wh")
+  marketRole             String   @map("market_role") @db.VarChar(20) // SELLER, BUYER, NEUTRAL
+  availableEnergyWh      BigInt?  @map("available_energy_wh")
+  requiredEnergyWh       BigInt?  @map("required_energy_wh")
+  energyType             String?  @map("energy_type") @db.VarChar(50)
+  askPriceMicrousdPerKwh BigInt?  @map("ask_price_microusd_per_kwh")
+  maxPriceMicrousdPerKwh BigInt?  @map("max_price_microusd_per_kwh")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, timeSlot])
+  @@index([timeSlot, marketRole])
+  @@map("energy_records")
+}
+
+// 8.4 matches Table
+model Match {
+  id                      String   @id @default(uuid()) @map("id") @db.Uuid // Equivaut à matchId
+  timeSlot                DateTime @map("time_slot") @db.Timestamptz
+  buyerId                 String   @map("buyer_id") @db.Uuid
+  sellerId                String   @map("seller_id") @db.Uuid
+  quantityWh              BigInt   @map("quantity_wh")
+  unitPriceMicrousdPerKwh BigInt   @map("unit_price_microusd_per_kwh")
+  totalAmountMicrousd     BigInt   @map("total_amount_microusd")
+  distanceKm              Decimal  @map("distance_km") @db.Decimal(10, 4)
+  score                   Decimal  @db.Decimal(5, 4)
+  sellerEnergyType        String   @map("seller_energy_type") @db.VarChar(50)
+  algorithmVersion        String   @map("algorithm_version") @db.VarChar(20)
+  status                  String   @map("status") @db.VarChar(30) // SELECTED, TRADE_CREATED, CANCELLED, EXPIRED
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  buyer  User   @relation("BuyerMatches", fields: [buyerId], references: [id])
+  seller User   @relation("SellerMatches", fields: [sellerId], references: [id])
+  trade  Trade?
+
+  @@index([timeSlot, buyerId, sellerId])
+  @@map("matches")
+}
+
+// 8.5 trades Table
+model Trade {
+  id                      String    @id @default(uuid()) @db.Uuid
+  matchId                 String    @unique @map("match_id") @db.Uuid
+  onChainTradeId          BigInt?   @unique @map("on_chain_trade_id")
+  buyerId                 String    @map("buyer_id") @db.Uuid
+  sellerId                String    @map("seller_id") @db.Uuid
+  quantityWh              BigInt    @map("quantity_wh")
+  unitPriceMicrousdPerKwh BigInt    @map("unit_price_microusd_per_kwh")
+  totalAmountMicrousd     BigInt    @map("total_amount_microusd")
+  deliveryStart           DateTime  @map("delivery_start") @db.Timestamptz
+  deliveryDeadline        DateTime  @map("delivery_deadline") @db.Timestamptz
+  status                  String    @map("status") @db.VarChar(30) // CREATED, FUNDED, AWAITING_DELIVERY, etc.
+  contractAddress         String?   @map("contract_address") @db.VarChar(42)
+  createTxId              String?   @map("create_tx_id") @db.VarChar(100)
+  fundTxId                String?   @map("fund_tx_id") @db.VarChar(100)
+  confirmTxId             String?   @map("confirm_tx_id") @db.VarChar(100)
+  settlementTxId          String?   @map("settlement_tx_id") @db.VarChar(100)
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  match           Match            @relation(fields: [matchId], references: [id])
+  buyer           User             @relation("BuyerTrades", fields: [buyerId], references: [id])
+  seller          User             @relation("SellerTrades", fields: [sellerId], references: [id])
+  deliveryRecords DeliveryRecord[]
+  blockchainTxs   BlockchainTransaction[]
+
+  @@index([buyerId, sellerId, status])
+  @@map("trades")
+}
+
+// 8.6 delivery_records Table
+model DeliveryRecord {
+  id          String   @id @default(uuid()) @db.Uuid
+  tradeId     String   @map("trade_id") @db.Uuid
+  buyerId     String   @map("buyer_id") @db.Uuid
+  sellerId    String   @map("seller_id") @db.Uuid
+  expectedWh  BigInt   @map("expected_wh")
+  deliveredWh BigInt   @map("delivered_wh")
+  timeSlot    DateTime @map("time_slot") @db.Timestamptz
+  status      String   @db.VarChar(30) // PENDING, SUCCESS, INCOMPLETE, INVALID, CONFIRMED
+  evidenceHash String?  @map("evidence_hash") @db.VarChar(66)
+  oracleTxId  String?  @map("oracle_tx_id") @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  trade  Trade @relation(fields: [tradeId], references: [id])
+  buyer  User  @relation("BuyerDeliveryRecords", fields: [buyerId], references: [id])
+  seller User  @relation("SellerDeliveryRecords", fields: [sellerId], references: [id])
+
+  @@unique([tradeId, timeSlot])
+  @@map("delivery_records")
+}
+
+// 8.7 blockchain_transactions Table
+model BlockchainTransaction {
+  id                  String    @id @default(uuid()) @db.Uuid
+  tradeId             String?   @map("trade_id") @db.Uuid
+  operation           String    @db.VarChar(50) // ACCOUNT_CREATE, TRADE_CREATE, FUND, etc.
+  hederaTransactionId String?   @map("hedera_transaction_id") @db.VarChar(100)
+  transactionHash     String?   @map("transaction_hash") @db.VarChar(66)
+  status              String    @db.VarChar(30) // SUBMITTED, CONSENSUS_SUCCESS, etc.
+  networkFeeTinybar   BigInt?   @map("network_fee_tinybar")
+  errorCode           String?   @map("error_code") @db.VarChar(100)
+  errorMessage        String?   @map("error_message") @db.Text
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  confirmedAt         DateTime? @map("confirmed_at") @db.Timestamptz
+
+  trade Trade? @relation(fields: [tradeId], references: [id])
+
+  @@index([hederaTransactionId])
+  @@map("blockchain_transactions")
+}
