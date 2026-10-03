@@ -4,3 +4,4 @@ packages:
   - "services/oracle"
 allowBuilds:
   '@nestjs/core': false
+  esbuild: true
