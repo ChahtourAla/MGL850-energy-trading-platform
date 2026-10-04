@@ -14,5 +14,11 @@
   "devDependencies": {
     "prettier": "^3.9.9",
     "prettier-plugin-solidity": "^2.4.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "prisma"
+    ]
   }
 }
