@@ -24,7 +24,6 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<UserResponse> {
     const { password, ...userData } = createUserDto;
 
-    // 1. Vérifier si l'utilisateur existe déjà
     const existingUser = await this.prisma.user.findUnique({
       where: { email: userData.email },
     });
@@ -33,10 +32,9 @@ export class UsersService {
       throw new ConflictException('Un utilisateur avec cet email existe déjà.');
     }
 
-    // 2. Hacher le mot de passe avec Argon2
     const passwordHash = await argon2.hash(password);
 
-    // 3. Créer l'utilisateur dans PostgreSQL (User uniquement, sans Wallet pour l'instant)
+    // TODO: add the wallet
     return this.prisma.user.create({
       data: {
         ...userData,
