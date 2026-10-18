@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotId": "55555555-5555-4555-8555-555555555555",
+  "timeSlot": "2026-10-17T14:00:00Z",
+  "generatorVersion": "1.0.0",
+
+  "users": [
+    {
+      "recordId": "33333333-3333-4333-8333-333333333333",
+      "userId": "11111111-1111-4111-8111-111111111111",
+      "timeSlot": "2026-10-17T14:00:00Z",
+
+      "productionWh": 6000,
+      "consumptionWh": 2000,
+      "netEnergyWh": 4000,
+
+      "marketRole": "SELLER",
+      "availableEnergyWh": 4000,
+      "requiredEnergyWh": 0,
+
+      "energyType": "SOLAR",
+      "askPriceMicrousdPerKwh": 140000,
+      "maxPriceMicrousdPerKwh": null,
+
+      "xKm": 2.5,
+      "yKm": 4.0,
+      "reputation": 92,
+      "preferredEnergyType": "SOLAR",
+      "evmAddress": "0x1111111111111111111111111111111111111111"
+    },
+    {
+      "recordId": "44444444-4444-4444-8444-444444444444",
+      "userId": "22222222-2222-4222-8222-222222222222",
+      "timeSlot": "2026-10-17T14:00:00Z",
+
+      "productionWh": 0,
+      "consumptionWh": 4000,
+      "netEnergyWh": -4000,
+
+      "marketRole": "BUYER",
+      "availableEnergyWh": 0,
+      "requiredEnergyWh": 4000,
+
+      "energyType": null,
+      "askPriceMicrousdPerKwh": null,
+      "maxPriceMicrousdPerKwh": 170000,
+
+      "xKm": 5.0,
+      "yKm": 3.0,
+      "reputation": 75,
+      "preferredEnergyType": "ANY",
+      "evmAddress": "0x2222222222222222222222222222222222222222"
+    }
+  ]
+}

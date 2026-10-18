@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0.0",
+  "algorithmVersion": "1.0.0",
+  "maximumDistanceKm": 10,
+
+  "scoringWeights": {
+    "quantity": 0.3,
+    "price": 0.3,
+    "distance": 0.25,
+    "reputation": 0.15
+  }
+}

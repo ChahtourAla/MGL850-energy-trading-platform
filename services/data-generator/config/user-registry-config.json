@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "userCount": 12,
+  "seed": 2026,
+  "mapWidthKm": 10.0,
+  "mapHeightKm": 10.0,
+  "minimumReputation": 50,
+  "maximumReputation": 100,
+  "energyPreferences": ["SOLAR", "WIND", "HYDRO", "GRID", "MIXED", "ANY"]
+}

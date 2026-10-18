@@ -1,0 +1,2 @@
+pydantic<3,>=2.12
+p2p-energy-shared==1.0.0

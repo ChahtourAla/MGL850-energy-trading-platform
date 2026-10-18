@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://energy-trading.example/schemas/delivery-record.schema.json",
+  "title": "Delivery Record",
+
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "deliveryId",
+    "tradeId",
+    "onChainTradeId",
+    "sellerId",
+    "buyerId",
+    "expectedWh",
+    "deliveredWh",
+    "timeSlot",
+    "status"
+  ],
+
+  "properties": {
+    "deliveryId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "tradeId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "onChainTradeId": {
+      "type": "integer",
+      "minimum": 1
+    },
+
+    "sellerId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "buyerId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "expectedWh": {
+      "type": "integer",
+      "minimum": 1
+    },
+
+    "deliveredWh": {
+      "$ref": "common.schema.json#/$defs/EnergyWh"
+    },
+
+    "timeSlot": {
+      "$ref": "common.schema.json#/$defs/UTCDateTime"
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["PENDING", "SUCCESS", "INCOMPLETE", "INVALID", "CONFIRMED"]
+    },
+
+    "evidenceHash": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{64}$"
+    }
+  }
+}
