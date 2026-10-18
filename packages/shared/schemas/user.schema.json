@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://energy-trading.example/schemas/user.schema.json",
+  "title": "User",
+
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "userId",
+    "name",
+    "email",
+    "physicalAddress",
+    "xKm",
+    "yKm",
+    "preferredEnergyType",
+    "reputation"
+  ],
+
+  "properties": {
+    "userId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+
+    "physicalAddress": {
+      "type": "string",
+      "minLength": 1
+    },
+
+    "xKm": {
+      "type": "number"
+    },
+
+    "yKm": {
+      "type": "number"
+    },
+
+    "preferredEnergyType": {
+      "$ref": "common.schema.json#/$defs/PreferredEnergyType"
+    },
+
+    "reputation": {
+      "$ref": "common.schema.json#/$defs/Reputation"
+    },
+
+    "hederaAccountId": {
+      "$ref": "common.schema.json#/$defs/HederaAccountId"
+    },
+
+    "evmAddress": {
+      "$ref": "common.schema.json#/$defs/EvmAddress"
+    }
+  },
+
+  "dependentRequired": {
+    "hederaAccountId": ["evmAddress"],
+
+    "evmAddress": ["hederaAccountId"]
+  }
+}

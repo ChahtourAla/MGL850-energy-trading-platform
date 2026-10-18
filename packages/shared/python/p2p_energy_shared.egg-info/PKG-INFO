@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: p2p-energy-shared
+Version: 1.0.0
+Summary: Shared Python data models for the P2P Energy Trading Platform
+Requires-Python: >=3.11
+Requires-Dist: pydantic[email]<3,>=2.12

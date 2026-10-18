@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://energy-trading.example/schemas/matching-input.schema.json",
+  "title": "Matching Input",
+
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "schemaVersion",
+    "snapshotId",
+    "timeSlot",
+    "algorithmVersion",
+    "maximumDistanceKm",
+    "scoringWeights",
+    "users"
+  ],
+
+  "properties": {
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+
+    "snapshotId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "timeSlot": {
+      "$ref": "common.schema.json#/$defs/HourTimeSlot"
+    },
+
+    "algorithmVersion": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+
+    "maximumDistanceKm": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+
+    "scoringWeights": {
+      "$ref": "matching-config.schema.json#/$defs/ScoringWeights"
+    },
+
+    "users": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "hourly-energy-record.schema.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://energy-trading.example/schemas/matching-output.schema.json",
+  "title": "Matching Output",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "schemaVersion",
+    "snapshotId",
+    "timeSlot",
+    "algorithmVersion",
+    "executionTimeMs",
+    "matches",
+    "unmatchedBuyerIds",
+    "warnings"
+  ],
+
+  "properties": {
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+
+    "snapshotId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "timeSlot": {
+      "$ref": "common.schema.json#/$defs/HourTimeSlot"
+    },
+
+    "algorithmVersion": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+
+    "executionTimeMs": {
+      "type": "number",
+      "minimum": 0
+    },
+
+    "matches": {
+      "type": "array",
+      "items": {
+        "$ref": "match-result.schema.json"
+      }
+    },
+
+    "unmatchedBuyerIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "common.schema.json#/$defs/UUID"
+      }
+    },
+
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

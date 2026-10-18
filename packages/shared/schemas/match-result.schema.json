@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://energy-trading.example/schemas/match-result.schema.json",
+  "title": "Match Result",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "matchId",
+    "algorithmVersion",
+    "timeSlot",
+    "buyerId",
+    "buyerWallet",
+    "sellerId",
+    "sellerWallet",
+    "quantityWh",
+    "unitPriceMicrousdPerKwh",
+    "totalAmountMicrousd",
+    "distanceKm",
+    "score",
+    "sellerEnergyType",
+    "createdAt"
+  ],
+
+  "properties": {
+    "matchId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "algorithmVersion": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+
+    "timeSlot": {
+      "$ref": "common.schema.json#/$defs/HourTimeSlot"
+    },
+
+    "buyerId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "buyerWallet": {
+      "$ref": "common.schema.json#/$defs/EvmAddress"
+    },
+
+    "sellerId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+
+    "sellerWallet": {
+      "$ref": "common.schema.json#/$defs/EvmAddress"
+    },
+
+    "quantityWh": {
+      "type": "integer",
+      "minimum": 1
+    },
+
+    "unitPriceMicrousdPerKwh": {
+      "$ref": "common.schema.json#/$defs/UnitPriceMicrousdPerKwh"
+    },
+
+    "totalAmountMicrousd": {
+      "type": "integer",
+      "minimum": 1
+    },
+
+    "distanceKm": {
+      "type": "number",
+      "minimum": 0
+    },
+
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+
+    "sellerEnergyType": {
+      "$ref": "common.schema.json#/$defs/EnergyType"
+    },
+
+    "createdAt": {
+      "$ref": "common.schema.json#/$defs/UTCDateTime"
+    }
+  }
+}

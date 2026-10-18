@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://energy-trading.example/schemas/matching-config.schema.json",
+  "title": "Matching Configuration",
+
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": ["schemaVersion", "algorithmVersion", "maximumDistanceKm", "scoringWeights"],
+
+  "properties": {
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+
+    "algorithmVersion": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+
+    "maximumDistanceKm": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+
+    "scoringWeights": {
+      "$ref": "#/$defs/ScoringWeights"
+    }
+  },
+
+  "$defs": {
+    "ScoringWeights": {
+      "type": "object",
+      "additionalProperties": false,
+
+      "required": ["quantity", "price", "distance", "reputation"],
+
+      "properties": {
+        "quantity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+
+        "price": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+
+        "distance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+
+        "reputation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  }
+}

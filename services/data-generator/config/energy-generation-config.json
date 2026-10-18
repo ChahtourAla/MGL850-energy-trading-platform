@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatorVersion": "1.0.0",
+  "seed": 2026,
+
+  "baseConsumptionWh": 2500,
+  "peakSolarProductionWh": 6500,
+  "baseNonSolarProductionWh": 2200,
+
+  "productionVariationFraction": 0.1,
+  "consumptionVariationFraction": 0.12,
+
+  "solarProductionProfile": [
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 0.2, 0.45, 0.7, 0.85, 0.95, 1.0, 0.95, 0.8, 0.6, 0.35, 0.15,
+    0.03, 0.0, 0.0, 0.0, 0.0, 0.0
+  ],
+
+  "consumptionProfile": [
+    0.55, 0.5, 0.48, 0.47, 0.48, 0.55, 0.7, 1.05, 1.25, 1.1, 0.95, 0.9, 0.85, 0.87, 0.93, 0.98,
+    1.13, 1.4, 1.55, 1.5, 1.3, 1.1, 0.88, 0.68
+  ],
+
+  "productionEnergyTypeWeights": {
+    "SOLAR": 0.55,
+    "WIND": 0.15,
+    "HYDRO": 0.1,
+    "GRID": 0.1,
+    "MIXED": 0.1
+  },
+
+  "sellerAskPriceRange": {
+    "minMicrousdPerKwh": 80000,
+    "maxMicrousdPerKwh": 160000
+  },
+
+  "buyerMaxPriceRange": {
+    "minMicrousdPerKwh": 120000,
+    "maxMicrousdPerKwh": 220000
+  }
+}

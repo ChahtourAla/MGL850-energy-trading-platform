@@ -1,0 +1,17 @@
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "p2p-energy-shared"
+version = "1.0.0"
+description = "Shared Python data models for the P2P Energy Trading Platform"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic[email]>=2.12,<3"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["p2p_energy_shared*"]

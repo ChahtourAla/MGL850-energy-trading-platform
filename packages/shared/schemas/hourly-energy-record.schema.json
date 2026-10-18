@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://energy-trading.example/schemas/hourly-energy-record.schema.json",
+  "title": "Hourly Energy Record",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "recordId",
+    "userId",
+    "timeSlot",
+    "productionWh",
+    "consumptionWh",
+    "netEnergyWh",
+    "marketRole",
+    "availableEnergyWh",
+    "requiredEnergyWh",
+    "energyType",
+    "askPriceMicrousdPerKwh",
+    "maxPriceMicrousdPerKwh",
+    "xKm",
+    "yKm",
+    "reputation",
+    "preferredEnergyType",
+    "evmAddress"
+  ],
+
+  "properties": {
+    "recordId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "userId": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "timeSlot": {
+      "$ref": "common.schema.json#/$defs/HourTimeSlot"
+    },
+    "productionWh": {
+      "$ref": "common.schema.json#/$defs/EnergyWh"
+    },
+    "consumptionWh": {
+      "$ref": "common.schema.json#/$defs/EnergyWh"
+    },
+    "netEnergyWh": {
+      "type": "integer"
+    },
+    "marketRole": {
+      "$ref": "common.schema.json#/$defs/MarketRole"
+    },
+    "availableEnergyWh": {
+      "$ref": "common.schema.json#/$defs/EnergyWh"
+    },
+    "requiredEnergyWh": {
+      "$ref": "common.schema.json#/$defs/EnergyWh"
+    },
+    "energyType": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/EnergyType"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "askPriceMicrousdPerKwh": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/UnitPriceMicrousdPerKwh"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "maxPriceMicrousdPerKwh": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/UnitPriceMicrousdPerKwh"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "xKm": {
+      "type": "number"
+    },
+    "yKm": {
+      "type": "number"
+    },
+    "reputation": {
+      "$ref": "common.schema.json#/$defs/Reputation"
+    },
+    "preferredEnergyType": {
+      "$ref": "common.schema.json#/$defs/PreferredEnergyType"
+    },
+    "evmAddress": {
+      "$ref": "common.schema.json#/$defs/EvmAddress"
+    }
+  },
+
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "marketRole": {
+            "const": "SELLER"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "netEnergyWh": {
+            "minimum": 1
+          },
+          "availableEnergyWh": {
+            "minimum": 1
+          },
+          "requiredEnergyWh": {
+            "const": 0
+          },
+          "energyType": {
+            "$ref": "common.schema.json#/$defs/EnergyType"
+          },
+          "askPriceMicrousdPerKwh": {
+            "$ref": "common.schema.json#/$defs/UnitPriceMicrousdPerKwh"
+          },
+          "maxPriceMicrousdPerKwh": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "marketRole": {
+            "const": "BUYER"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "netEnergyWh": {
+            "maximum": -1
+          },
+          "availableEnergyWh": {
+            "const": 0
+          },
+          "requiredEnergyWh": {
+            "minimum": 1
+          },
+          "energyType": {
+            "type": "null"
+          },
+          "askPriceMicrousdPerKwh": {
+            "type": "null"
+          },
+          "maxPriceMicrousdPerKwh": {
+            "$ref": "common.schema.json#/$defs/UnitPriceMicrousdPerKwh"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "marketRole": {
+            "const": "NEUTRAL"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "netEnergyWh": {
+            "const": 0
+          },
+          "availableEnergyWh": {
+            "const": 0
+          },
+          "requiredEnergyWh": {
+            "const": 0
+          },
+          "energyType": {
+            "type": "null"
+          },
+          "askPriceMicrousdPerKwh": {
+            "type": "null"
+          },
+          "maxPriceMicrousdPerKwh": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}
