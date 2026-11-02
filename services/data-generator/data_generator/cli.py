@@ -40,6 +40,10 @@ from data_generator.snapshot_io import (
     save_energy_snapshot,
 )
 
+from data_generator.delivery_cli import (
+    run_generate_delivery,
+)
+
 
 # --------------------------------------------------
 # 1. Validate backend-enriched wallet information
@@ -213,6 +217,46 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Replace an existing snapshot for this hour",
     )
+
+    # ----------------------------------------------
+    # Command D: generate-delivery
+    # ----------------------------------------------
+
+    delivery_parser = commands.add_parser(
+        "generate-delivery",
+        help="Simulate one active-trade delivery as JSON",
+    )
+
+    delivery_parser.add_argument(
+        "--input",
+        type=Path,
+        required=True,
+        help="ActiveTrade JSON file",
+    )
+
+    delivery_parser.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="Delivery scenario configuration JSON",
+    )
+
+    delivery_parser.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help=(
+            "Destination DeliveryRecord JSON file "
+            "(not created for MISSING)"
+        ),
+    )
+
+    delivery_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Explicitly replace an existing delivery JSON file",
+    )
+
 
     return parser
 
@@ -439,11 +483,14 @@ def main(argv=None) -> int:
     if args.command == "generate-snapshot":
         return run_generate_snapshot(args)
 
+    if args.command == "generate-delivery":
+        return run_generate_delivery(args)
+
     # Preserve the no-command behavior
     # from our initial package setup.
     print(
-        "Data Generator CLI is ready. "
-        "Energy simulation is not implemented yet."
+        "No command specified. "
+        "Use --help to list available commands."
     )
 
     return 0

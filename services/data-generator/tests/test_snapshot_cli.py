@@ -598,4 +598,4 @@ def test_cli_preserves_existing_commands(
 
     output = capsys.readouterr().out
 
-    assert "Energy simulation is not implemented yet" in output
+    assert "Use --help to list available commands." in output
