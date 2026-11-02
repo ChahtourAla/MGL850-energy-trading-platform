@@ -1,6 +1,11 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, Inject, ServiceUnavailableException } from '@nestjs/common';
 
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiServiceUnavailableResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { HealthService, type HealthReport } from './health.service.js';
 
@@ -12,17 +17,47 @@ export class HealthController {
     private readonly healthService: HealthService,
   ) {}
 
+  /**
+   * HTTP liveness endpoint.
+   *
+   * Always returns HTTP 200 while the API is running,
+   * even if the database is temporarily unavailable.
+   */
   @Get()
   @ApiOperation({
     summary: 'Check backend liveness',
-    description:
-      'Checks that the HTTP application is running. ' +
-      'Database and blockchain are not yet configured.',
+    description: 'Reports the running backend and observed dependency states.',
   })
   @ApiOkResponse({
-    description: 'The backend process is running.',
+    description: 'The HTTP application is running.',
   })
-  getHealth(): HealthReport {
+  async getHealth(): Promise<HealthReport> {
     return this.healthService.getHealth();
+  }
+
+  /**
+   * Database readiness endpoint for B03.
+   *
+   * In later steps, this will also validate other
+   * required operational dependencies.
+   */
+  @Get('ready')
+  @ApiOperation({
+    summary: 'Check backend database readiness',
+  })
+  @ApiOkResponse({
+    description: 'PostgreSQL is reachable.',
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'PostgreSQL is unavailable or not configured.',
+  })
+  async getReadiness(): Promise<HealthReport> {
+    const report = await this.healthService.getHealth();
+
+    if (report.dependencies.database !== 'connected') {
+      throw new ServiceUnavailableException('PostgreSQL is not ready');
+    }
+
+    return report;
   }
 }

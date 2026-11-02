@@ -37,7 +37,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     let message: string | string[] = 'Internal server error';
 
-    if (isHttpException && statusCode < 500) {
+    if (isHttpException && (statusCode < 500 || statusCode === HttpStatus.SERVICE_UNAVAILABLE)) {
       const detail = exception.getResponse();
 
       if (typeof detail === 'string') {

@@ -12,6 +12,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 import { AppModule } from '../src/app.module.js';
 import { setupApp } from '../src/app.setup.js';
+import { DatabaseService } from '../src/database/database.service.js';
 
 /**
  * Test-only DTO.
@@ -97,7 +98,12 @@ describe('B02 API Foundation (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
       controllers: [ProbeController],
-    }).compile();
+    })
+      .overrideProvider(DatabaseService)
+      .useValue({
+        checkConnection: async () => 'not_configured',
+      })
+      .compile();
 
     app = moduleRef.createNestApplication();
 

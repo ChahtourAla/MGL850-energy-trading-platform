@@ -1,14 +1,5 @@
 import { z } from 'zod';
 
-/**
- * Validate one or more comma-separated HTTP(S) origins.
- *
- * Examples:
- * http://localhost:3000
- * http://localhost:3000,http://localhost:5173
- *
- * Wildcard "*" is intentionally not accepted.
- */
 function isValidOriginList(value: string): boolean {
   const origins = value.split(',').map((origin) => origin.trim());
 
@@ -37,12 +28,27 @@ function isValidOriginList(value: string): boolean {
 }
 
 /**
- * B02 environment schema.
+ * Check PostgreSQL URL syntax.
  *
- * passthrough() preserves additional variables in the
- * existing root .env file, such as DATABASE_URL, which
- * will be validated by later modules.
+ * Credentials must be present.
+ * This does not verify that PostgreSQL is reachable.
  */
+function isValidPostgresUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+
+    return (
+      (url.protocol === 'postgresql:' || url.protocol === 'postgres:') &&
+      Boolean(url.hostname) &&
+      Boolean(url.username) &&
+      Boolean(url.password) &&
+      url.pathname.length > 1
+    );
+  } catch {
+    return false;
+  }
+}
+
 export const environmentSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -54,6 +60,13 @@ export const environmentSchema = z
     }),
 
     SWAGGER_ENABLED: z.enum(['true', 'false']).optional(),
+
+    DATABASE_URL: z
+      .string()
+      .refine(isValidPostgresUrl, {
+        message: 'DATABASE_URL must be a valid PostgreSQL connection URL',
+      })
+      .optional(),
   })
   .passthrough();
 
