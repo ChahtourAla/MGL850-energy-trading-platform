@@ -18,6 +18,7 @@ The Python services do not access PostgreSQL or Hedera.
 - Read wallet-enriched user registries.
 - Simulate hourly production and consumption.
 - Export validated EnergySnapshot JSON files.
+- Generate simulated delivery evidence for active trades.
 
 ### Matching Engine
 
@@ -217,3 +218,128 @@ It provides deterministic simulated matching recommendations.
 
 Blockchain trade creation, escrow funding, delivery confirmation,
 refunds, and settlement belong to later integration phases.
+
+## 14. Energy Delivery Simulator
+
+The Delivery Simulator is part of the Python Data Generator.
+
+It simulates delivery evidence for trades that have already
+reached AWAITING_DELIVERY.
+
+It does not create blockchain trades, fund escrow, verify
+physical electricity transfer, or settle payments.
+
+### Input
+
+The simulator consumes an ActiveTrade JSON object containing:
+
+- tradeId
+- onChainTradeId
+- sellerId
+- buyerId
+- expectedWh
+- deliveryStart
+- deliveryDeadline
+- status: AWAITING_DELIVERY
+
+These trade identifiers must normally be supplied by the
+backend and Hedera integration.
+
+Standalone tests use fictional identifiers.
+
+### Configuration
+
+A JSON configuration controls one delivery simulation:
+
+- scenario
+- deliveredWh (optional)
+- reportedAt (optional)
+
+Supported scenario values:
+
+SUCCESS, INCOMPLETE, INVALID, MISSING.
+
+### Output
+
+SUCCESS, INCOMPLETE and INVALID produce a DeliveryRecord
+following:
+
+packages/shared/schemas/delivery-record.schema.json
+
+MISSING produces no DeliveryRecord. The absence of a delivery
+file must not be confused with confirmed successful delivery.
+
+Optional null fields are omitted from the JSON output.
+
+### Command
+
+    python -m data_generator.cli generate-delivery \
+      --input <active-trade.json> \
+      --config <delivery-config.json> \
+      --output <delivery-record.json>
+
+### Exit Codes
+
+- 0: Simulation completed, including MISSING.
+- 2: Invalid trade, configuration or simulation parameters.
+- 3: Output conflict or file-writing error.
+
+A nonzero exit code must be treated as an execution failure.
+
+### Delivery Scenarios
+
+SUCCESS:
+The timestamp is within the delivery window and deliveredWh
+is greater than or equal to expectedWh.
+
+INCOMPLETE:
+The timestamp is within the delivery window and deliveredWh
+is less than expectedWh.
+
+INVALID:
+The generated evidence has a timestamp outside the permitted
+delivery window. It remains structurally compatible with the
+shared DeliveryRecord schema, but must be rejected by an
+oracle enforcing the trade's delivery window.
+
+MISSING:
+No delivery record is emitted.
+
+### Determinism
+
+Delivery IDs use deterministic UUID generation based on the
+trade and simulation outcome.
+
+Repeated simulations with identical inputs produce identical
+delivery records.
+
+### Oracle Integration
+
+The future oracle must independently check:
+
+- Trade existence and state
+- Buyer and seller identifiers
+- Delivery time window
+- Delivered electricity quantity
+- Duplicate confirmations
+- Evidence validity
+
+A simulated SUCCESS status alone must never authorize
+blockchain settlement.
+
+### Integration Tests
+
+The Python integration test is:
+
+services/matching-engine/tests/test_delivery_end_to_end.py
+
+It verifies:
+
+- Data Generator to Matching Engine compatibility
+- Selected matches mapped into fictional active trades
+- Successful, incomplete, invalid and missing delivery scenarios
+- Stable delivery identifiers
+- Correct buyer/seller and quantity references
+- Rejection of trades not awaiting delivery
+
+No live backend, database, or blockchain operation is required.

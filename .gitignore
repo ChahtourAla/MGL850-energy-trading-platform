@@ -47,3 +47,17 @@ tmp/
 temp/
 
 /services/data-generator/output/
+
+
+# Python editable-install metadata
+*.egg-info/
+
+# Matching Engine generated results
+/services/matching-engine/output/
+
+# Additional Python development and test artifacts
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
