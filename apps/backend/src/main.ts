@@ -1,34 +1,45 @@
 import 'reflect-metadata';
 
+import { ConsoleLogger, Logger } from '@nestjs/common';
+
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from './app.module.js';
+import { setupApp } from './app.setup.js';
 
-/**
- * Bootstrap the MGL850 backend application.
- *
- * B01:
- * - Start the NestJS HTTP server.
- * - Use BACKEND_PORT when provided.
- * - Default to port 3001.
- *
- * Full environment validation will be added in B02.
- */
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  // NestJS framework logs as structured JSON.
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      json: true,
+    }),
+  });
 
-  const rawPort = process.env.BACKEND_PORT ?? '3001';
-  const port = Number(rawPort);
+  // Configure HTTP security, CORS, validation,
+  // errors, logging, and Swagger.
+  setupApp(app);
 
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('BACKEND_PORT must be an integer between 1 and 65535');
-  }
+  const config = app.get(ConfigService);
+
+  const port = Number(config.getOrThrow<number>('BACKEND_PORT'));
 
   await app.listen(port);
 
-  console.log(`MGL850 Backend is running at http://localhost:${port}`);
+  const logger = new Logger('Bootstrap');
+
+  logger.log({
+    event: 'server_started',
+    service: 'p2p-energy-backend',
+    port,
+  });
 }
 
 bootstrap().catch((error: unknown) => {
-  console.error('Failed to start MGL850 Backend:', error);
+  console.error(
+    'Failed to start the MGL850 backend:',
+    error instanceof Error ? error.message : 'Unknown startup error',
+  );
+
   process.exitCode = 1;
 });
