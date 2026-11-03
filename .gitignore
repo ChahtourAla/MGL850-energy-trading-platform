@@ -61,3 +61,6 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 .tox/
+
+# Prisma Client generated from database/schema.prisma
+/apps/backend/src/generated/prisma/

@@ -9,16 +9,8 @@ import { AppService } from './app.service.js';
 
 import { environmentSchema } from './config/environment.schema.js';
 import { HealthModule } from './health/health.module.js';
+import { PrismaModule } from './prisma/prisma.module.js';
 
-/**
- * Resolve paths relative to this file.
- *
- * Works in:
- * - src/app.module.ts during development
- * - dist/app.module.js after compilation
- *
- * Both locations have apps/backend/ as their parent.
- */
 const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 @Module({
@@ -32,10 +24,10 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     }),
 
     HealthModule,
+    PrismaModule,
   ],
 
   controllers: [AppController],
-
   providers: [AppService],
 })
 export class AppModule {}
