@@ -4,5 +4,7 @@ packages:
   - 'services/oracle'
 
 allowBuilds:
+  '@prisma/engines': true
   '@scarf/scarf': false
   esbuild: true
+  prisma: true
