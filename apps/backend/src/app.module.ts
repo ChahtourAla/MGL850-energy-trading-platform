@@ -11,6 +11,8 @@ import { environmentSchema } from './config/environment.schema.js';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 
+import { ContractsModule } from './contracts/contracts.module.js';
+
 const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 @Module({
@@ -25,6 +27,7 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
     HealthModule,
     PrismaModule,
+    ContractsModule,
   ],
 
   controllers: [AppController],
