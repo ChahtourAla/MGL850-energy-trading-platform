@@ -13,6 +13,8 @@ import { PrismaModule } from './prisma/prisma.module.js';
 
 import { ContractsModule } from './contracts/contracts.module.js';
 
+import { AuthModule } from './auth/auth.module.js';
+
 const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 @Module({
@@ -28,6 +30,7 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     HealthModule,
     PrismaModule,
     ContractsModule,
+    AuthModule,
   ],
 
   controllers: [AppController],

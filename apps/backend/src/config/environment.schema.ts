@@ -67,6 +67,8 @@ export const environmentSchema = z
         message: 'DATABASE_URL must be a valid PostgreSQL connection URL',
       })
       .optional(),
+
+    JWT_ACCESS_SECRET: z.string().min(32).optional(),
   })
   .passthrough();
 

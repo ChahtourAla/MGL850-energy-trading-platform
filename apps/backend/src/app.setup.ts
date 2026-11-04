@@ -94,6 +94,7 @@ export function setupApp(app: INestApplication): void {
       .setTitle('MGL850 P2P Energy Trading API')
       .setDescription('REST API for decentralized P2P electricity trading')
       .setVersion('0.1.0')
+      .addBearerAuth()
       .build();
 
     SwaggerModule.setup('docs', app, () => SwaggerModule.createDocument(app, swaggerConfig), {

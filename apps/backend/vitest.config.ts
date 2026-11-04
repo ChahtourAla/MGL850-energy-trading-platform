@@ -10,5 +10,8 @@ export default defineConfig({
     hookTimeout: 15000,
 
     clearMocks: true,
+    env: {
+      JWT_ACCESS_SECRET: 'B06_ONLY_STATIC_TEST_SECRET_2026_DO_NOT_USE_IN_RUNNING_SERVER',
+    },
   },
 });
