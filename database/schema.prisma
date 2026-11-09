@@ -250,3 +250,19 @@ model EnergySnapshotImport {
 
   @@map("energy_snapshot_imports")
 }
+
+
+model MatchingRun {
+  id                  String   @id @db.Uuid
+  snapshotId          String   @map("snapshot_id") @db.Uuid
+  timeSlot            DateTime @unique @map("time_slot") @db.Timestamptz(3)
+  algorithmVersion    String   @map("algorithm_version") @db.VarChar(32)
+  configSha256        String   @map("config_sha256") @db.Char(64)
+  resultSha256        String   @map("result_sha256") @db.Char(64)
+  matchCount          Int      @map("match_count")
+  unmatchedBuyerCount Int      @map("unmatched_buyer_count")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([snapshotId])
+  @@map("matching_runs")
+}
