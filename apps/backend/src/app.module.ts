@@ -15,6 +15,7 @@ import { ContractsModule } from './contracts/contracts.module.js';
 
 import { AuthModule } from './auth/auth.module.js';
 import { RegistryImportModule } from './registry-import/registry-import.module.js';
+import { EnergyImportModule } from './energy-import/energy-import.module.js';
 
 const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -33,6 +34,7 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     ContractsModule,
     AuthModule,
     RegistryImportModule,
+    EnergyImportModule,
   ],
 
   controllers: [AppController],

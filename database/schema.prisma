@@ -84,12 +84,15 @@ model EnergyRecord {
   energyType                  String?  @map("energy_type") @db.VarChar(16)
   askPriceMicrousdPerKwh      BigInt?  @map("ask_price_microusd_per_kwh")
   maxPriceMicrousdPerKwh      BigInt?  @map("max_price_microusd_per_kwh")
+  snapshotId                  String?  @map("snapshot_id") @db.Uuid
+  snapshotImport              EnergySnapshotImport? @relation(fields: [snapshotId], references: [id], onDelete: Restrict)
 
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@unique([userId, timeSlot])
   @@index([timeSlot, marketRole])
   @@map("energy_records")
+  @@index([snapshotId])
 }
 
 // -----------------------------------------------------
@@ -231,4 +234,19 @@ model WalletProvisioning {
 
   @@index([state, createdAt])
   @@map("wallet_provisioning")
+}
+
+
+model EnergySnapshotImport {
+  id               String   @id @db.Uuid
+  timeSlot         DateTime @unique @map("time_slot") @db.Timestamptz(3)
+  schemaVersion    String   @map("schema_version") @db.VarChar(32)
+  generatorVersion String   @map("generator_version") @db.VarChar(32)
+  payloadSha256    String   @map("payload_sha256") @db.Char(64)
+  recordCount      Int      @map("record_count")
+  importedAt       DateTime @default(now()) @map("imported_at") @db.Timestamptz(3)
+
+  records EnergyRecord[]
+
+  @@map("energy_snapshot_imports")
 }
