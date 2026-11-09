@@ -14,6 +14,7 @@ export const AUTH_USER_SELECT = {
   reputation: true,
   createdAt: true,
   updatedAt: true,
+  accountOrigin: true,
   wallet: { select: { id: true } },
   walletProvisioning: { select: { state: true } },
 } as const satisfies Prisma.UserSelect;

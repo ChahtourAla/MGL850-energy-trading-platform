@@ -1,13 +1,18 @@
 import {
-  CanActivate, ExecutionContext, Inject, Injectable,
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { isUUID } from 'class-validator';
 import { UsersService } from '../users/users.service.js';
 import {
-  TOKEN_AUDIENCE, TOKEN_ISSUER,
-  type AccessTokenClaims, type AuthenticatedRequest,
+  TOKEN_AUDIENCE,
+  TOKEN_ISSUER,
+  type AccessTokenClaims,
+  type AuthenticatedRequest,
 } from './auth.types.js';
 
 @Injectable()
@@ -26,11 +31,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const parts = authorization.split(' ');
-    if (
-      parts.length !== 2 ||
-      parts[0] !== 'Bearer' ||
-      !parts[1]
-    ) {
+    if (parts.length !== 2 || parts[0] !== 'Bearer' || !parts[1]) {
       throw new UnauthorizedException('Authentication required');
     }
 
@@ -45,17 +46,13 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired access token');
     }
 
-    if (
-      payload.tokenType !== 'access' ||
-      typeof payload.sub !== 'string' ||
-      !isUUID(payload.sub)
-    ) {
+    if (payload.tokenType !== 'access' || typeof payload.sub !== 'string' || !isUUID(payload.sub)) {
       throw new UnauthorizedException('Invalid access token');
     }
 
     // Database outages must not be disguised as authentication errors.
     const user = await this.users.findById(payload.sub);
-    if (!user) {
+    if (!user || user.accountOrigin === 'SIMULATED') {
       throw new UnauthorizedException('Invalid access token');
     }
     req.authenticatedUser = user;

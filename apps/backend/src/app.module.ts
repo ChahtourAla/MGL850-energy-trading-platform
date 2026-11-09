@@ -14,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { ContractsModule } from './contracts/contracts.module.js';
 
 import { AuthModule } from './auth/auth.module.js';
+import { RegistryImportModule } from './registry-import/registry-import.module.js';
 
 const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -31,6 +32,7 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     PrismaModule,
     ContractsModule,
     AuthModule,
+    RegistryImportModule,
   ],
 
   controllers: [AppController],

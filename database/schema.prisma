@@ -21,6 +21,7 @@ model User {
   name                String   @db.VarChar(255)
   email               String   @unique @db.VarChar(320)
   passwordHash        String   @map("password_hash") @db.Text
+  accountOrigin       String   @default("REGISTERED") @map("account_origin") @db.VarChar(16)
   physicalAddress     String?  @map("physical_address") @db.Text
   xKm                 Decimal? @map("x_km") @db.Decimal(18, 8)
   yKm                 Decimal? @map("y_km") @db.Decimal(18, 8)

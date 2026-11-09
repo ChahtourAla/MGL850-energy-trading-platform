@@ -72,7 +72,7 @@ export class AuthService {
 
     // Burn comparable Argon2 work for nonexistent users. Do not reveal
     // whether an email address is registered.
-    if (!user) {
+    if (!user || user.accountOrigin === 'SIMULATED') {
       await hash(dto.password, {
         memoryCost: 19456,
         timeCost: 2,
