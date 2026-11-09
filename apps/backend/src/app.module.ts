@@ -17,6 +17,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { RegistryImportModule } from './registry-import/registry-import.module.js';
 import { EnergyImportModule } from './energy-import/energy-import.module.js';
 import { SimulationWalletOnboardingModule } from './simulation-wallets/simulation-wallet-onboarding.module.js';
+import { HederaContractsModule } from './hedera-contracts/hedera-contracts.module.js';
 
 const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -37,6 +38,7 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     RegistryImportModule,
     EnergyImportModule,
     SimulationWalletOnboardingModule,
+    HederaContractsModule,
   ],
 
   controllers: [AppController],

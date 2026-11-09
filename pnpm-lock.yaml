@@ -68,6 +68,9 @@ importers:
       class-validator:
         specifier: ^0.15.1
         version: 0.15.1
+      ethers:
+        specifier: ^6.17.0
+        version: 6.17.0
       helmet:
         specifier: ^8.3.0
         version: 8.3.0

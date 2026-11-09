@@ -80,6 +80,7 @@ export const environmentSchema = z
     INTERNAL_IMPORT_API_KEY: z.string().min(32).optional(),
     SIMULATION_WALLET_ADMIN_KEY: z.string().min(32).optional(),
     SIMULATION_WALLET_ONBOARDING_ENABLED: z.enum(['true', 'false']).optional(),
+    HEDERA_TESTNET_RPC_URL: z.string().url().optional(),
   })
   .passthrough();
 
