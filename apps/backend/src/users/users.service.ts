@@ -14,6 +14,8 @@ export const AUTH_USER_SELECT = {
   reputation: true,
   createdAt: true,
   updatedAt: true,
+  wallet: { select: { id: true } },
+  walletProvisioning: { select: { state: true } },
 } as const satisfies Prisma.UserSelect;
 
 export type AuthUser = Prisma.UserGetPayload<{
@@ -31,7 +33,7 @@ export interface PublicUser {
   reputation: number;
   createdAt: string;
   updatedAt: string;
-  walletStatus: 'NOT_PROVISIONED';
+  walletStatus: 'NOT_PROVISIONED' | 'PROVISIONING' | 'NEEDS_RECONCILIATION' | 'READY';
 }
 
 export function toPublicUser(user: AuthUser): PublicUser {
@@ -46,7 +48,13 @@ export function toPublicUser(user: AuthUser): PublicUser {
     reputation: user.reputation,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
-    walletStatus: 'NOT_PROVISIONED',
+    walletStatus: user.wallet
+      ? 'READY'
+      : user.walletProvisioning?.state === 'NEEDS_RECONCILIATION'
+        ? 'NEEDS_RECONCILIATION'
+        : user.walletProvisioning
+          ? 'PROVISIONING'
+          : 'NOT_PROVISIONED',
   };
 }
 

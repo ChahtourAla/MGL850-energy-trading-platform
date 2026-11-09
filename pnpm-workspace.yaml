@@ -8,3 +8,4 @@ allowBuilds:
   '@scarf/scarf': false
   esbuild: true
   prisma: true
+  protobufjs: false

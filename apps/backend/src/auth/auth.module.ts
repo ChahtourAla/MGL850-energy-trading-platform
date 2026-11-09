@@ -8,10 +8,13 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 import { TOKEN_AUDIENCE, TOKEN_ISSUER } from './auth.types.js';
+import { WalletsModule } from '../wallets/wallets.module.js';
+import { WalletsController } from '../wallets/wallets.controller.js';
 
 @Module({
   imports: [
     UsersModule,
+    WalletsModule,
     ThrottlerModule.forRoot([{ ttl: 900_000, limit: 30 }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -38,7 +41,7 @@ import { TOKEN_AUDIENCE, TOKEN_ISSUER } from './auth.types.js';
       },
     }),
   ],
-  controllers: [AuthController, UsersController],
+  controllers: [AuthController, UsersController, WalletsController],
   providers: [AuthService, JwtAuthGuard],
   exports: [JwtAuthGuard],
 })

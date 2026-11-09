@@ -69,6 +69,14 @@ export const environmentSchema = z
       .optional(),
 
     JWT_ACCESS_SECRET: z.string().min(32).optional(),
+    HEDERA_NETWORK: z.enum(['testnet']).optional(),
+    HEDERA_OPERATOR_ID: z
+      .string()
+      .regex(/^\d+\.\d+\.\d+$/)
+      .optional(),
+    HEDERA_OPERATOR_KEY: z.string().min(20).optional(),
+    WALLET_ENCRYPTION_KEY_B64: z.string().optional(),
+    WALLET_PROVISIONING_ENABLED: z.enum(['true', 'false']).optional(),
   })
   .passthrough();
 
