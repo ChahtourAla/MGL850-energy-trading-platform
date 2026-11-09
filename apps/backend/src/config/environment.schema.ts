@@ -78,6 +78,8 @@ export const environmentSchema = z
     WALLET_ENCRYPTION_KEY_B64: z.string().optional(),
     WALLET_PROVISIONING_ENABLED: z.enum(['true', 'false']).optional(),
     INTERNAL_IMPORT_API_KEY: z.string().min(32).optional(),
+    SIMULATION_WALLET_ADMIN_KEY: z.string().min(32).optional(),
+    SIMULATION_WALLET_ONBOARDING_ENABLED: z.enum(['true', 'false']).optional(),
   })
   .passthrough();
 
