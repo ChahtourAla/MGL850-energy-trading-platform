@@ -1,3 +1,4 @@
+import { TradingApiModule } from './trading-api/trading-api.module.js';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,6 +24,7 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 @Module({
   imports: [
+    TradingApiModule,
     ConfigModule.forRoot({
       isGlobal: true,
 
