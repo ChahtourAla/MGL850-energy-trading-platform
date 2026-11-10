@@ -128,6 +128,7 @@ model Match {
   @@index([buyerId, timeSlot])
   @@index([sellerId, timeSlot])
   @@map("matches")
+  b17OperatorIntents B17OperatorIntent[]
 }
 
 // -----------------------------------------------------
@@ -324,4 +325,35 @@ model B16OracleIntent {
 
   @@index([status])
   @@map("b16_oracle_intents")
+}
+
+// B17 operator intent journal (distinct from B14 funding and B16 oracle journal).
+model B17OperatorIntent {
+  id                 String    @id @default(uuid()) @db.Uuid
+  matchId            String    @map("match_id") @db.Uuid
+  match              Match     @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  operation          String    @db.VarChar(12)
+  externalTradeId    String    @map("external_trade_id") @db.Char(66)
+  onChainTradeId     String    @map("on_chain_trade_id") @db.VarChar(78)
+  chainId            Int       @default(296) @map("chain_id")
+  signerAddress      String    @map("signer_address") @db.VarChar(42)
+  targetAddress      String    @map("target_address") @db.VarChar(42)
+  buyerAddress       String    @map("buyer_address") @db.VarChar(42)
+  totalAmountMicrousd String   @map("total_amount_microusd") @db.VarChar(78)
+  callDataSha256     String    @map("call_data_sha256") @db.Char(64)
+  status             String    @default("PLANNED") @db.VarChar(24)
+  nonce              String?   @db.VarChar(78)
+  txHash             String?   @unique @map("tx_hash") @db.VarChar(66)
+  signedTxCiphertext String?   @map("signed_tx_ciphertext") @db.Text
+  signedTxIv         String?   @map("signed_tx_iv") @db.VarChar(24)
+  signedTxTag        String?   @map("signed_tx_tag") @db.VarChar(32)
+  lastError          String?   @map("last_error") @db.Text
+  confirmedAt        DateTime? @map("confirmed_at") @db.Timestamptz(3)
+  syncedAt           DateTime? @map("synced_at") @db.Timestamptz(3)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([matchId, operation])
+  @@index([status])
+  @@map("b17_operator_intents")
 }
