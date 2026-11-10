@@ -114,6 +114,8 @@ model Match {
   algorithmVersion           String   @map("algorithm_version") @db.VarChar(64)
   status                     String   @default("SELECTED") @db.VarChar(24)
   createdAt                  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  b14TransactionIntents      B14TransactionIntent[]
+
 
   buyer User @relation("MatchBuyer", fields: [buyerId], references: [id], onDelete: Restrict)
   seller User @relation("MatchSeller", fields: [sellerId], references: [id], onDelete: Restrict)
@@ -265,4 +267,30 @@ model MatchingRun {
 
   @@index([snapshotId])
   @@map("matching_runs")
+}
+
+model B14TransactionIntent {
+  id                 String    @id @default(uuid()) @db.Uuid
+  matchId            String    @map("match_id") @db.Uuid
+  match              Match     @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  externalTradeId    String    @map("external_trade_id") @db.Char(66)
+  operation          String    @db.VarChar(24)
+  chainId            Int       @map("chain_id")
+  signerAddress      String    @map("signer_address") @db.VarChar(42)
+  targetAddress      String    @map("target_address") @db.VarChar(42)
+  payloadSha256      String    @map("payload_sha256") @db.Char(64)
+  status             String    @default("PLANNED") @db.VarChar(24)
+  nonce              String?   @db.VarChar(78)
+  txHash             String?   @unique @map("tx_hash") @db.VarChar(66)
+  signedTxCiphertext String?   @map("signed_tx_ciphertext") @db.Text
+  signedTxIv         String?   @map("signed_tx_iv") @db.VarChar(24)
+  signedTxTag        String?   @map("signed_tx_tag") @db.VarChar(32)
+  lastError          String?   @map("last_error") @db.Text
+  confirmedAt        DateTime? @map("confirmed_at") @db.Timestamptz(3)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([matchId, operation])
+  @@index([status])
+  @@map("b14_transaction_intents")
 }
