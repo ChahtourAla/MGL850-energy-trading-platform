@@ -31,6 +31,11 @@ model User {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
+  v2Measurements V2SnapshotMeasurement[]
+  v2Positions V2Position[]
+  v2Purchases V2Allocation[] @relation("V2Buyer")
+  v2Sales V2Allocation[] @relation("V2Seller")
+
   wallet        Wallet?
   walletProvisioning WalletProvisioning?
   energyRecords EnergyRecord[]
@@ -356,4 +361,189 @@ model B17OperatorIntent {
   @@unique([matchId, operation])
   @@index([status])
   @@map("b17_operator_intents")
+}
+
+
+// B21: isolated historical market records; legacy escrow is unchanged.
+model V2Market {
+  id String @id @db.VarChar(66)
+  namespace String @db.VarChar(80)
+  mode String @db.VarChar(16)
+  intervalStart DateTime @db.Timestamptz(3)
+  intervalEnd DateTime @db.Timestamptz(3)
+  status String @default("DISCOVERED") @db.VarChar(32)
+  schemaVersion String @db.VarChar(16)
+  configVersion String @db.VarChar(128)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  snapshots V2Snapshot[]
+  plans V2AllocationPlan[]
+  positions V2Position[]
+  allocations V2Allocation[]
+  @@unique([namespace, intervalStart, intervalEnd])
+  @@index([status, intervalEnd])
+}
+
+model V2Snapshot {
+  id String @id @db.Uuid
+  marketId String @db.VarChar(66)
+  intervalStart DateTime @db.Timestamptz(3)
+  intervalEnd DateTime @db.Timestamptz(3)
+  sourceIdentity String @db.VarChar(128)
+  sourceVersion String @db.VarChar(128)
+  configHash String @db.VarChar(66)
+  payloadHash String @db.VarChar(66)
+  schemaVersion String @db.VarChar(16)
+  expectedCount Int
+  actualCount Int
+  completeness Json
+  collectedAt DateTime @db.Timestamptz(3)
+  finalizedAt DateTime? @db.Timestamptz(3)
+  finalizer String? @db.VarChar(128)
+  status String @default("PENDING") @db.VarChar(24)
+  supersedesId String? @db.Uuid
+  market V2Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  supersedes V2Snapshot? @relation("V2Correction", fields: [supersedesId], references: [id], onDelete: Restrict)
+  corrections V2Snapshot[] @relation("V2Correction")
+  measurements V2SnapshotMeasurement[]
+  plans V2AllocationPlan[]
+  allocations V2Allocation[]
+  @@unique([id, marketId])
+  @@index([marketId, status])
+}
+
+model V2Position {
+  marketId String @db.VarChar(66)
+  userId String @db.Uuid
+  productionWh BigInt
+  consumptionWh BigInt
+  netEnergyWh BigInt
+  role String @db.VarChar(16)
+  availableWh BigInt
+  requiredWh BigInt
+  matchedBoughtWh BigInt
+  matchedSoldWh BigInt
+  unmatchedDeficitWh BigInt
+  unmatchedSurplusWh BigInt
+  market V2Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@id([marketId, userId])
+}
+
+model V2Allocation {
+  id String @id @db.VarChar(66)
+  marketId String @db.VarChar(66)
+  snapshotId String @db.Uuid
+  planId String @db.VarChar(66)
+  buyerId String @db.Uuid
+  sellerId String @db.Uuid
+  buyerAddress String @db.VarChar(42)
+  sellerAddress String @db.VarChar(42)
+  quantityWh BigInt
+  unitPriceMicrousdPerKwh BigInt
+  amountBaseUnits BigInt
+  remainder Int
+  algorithmVersion String @db.VarChar(128)
+  pricingVersion String @db.VarChar(128)
+  planVersion String @db.VarChar(128)
+  status String @default("PLANNED") @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  market V2Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  snapshot V2Snapshot @relation(fields: [snapshotId, marketId], references: [id, marketId], onDelete: Restrict)
+  plan V2AllocationPlan @relation(fields: [planId, marketId, snapshotId], references: [id, marketId, snapshotId], onDelete: Restrict)
+  buyer User @relation("V2Buyer", fields: [buyerId], references: [id], onDelete: Restrict)
+  seller User @relation("V2Seller", fields: [sellerId], references: [id], onDelete: Restrict)
+  intent V2SettlementIntent?
+  @@unique([id, marketId])
+  @@unique([marketId, snapshotId, buyerId, sellerId, buyerAddress, sellerAddress, quantityWh, unitPriceMicrousdPerKwh, algorithmVersion, pricingVersion, planVersion], map: "V2Allocation_logical_key")
+  @@index([marketId, buyerId])
+  @@index([marketId, sellerId])
+}
+
+model V2SettlementIntent {
+  id String @id @db.VarChar(66)
+  allocationId String @unique @db.VarChar(66)
+  marketId String @db.VarChar(66)
+  chainId Int
+  tokenAddress String @db.VarChar(42)
+  contractAddress String? @db.VarChar(42)
+  amountBaseUnits BigInt
+  status String @default("PLANNED") @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  allocation V2Allocation @relation(fields: [allocationId, marketId], references: [id, marketId], onDelete: Restrict)
+  attempts V2SettlementAttempt[]
+  evidence V2SettlementEvidence[]
+  @@unique([allocationId, marketId])
+  @@index([status, updatedAt])
+}
+
+model V2SettlementAttempt {
+  id String @id @db.Uuid
+  settlementId String @db.VarChar(66)
+  sequence Int
+  status String @db.VarChar(24)
+  txHash String? @db.VarChar(66)
+  transactionIdentity String? @db.VarChar(128)
+  nonce BigInt?
+  errorCode String? @db.VarChar(128)
+  recoveryMetadata Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  settlement V2SettlementIntent @relation(fields: [settlementId], references: [id], onDelete: Restrict)
+  @@unique([settlementId, sequence])
+  @@index([txHash])
+  @@index([transactionIdentity])
+}
+
+model V2SettlementEvidence {
+  id String @id @db.Uuid
+  settlementId String @db.VarChar(66)
+  chainId Int
+  contractAddress String @db.VarChar(42)
+  tokenAddress String @db.VarChar(42)
+  txHash String @db.VarChar(66)
+  blockReference String? @db.VarChar(128)
+  receiptStatus String @db.VarChar(16)
+  logIndex Int
+  buyerAddress String @db.VarChar(42)
+  sellerAddress String @db.VarChar(42)
+  amountBaseUnits BigInt
+  confirmedAt DateTime @db.Timestamptz(3)
+  verificationStatus String @db.VarChar(24)
+  settlement V2SettlementIntent @relation(fields: [settlementId], references: [id], onDelete: Restrict)
+  @@unique([chainId, txHash, logIndex])
+  @@index([settlementId, verificationStatus])
+}
+
+
+// Snapshot-scoped readings are facts; V2Position is a mutable market projection.
+model V2SnapshotMeasurement {
+  snapshotId String @db.Uuid
+  marketId String @db.VarChar(66)
+  userId String @db.Uuid
+  productionWh BigInt
+  consumptionWh BigInt
+  snapshot V2Snapshot @relation(fields: [snapshotId, marketId], references: [id, marketId], onDelete: Restrict)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@id([snapshotId, userId])
+  @@index([marketId, userId])
+}
+
+// A market may have alternative drafts, but only one irrevocable payable plan.
+model V2AllocationPlan {
+  id String @id @db.VarChar(66)
+  marketId String @db.VarChar(66)
+  snapshotId String @db.Uuid
+  planVersion String @db.VarChar(128)
+  manifestHash String @db.VarChar(66)
+  manifest Json
+  status String @default("DRAFT") @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  market V2Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  snapshot V2Snapshot @relation(fields: [snapshotId, marketId], references: [id, marketId], onDelete: Restrict)
+  allocations V2Allocation[]
+  @@unique([id, marketId, snapshotId])
+  @@unique([marketId, planVersion])
+  @@index([marketId, status])
 }

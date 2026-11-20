@@ -9,7 +9,8 @@ version = "1.0.0"
 description = "Shared Python data models for the P2P Energy Trading Platform"
 requires-python = ">=3.11"
 dependencies = [
-    "pydantic[email]>=2.12,<3"
+    "pydantic[email]>=2.12,<3",
+    "jsonschema[format]>=4.23,<5"
 ]
 
 [tool.setuptools.packages.find]

@@ -1,0 +1,2141 @@
+[
+  {
+    "name": "valid market",
+    "kind": "market",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "namespace": "hourly",
+      "mode": "HOURLY",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "status": "DISCOVERED",
+      "configVersion": "1",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "valid snapshot",
+    "kind": "snapshot",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "sourceIdentity": "simulator",
+      "sourceVersion": "1",
+      "configHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "expectedCount": 2,
+      "actualCount": 2,
+      "completeness": {},
+      "collectedAt": "2026-11-19T02:00:00.000Z",
+      "status": "FINALIZED",
+      "finalizedAt": "2026-11-19T02:00:00.000Z",
+      "finalizer": "test"
+    },
+    "valid": true
+  },
+  {
+    "name": "valid position",
+    "kind": "position",
+    "value": {
+      "userId": "123e4567-e89b-42d3-a456-426614174001",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "productionWh": "0",
+      "consumptionWh": "900",
+      "netEnergyWh": "-900",
+      "role": "BUYER",
+      "availableWh": "0",
+      "requiredWh": "900",
+      "matchedBoughtWh": "900",
+      "matchedSoldWh": "0",
+      "unmatchedDeficitWh": "0",
+      "unmatchedSurplusWh": "0"
+    },
+    "valid": true
+  },
+  {
+    "name": "valid allocation",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "12345",
+      "amountBaseUnits": "11110",
+      "remainder": 500,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "valid": true
+  },
+  {
+    "name": "valid intent",
+    "kind": "intent",
+    "value": {
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "chainId": 296,
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "amountBaseUnits": "11110",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "valid attempt",
+    "kind": "attempt",
+    "value": {
+      "attemptId": "123e4567-e89b-42d3-a456-426614174003",
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "sequence": 1,
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "valid evidence",
+    "kind": "evidence",
+    "value": {
+      "evidenceId": "123e4567-e89b-42d3-a456-426614174004",
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "chainId": 296,
+      "contractAddress": "0x5555555555555555555555555555555555555555",
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "txHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "receiptStatus": "SUCCESS",
+      "logIndex": 0,
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "amountBaseUnits": "11110",
+      "confirmedAt": "2026-11-19T02:00:00.000Z",
+      "verificationStatus": "VERIFIED"
+    },
+    "valid": true
+  },
+  {
+    "name": "valid snapshotPayload",
+    "kind": "snapshotPayload",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "productionWh": "1050",
+          "consumptionWh": "50"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "productionWh": "0",
+          "consumptionWh": "900"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "bad namespace",
+    "kind": "market",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "namespace": "simulation:x",
+      "mode": "HOURLY",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "status": "DISCOVERED",
+      "configVersion": "1",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "wrong identity",
+    "kind": "market",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "marketId": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "namespace": "hourly",
+      "mode": "HOURLY",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "status": "DISCOVERED",
+      "configVersion": "1",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid date",
+    "kind": "market",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "namespace": "hourly",
+      "mode": "HOURLY",
+      "intervalStart": "2026-02-30T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "status": "DISCOVERED",
+      "configVersion": "1",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid version",
+    "kind": "market",
+    "value": {
+      "schemaVersion": "3.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "namespace": "hourly",
+      "mode": "HOURLY",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "status": "DISCOVERED",
+      "configVersion": "1",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "incomplete snapshot",
+    "kind": "snapshot",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "sourceIdentity": "simulator",
+      "sourceVersion": "1",
+      "configHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "expectedCount": 2,
+      "actualCount": 1,
+      "completeness": {},
+      "collectedAt": "2026-11-19T02:00:00.000Z",
+      "status": "FINALIZED",
+      "finalizedAt": "2026-11-19T02:00:00.000Z",
+      "finalizer": "test"
+    },
+    "valid": false
+  },
+  {
+    "name": "bad finalizer",
+    "kind": "snapshot",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "sourceIdentity": "simulator",
+      "sourceVersion": "1",
+      "configHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "expectedCount": 2,
+      "actualCount": 2,
+      "completeness": {},
+      "collectedAt": "2026-11-19T02:00:00.000Z",
+      "status": "FINALIZED",
+      "finalizedAt": "2026-11-19T02:00:00.000Z",
+      "finalizer": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "bad UUID",
+    "kind": "position",
+    "value": {
+      "userId": "bad",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "productionWh": "0",
+      "consumptionWh": "900",
+      "netEnergyWh": "-900",
+      "role": "BUYER",
+      "availableWh": "0",
+      "requiredWh": "900",
+      "matchedBoughtWh": "900",
+      "matchedSoldWh": "0",
+      "unmatchedDeficitWh": "0",
+      "unmatchedSurplusWh": "0"
+    },
+    "valid": false
+  },
+  {
+    "name": "bad amount",
+    "kind": "position",
+    "value": {
+      "userId": "123e4567-e89b-42d3-a456-426614174001",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "productionWh": "0",
+      "consumptionWh": "900",
+      "netEnergyWh": "-900",
+      "role": "BUYER",
+      "availableWh": "0",
+      "requiredWh": "900",
+      "matchedBoughtWh": "901",
+      "matchedSoldWh": "0",
+      "unmatchedDeficitWh": "0",
+      "unmatchedSurplusWh": "0"
+    },
+    "valid": false
+  },
+  {
+    "name": "negative input",
+    "kind": "position",
+    "value": {
+      "userId": "123e4567-e89b-42d3-a456-426614174001",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "productionWh": "0",
+      "consumptionWh": "-1",
+      "netEnergyWh": "-900",
+      "role": "BUYER",
+      "availableWh": "0",
+      "requiredWh": "900",
+      "matchedBoughtWh": "900",
+      "matchedSoldWh": "0",
+      "unmatchedDeficitWh": "0",
+      "unmatchedSurplusWh": "0"
+    },
+    "valid": false
+  },
+  {
+    "name": "bigint overflow",
+    "kind": "position",
+    "value": {
+      "userId": "123e4567-e89b-42d3-a456-426614174001",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "productionWh": "9223372036854775808",
+      "consumptionWh": "900",
+      "netEnergyWh": "-900",
+      "role": "BUYER",
+      "availableWh": "0",
+      "requiredWh": "900",
+      "matchedBoughtWh": "900",
+      "matchedSoldWh": "0",
+      "unmatchedDeficitWh": "0",
+      "unmatchedSurplusWh": "0"
+    },
+    "valid": false
+  },
+  {
+    "name": "self trade",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174000",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "12345",
+      "amountBaseUnits": "11110",
+      "remainder": 500,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid payment",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "12345",
+      "amountBaseUnits": "11110",
+      "remainder": 0,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "valid": false
+  },
+  {
+    "name": "zero price",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "0",
+      "amountBaseUnits": "11110",
+      "remainder": 500,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "valid": false
+  },
+  {
+    "name": "address uppercase",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "12345",
+      "amountBaseUnits": "11110",
+      "remainder": 500,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "valid": false
+  },
+  {
+    "name": "bad token",
+    "kind": "intent",
+    "value": {
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "chainId": 296,
+      "tokenAddress": "0xffffffffffffffffffffffffffffffffffffff",
+      "amountBaseUnits": "11110",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "wrong network",
+    "kind": "intent",
+    "value": {
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "chainId": 295,
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "amountBaseUnits": "11110",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "zero sequence",
+    "kind": "attempt",
+    "value": {
+      "attemptId": "123e4567-e89b-42d3-a456-426614174003",
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "sequence": 0,
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "failed verified",
+    "kind": "evidence",
+    "value": {
+      "evidenceId": "123e4567-e89b-42d3-a456-426614174004",
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "chainId": 296,
+      "contractAddress": "0x5555555555555555555555555555555555555555",
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "txHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "receiptStatus": "FAILED",
+      "logIndex": 0,
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "amountBaseUnits": "11110",
+      "confirmedAt": "2026-11-19T02:00:00.000Z",
+      "verificationStatus": "VERIFIED"
+    },
+    "valid": false
+  },
+  {
+    "name": "duplicates",
+    "kind": "snapshotPayload",
+    "value": {
+      "schemaVersion": "2.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "productionWh": "1050",
+          "consumptionWh": "50"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "productionWh": "0",
+          "consumptionWh": "900"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "productionWh": "1050",
+          "consumptionWh": "50"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "productionWh": "0",
+          "consumptionWh": "900"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "allocation with matching snapshot",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "12345",
+      "amountBaseUnits": "11110",
+      "remainder": 500,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "schemaVersion": "2.0.0",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "sourceIdentity": "simulator",
+      "sourceVersion": "1",
+      "configHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "expectedCount": 2,
+      "actualCount": 2,
+      "completeness": {},
+      "collectedAt": "2026-11-19T02:00:00.000Z",
+      "status": "FINALIZED",
+      "finalizedAt": "2026-11-19T02:00:00.000Z",
+      "finalizer": "test"
+    },
+    "valid": true
+  },
+  {
+    "name": "allocation pending snapshot",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "12345",
+      "amountBaseUnits": "11110",
+      "remainder": 500,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "schemaVersion": "2.0.0",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "sourceIdentity": "simulator",
+      "sourceVersion": "1",
+      "configHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "expectedCount": 2,
+      "actualCount": 2,
+      "completeness": {},
+      "collectedAt": "2026-11-19T02:00:00.000Z",
+      "status": "PENDING",
+      "finalizedAt": "2026-11-19T02:00:00.000Z",
+      "finalizer": "test"
+    },
+    "valid": false
+  },
+  {
+    "name": "allocation wrong identity",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "900",
+      "unitPriceMicrousdPerKwh": "12345",
+      "amountBaseUnits": "11110",
+      "remainder": 500,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "schemaVersion": "2.0.0",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "sourceIdentity": "simulator",
+      "sourceVersion": "1",
+      "configHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "expectedCount": 2,
+      "actualCount": 2,
+      "completeness": {},
+      "collectedAt": "2026-11-19T02:00:00.000Z",
+      "status": "FINALIZED",
+      "finalizedAt": "2026-11-19T02:00:00.000Z",
+      "finalizer": "test"
+    },
+    "valid": false
+  },
+  {
+    "name": "evidence matching terms",
+    "kind": "evidence",
+    "value": {
+      "evidenceId": "123e4567-e89b-42d3-a456-426614174004",
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "chainId": 296,
+      "contractAddress": "0x5555555555555555555555555555555555555555",
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "txHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "receiptStatus": "SUCCESS",
+      "logIndex": 0,
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "amountBaseUnits": "11110",
+      "confirmedAt": "2026-11-19T02:00:00.000Z",
+      "verificationStatus": "VERIFIED"
+    },
+    "context": {
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "chainId": 296,
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "contractAddress": "0x5555555555555555555555555555555555555555",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "amountBaseUnits": "11110"
+    },
+    "valid": true
+  },
+  {
+    "name": "evidence incorrect amount",
+    "kind": "evidence",
+    "value": {
+      "evidenceId": "123e4567-e89b-42d3-a456-426614174004",
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "chainId": 296,
+      "contractAddress": "0x5555555555555555555555555555555555555555",
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "txHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "receiptStatus": "SUCCESS",
+      "logIndex": 0,
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "amountBaseUnits": "11110",
+      "confirmedAt": "2026-11-19T02:00:00.000Z",
+      "verificationStatus": "VERIFIED"
+    },
+    "context": {
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "chainId": 296,
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "contractAddress": "0x5555555555555555555555555555555555555555",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "amountBaseUnits": "1"
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid attempt status",
+    "kind": "attempt",
+    "value": {
+      "attemptId": "123e4567-e89b-42d3-a456-426614174003",
+      "settlementId": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd",
+      "sequence": 1,
+      "status": "FAKE",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "updatedAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "valid matchingManifest",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.25",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "newline market hash",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e\n",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.25",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "newline quantity",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.25",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050\n",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "newline coordinate",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.25",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25\n",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "newline algorithm",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1\n",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.25",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "duplicate manifest user",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.25",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "missing economic term",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.25",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "valid snapshotMeasurement",
+    "kind": "snapshotMeasurement",
+    "value": {
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "userId": "123e4567-e89b-42d3-a456-426614174000",
+      "productionWh": "1050",
+      "consumptionWh": "50"
+    },
+    "valid": true
+  },
+  {
+    "name": "invalid measurement quantity",
+    "kind": "snapshotMeasurement",
+    "value": {
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "userId": "123e4567-e89b-42d3-a456-426614174000",
+      "productionWh": "-1",
+      "consumptionWh": "50"
+    },
+    "valid": false
+  },
+  {
+    "name": "valid allocationPlan",
+    "kind": "allocationPlan",
+    "value": {
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "planVersion": "v1",
+      "manifestHash": "0xc4a9a5428230a9d2df29e1f9cae56b3754bd6930cf536cb2af81737b9bb581cd",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "status": "DRAFT",
+      "createdAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "invalid plan manifest hash",
+    "kind": "allocationPlan",
+    "value": {
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "planVersion": "v1",
+      "manifestHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "status": "DRAFT",
+      "createdAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid plan status",
+    "kind": "allocationPlan",
+    "value": {
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "planVersion": "v1",
+      "manifestHash": "0xc4a9a5428230a9d2df29e1f9cae56b3754bd6930cf536cb2af81737b9bb581cd",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "status": "ACTIVE",
+      "createdAt": "2026-11-19T02:00:00.000Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "negative score weight",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "-0.1",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "unnormalized score weights",
+    "kind": "matchingManifest",
+    "value": {
+      "schemaVersion": "1.0.0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "intervalStart": "2026-11-19T01:00:00.000Z",
+      "intervalEnd": "2026-11-19T02:00:00.000Z",
+      "algorithmVersion": "greedy-1",
+      "pricingPolicyVersion": "price-1",
+      "maximumDistanceKm": "10",
+      "scoringWeights": {
+        "quantity": "0.5",
+        "price": "0.25",
+        "distance": "0.25",
+        "reputation": "0.25"
+      },
+      "participants": [
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174000",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "1050",
+          "consumptionWh": "50",
+          "marketRole": "SELLER",
+          "availableWh": "1000",
+          "requiredWh": "0",
+          "energyType": "SOLAR",
+          "askPriceMicrousdPerKwh": "100",
+          "maxPriceMicrousdPerKwh": null,
+          "xKm": "1.25",
+          "yKm": "-2",
+          "reputation": "90",
+          "preferredEnergyType": "ANY",
+          "evmAddress": "0x2222222222222222222222222222222222222222"
+        },
+        {
+          "userId": "123e4567-e89b-42d3-a456-426614174001",
+          "timeSlot": "2026-11-19T01:00:00.000Z",
+          "productionWh": "0",
+          "consumptionWh": "900",
+          "marketRole": "BUYER",
+          "availableWh": "0",
+          "requiredWh": "900",
+          "energyType": null,
+          "askPriceMicrousdPerKwh": null,
+          "maxPriceMicrousdPerKwh": "150",
+          "xKm": "2",
+          "yKm": "0",
+          "reputation": "80",
+          "preferredEnergyType": "SOLAR",
+          "evmAddress": "0x1111111111111111111111111111111111111111"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "valid allocation committed manifest",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0x634d6c764b103c1c4648869062165c70982da7cbafccc9029c9724d6c870eb41",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "100",
+      "unitPriceMicrousdPerKwh": "100",
+      "amountBaseUnits": "10",
+      "remainder": 0,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "manifest rejects algorithm",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xf8629af91bf48a377d5496fd45871adf789b151f4d472110a940a9c2280bd1b0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "100",
+      "unitPriceMicrousdPerKwh": "100",
+      "amountBaseUnits": "10",
+      "remainder": 0,
+      "algorithmVersion": "other",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "manifest rejects pricing",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xc840a51054038a2a1c98278a03cf940b82b6f41c75d67df95b18cc5b5af0b0ec",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "100",
+      "unitPriceMicrousdPerKwh": "100",
+      "amountBaseUnits": "10",
+      "remainder": 0,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "other",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "manifest rejects buyer quantity",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0xafb94adb6a2bc4b49f05487337f8a4c91ea762d1e62618ada35b06f6aca7cc76",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "901",
+      "unitPriceMicrousdPerKwh": "100",
+      "amountBaseUnits": "90",
+      "remainder": 100,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "manifest rejects seller quantity",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0x63fb4708bb7313974182a60dedbb8dcae02e03a202e09216831897d130c11b5e",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "1001",
+      "unitPriceMicrousdPerKwh": "100",
+      "amountBaseUnits": "100",
+      "remainder": 100,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "manifest rejects seller ask",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0x5985948f260fb6fe01e75caed3e0ede8397f92741f83dd439b2093f5bb9d46c0",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "100",
+      "unitPriceMicrousdPerKwh": "99",
+      "amountBaseUnits": "9",
+      "remainder": 900,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "manifest rejects buyer limit",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0x5c68ce3310a69bd8997554bbaa73098239e159e3712af9a2e552a0925b1020c6",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "100",
+      "unitPriceMicrousdPerKwh": "151",
+      "amountBaseUnits": "15",
+      "remainder": 100,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "manifest rejects energy preference",
+    "kind": "allocation",
+    "value": {
+      "allocationId": "0x634d6c764b103c1c4648869062165c70982da7cbafccc9029c9724d6c870eb41",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "buyerId": "123e4567-e89b-42d3-a456-426614174001",
+      "sellerId": "123e4567-e89b-42d3-a456-426614174000",
+      "buyerAddress": "0x1111111111111111111111111111111111111111",
+      "sellerAddress": "0x2222222222222222222222222222222222222222",
+      "quantityWh": "100",
+      "unitPriceMicrousdPerKwh": "100",
+      "amountBaseUnits": "10",
+      "remainder": 0,
+      "algorithmVersion": "greedy-1",
+      "pricingVersion": "price-1",
+      "planVersion": "plan-1",
+      "status": "PLANNED",
+      "createdAt": "2026-11-19T02:00:00.000Z",
+      "planId": "0x4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "context": {
+      "status": "FINALIZED",
+      "snapshotId": "123e4567-e89b-42d3-a456-426614174002",
+      "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "payloadHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "WIND",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "valid": false
+  }
+]

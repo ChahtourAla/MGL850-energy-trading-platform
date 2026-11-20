@@ -1,0 +1,862 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mgl850.example/schemas/v2-market.schema.json",
+  "title": "B21 V2 market data contracts",
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$(?![\\s\\S])"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "address": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{40}$(?![\\s\\S])"
+    },
+    "uint": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$(?![\\s\\S])",
+      "maxLength": 19
+    },
+    "sint": {
+      "type": "string",
+      "pattern": "^(0|-?[1-9][0-9]*)$(?![\\s\\S])",
+      "maxLength": 20
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$(?![\\s\\S])"
+    },
+    "market": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "namespace": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "mode": {
+          "enum": [
+            "HOURLY",
+            "SIMULATION"
+          ]
+        },
+        "intervalStart": {
+          "$ref": "#/$defs/time"
+        },
+        "intervalEnd": {
+          "$ref": "#/$defs/time"
+        },
+        "status": {
+          "enum": [
+            "DISCOVERED",
+            "WAITING_DATA",
+            "FINALIZED",
+            "MATCHED",
+            "SETTLING",
+            "COMPLETE",
+            "INVALID",
+            "QUARANTINED",
+            "PARTIAL",
+            "RECONCILIATION_REQUIRED"
+          ]
+        },
+        "configVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "createdAt": {
+          "$ref": "#/$defs/time"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/time"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "marketId",
+        "namespace",
+        "mode",
+        "intervalStart",
+        "intervalEnd",
+        "status",
+        "configVersion",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "intervalStart": {
+          "$ref": "#/$defs/time"
+        },
+        "intervalEnd": {
+          "$ref": "#/$defs/time"
+        },
+        "sourceIdentity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "sourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "configHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "payloadHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "expectedCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "actualCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "completeness": {
+          "type": "object"
+        },
+        "collectedAt": {
+          "$ref": "#/$defs/time"
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "INVALID",
+            "FINALIZED"
+          ]
+        },
+        "finalizedAt": {
+          "$ref": "#/$defs/time"
+        },
+        "finalizer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "supersedesId": {
+          "$ref": "#/$defs/uuid"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "snapshotId",
+        "marketId",
+        "intervalStart",
+        "intervalEnd",
+        "sourceIdentity",
+        "sourceVersion",
+        "configHash",
+        "payloadHash",
+        "expectedCount",
+        "actualCount",
+        "completeness",
+        "collectedAt",
+        "status"
+      ]
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "userId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "productionWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "consumptionWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "netEnergyWh": {
+          "$ref": "#/$defs/sint"
+        },
+        "role": {
+          "enum": [
+            "BUYER",
+            "SELLER",
+            "NEUTRAL"
+          ]
+        },
+        "availableWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "requiredWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "matchedBoughtWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "matchedSoldWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "unmatchedDeficitWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "unmatchedSurplusWh": {
+          "$ref": "#/$defs/uint"
+        }
+      },
+      "required": [
+        "userId",
+        "marketId",
+        "productionWh",
+        "consumptionWh",
+        "netEnergyWh",
+        "role",
+        "availableWh",
+        "requiredWh",
+        "matchedBoughtWh",
+        "matchedSoldWh",
+        "unmatchedDeficitWh",
+        "unmatchedSurplusWh"
+      ]
+    },
+    "allocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allocationId": {
+          "$ref": "#/$defs/hash"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "buyerId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "sellerId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "buyerAddress": {
+          "$ref": "#/$defs/address"
+        },
+        "sellerAddress": {
+          "$ref": "#/$defs/address"
+        },
+        "quantityWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "unitPriceMicrousdPerKwh": {
+          "$ref": "#/$defs/uint"
+        },
+        "amountBaseUnits": {
+          "$ref": "#/$defs/uint"
+        },
+        "remainder": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "algorithmVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "pricingVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "planVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "status": {
+          "enum": [
+            "PLANNED",
+            "VALIDATED",
+            "CANCELLED"
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/time"
+        },
+        "planId": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "required": [
+        "allocationId",
+        "marketId",
+        "snapshotId",
+        "buyerId",
+        "sellerId",
+        "buyerAddress",
+        "sellerAddress",
+        "quantityWh",
+        "unitPriceMicrousdPerKwh",
+        "amountBaseUnits",
+        "remainder",
+        "algorithmVersion",
+        "pricingVersion",
+        "planVersion",
+        "status",
+        "createdAt",
+        "planId"
+      ]
+    },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "settlementId": {
+          "$ref": "#/$defs/hash"
+        },
+        "allocationId": {
+          "$ref": "#/$defs/hash"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "chainId": {
+          "const": 296
+        },
+        "tokenAddress": {
+          "$ref": "#/$defs/address"
+        },
+        "amountBaseUnits": {
+          "$ref": "#/$defs/uint"
+        },
+        "status": {
+          "enum": [
+            "PLANNED",
+            "READY",
+            "SIGNED",
+            "SUBMITTED",
+            "CONFIRMED",
+            "PROJECTED",
+            "BLOCKED",
+            "REVERTED",
+            "UNKNOWN"
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/time"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/time"
+        },
+        "contractAddress": {
+          "$ref": "#/$defs/address"
+        }
+      },
+      "required": [
+        "settlementId",
+        "allocationId",
+        "marketId",
+        "chainId",
+        "tokenAddress",
+        "amountBaseUnits",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "attemptId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "settlementId": {
+          "$ref": "#/$defs/hash"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "status": {
+          "enum": [
+            "PLANNED",
+            "SIGNED",
+            "SUBMITTED",
+            "CONFIRMED",
+            "REVERTED",
+            "UNKNOWN",
+            "NEEDS_RECONCILIATION"
+          ]
+        },
+        "txHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "transactionIdentity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "nonce": {
+          "$ref": "#/$defs/uint"
+        },
+        "errorCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "recoveryMetadata": {
+          "type": "object"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/time"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/time"
+        }
+      },
+      "required": [
+        "attemptId",
+        "settlementId",
+        "sequence",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evidenceId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "settlementId": {
+          "$ref": "#/$defs/hash"
+        },
+        "chainId": {
+          "const": 296
+        },
+        "contractAddress": {
+          "$ref": "#/$defs/address"
+        },
+        "tokenAddress": {
+          "$ref": "#/$defs/address"
+        },
+        "txHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "blockReference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "receiptStatus": {
+          "enum": [
+            "SUCCESS",
+            "FAILED"
+          ]
+        },
+        "logIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "buyerAddress": {
+          "$ref": "#/$defs/address"
+        },
+        "sellerAddress": {
+          "$ref": "#/$defs/address"
+        },
+        "amountBaseUnits": {
+          "$ref": "#/$defs/uint"
+        },
+        "confirmedAt": {
+          "$ref": "#/$defs/time"
+        },
+        "verificationStatus": {
+          "enum": [
+            "PENDING",
+            "VERIFIED",
+            "REJECTED"
+          ]
+        }
+      },
+      "required": [
+        "evidenceId",
+        "settlementId",
+        "chainId",
+        "contractAddress",
+        "tokenAddress",
+        "txHash",
+        "receiptStatus",
+        "logIndex",
+        "buyerAddress",
+        "sellerAddress",
+        "amountBaseUnits",
+        "confirmedAt",
+        "verificationStatus"
+      ]
+    },
+    "snapshotPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "$ref": "#/$defs/uuid"
+              },
+              "productionWh": {
+                "$ref": "#/$defs/uint"
+              },
+              "consumptionWh": {
+                "$ref": "#/$defs/uint"
+              }
+            },
+            "required": [
+              "userId",
+              "productionWh",
+              "consumptionWh"
+            ]
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "marketId",
+        "participants"
+      ]
+    },
+    "matchingManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0.0"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "snapshotHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "intervalStart": {
+          "$ref": "#/$defs/time"
+        },
+        "intervalEnd": {
+          "$ref": "#/$defs/time"
+        },
+        "algorithmVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]{1,128}$(?![\\s\\S])"
+        },
+        "pricingPolicyVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]{1,128}$(?![\\s\\S])"
+        },
+        "maximumDistanceKm": {
+          "type": "string",
+          "maxLength": 40,
+          "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9])$(?![\\s\\S])"
+        },
+        "scoringWeights": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "quantity": {
+              "type": "string",
+              "maxLength": 40,
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9])$(?![\\s\\S])"
+            },
+            "price": {
+              "type": "string",
+              "maxLength": 40,
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9])$(?![\\s\\S])"
+            },
+            "distance": {
+              "type": "string",
+              "maxLength": 40,
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9])$(?![\\s\\S])"
+            },
+            "reputation": {
+              "type": "string",
+              "maxLength": 40,
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9])$(?![\\s\\S])"
+            }
+          },
+          "required": [
+            "quantity",
+            "price",
+            "distance",
+            "reputation"
+          ]
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "$ref": "#/$defs/uuid"
+              },
+              "timeSlot": {
+                "$ref": "#/$defs/time"
+              },
+              "productionWh": {
+                "$ref": "#/$defs/uint"
+              },
+              "consumptionWh": {
+                "$ref": "#/$defs/uint"
+              },
+              "marketRole": {
+                "enum": [
+                  "BUYER",
+                  "SELLER",
+                  "NEUTRAL"
+                ]
+              },
+              "availableWh": {
+                "$ref": "#/$defs/uint"
+              },
+              "requiredWh": {
+                "$ref": "#/$defs/uint"
+              },
+              "energyType": {
+                "enum": [
+                  "SOLAR",
+                  "WIND",
+                  "HYDRO",
+                  "GRID",
+                  "MIXED",
+                  null
+                ]
+              },
+              "askPriceMicrousdPerKwh": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/uint"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "maxPriceMicrousdPerKwh": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/uint"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "xKm": {
+                "type": "string",
+                "maxLength": 40,
+                "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9])$(?![\\s\\S])"
+              },
+              "yKm": {
+                "type": "string",
+                "maxLength": 40,
+                "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9])$(?![\\s\\S])"
+              },
+              "reputation": {
+                "$ref": "#/$defs/uint"
+              },
+              "preferredEnergyType": {
+                "enum": [
+                  "ANY",
+                  "SOLAR",
+                  "WIND",
+                  "HYDRO",
+                  "GRID",
+                  "MIXED"
+                ]
+              },
+              "evmAddress": {
+                "$ref": "#/$defs/address"
+              }
+            },
+            "required": [
+              "userId",
+              "timeSlot",
+              "productionWh",
+              "consumptionWh",
+              "marketRole",
+              "availableWh",
+              "requiredWh",
+              "energyType",
+              "askPriceMicrousdPerKwh",
+              "maxPriceMicrousdPerKwh",
+              "xKm",
+              "yKm",
+              "reputation",
+              "preferredEnergyType",
+              "evmAddress"
+            ]
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "marketId",
+        "snapshotHash",
+        "intervalStart",
+        "intervalEnd",
+        "algorithmVersion",
+        "pricingPolicyVersion",
+        "maximumDistanceKm",
+        "scoringWeights",
+        "participants"
+      ]
+    },
+    "snapshotMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "snapshotId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "userId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "productionWh": {
+          "$ref": "#/$defs/uint"
+        },
+        "consumptionWh": {
+          "$ref": "#/$defs/uint"
+        }
+      },
+      "required": [
+        "snapshotId",
+        "marketId",
+        "userId",
+        "productionWh",
+        "consumptionWh"
+      ]
+    },
+    "allocationPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planId": {
+          "$ref": "#/$defs/hash"
+        },
+        "marketId": {
+          "$ref": "#/$defs/hash"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "planVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "manifestHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "manifest": {
+          "$ref": "#/$defs/matchingManifest"
+        },
+        "status": {
+          "enum": [
+            "DRAFT",
+            "SUPERSEDED",
+            "AUTHORITATIVE"
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/time"
+        }
+      },
+      "required": [
+        "planId",
+        "marketId",
+        "snapshotId",
+        "planVersion",
+        "manifestHash",
+        "manifest",
+        "status",
+        "createdAt"
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/market"
+    },
+    {
+      "$ref": "#/$defs/snapshot"
+    },
+    {
+      "$ref": "#/$defs/position"
+    },
+    {
+      "$ref": "#/$defs/allocation"
+    },
+    {
+      "$ref": "#/$defs/intent"
+    },
+    {
+      "$ref": "#/$defs/attempt"
+    },
+    {
+      "$ref": "#/$defs/evidence"
+    },
+    {
+      "$ref": "#/$defs/snapshotPayload"
+    },
+    {
+      "$ref": "#/$defs/matchingManifest"
+    },
+    {
+      "$ref": "#/$defs/snapshotMeasurement"
+    },
+    {
+      "$ref": "#/$defs/allocationPlan"
+    }
+  ]
+}

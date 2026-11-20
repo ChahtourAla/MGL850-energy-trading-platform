@@ -1,0 +1,57 @@
+{
+  "market": {
+    "args": [
+      "hourly",
+      "HOURLY",
+      "2026-11-19T01:00:00.000Z",
+      "2026-11-19T02:00:00.000Z"
+    ],
+    "id": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e"
+  },
+  "snapshot": {
+    "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+    "participants": [
+      {
+        "userId": "123e4567-e89b-42d3-a456-426614174000",
+        "productionWh": "1050",
+        "consumptionWh": "50"
+      },
+      {
+        "userId": "123e4567-e89b-42d3-a456-426614174001",
+        "productionWh": "0",
+        "consumptionWh": "900"
+      }
+    ],
+    "hash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6"
+  },
+  "allocation": {
+    "args": [
+      "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+      "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+      "123e4567-e89b-42d3-a456-426614174001",
+      "123e4567-e89b-42d3-a456-426614174000",
+      "0x1111111111111111111111111111111111111111",
+      "0x2222222222222222222222222222222222222222",
+      "900",
+      "12345",
+      "greedy-1",
+      "price-1",
+      "plan-1"
+    ],
+    "id": "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45"
+  },
+  "payment": {
+    "quantity": "900",
+    "price": "12345",
+    "amountBaseUnits": "11110",
+    "remainder": 500
+  },
+  "intent": {
+    "args": [
+      "0xb31613d19689b1a5037b6c09cbb5b8227293adf1e7f6ab48edfa2dfffcfabe45",
+      "296",
+      "0x3333333333333333333333333333333333333333"
+    ],
+    "id": "0x6b92ad285898c57c9692123b4d73b9f3bdcd23c46e3663544d12013789cfd6cd"
+  }
+}

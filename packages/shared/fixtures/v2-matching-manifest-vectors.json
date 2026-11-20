@@ -1,0 +1,1681 @@
+{
+  "manifest": {
+    "schemaVersion": "1.0.0",
+    "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+    "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+    "intervalStart": "2026-11-19T01:00:00.000Z",
+    "intervalEnd": "2026-11-19T02:00:00.000Z",
+    "algorithmVersion": "greedy-1",
+    "pricingPolicyVersion": "price-1",
+    "maximumDistanceKm": "10",
+    "scoringWeights": {
+      "quantity": "0.25",
+      "price": "0.25",
+      "distance": "0.25",
+      "reputation": "0.25"
+    },
+    "participants": [
+      {
+        "userId": "123e4567-e89b-42d3-a456-426614174000",
+        "timeSlot": "2026-11-19T01:00:00.000Z",
+        "productionWh": "1050",
+        "consumptionWh": "50",
+        "marketRole": "SELLER",
+        "availableWh": "1000",
+        "requiredWh": "0",
+        "energyType": "SOLAR",
+        "askPriceMicrousdPerKwh": "100",
+        "maxPriceMicrousdPerKwh": null,
+        "xKm": "1.25",
+        "yKm": "-2",
+        "reputation": "90",
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x2222222222222222222222222222222222222222"
+      },
+      {
+        "userId": "123e4567-e89b-42d3-a456-426614174001",
+        "timeSlot": "2026-11-19T01:00:00.000Z",
+        "productionWh": "0",
+        "consumptionWh": "900",
+        "marketRole": "BUYER",
+        "availableWh": "0",
+        "requiredWh": "900",
+        "energyType": null,
+        "askPriceMicrousdPerKwh": null,
+        "maxPriceMicrousdPerKwh": "150",
+        "xKm": "2",
+        "yKm": "0",
+        "reputation": "80",
+        "preferredEnergyType": "SOLAR",
+        "evmAddress": "0x1111111111111111111111111111111111111111"
+      }
+    ]
+  },
+  "hash": "0xc4a9a5428230a9d2df29e1f9cae56b3754bd6930cf536cb2af81737b9bb581cd",
+  "variants": [
+    {
+      "name": "seller energyType",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "WIND",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x813a7bfd96b566403d70db044905f315277103c6cd8623cb7d400f64d5f1d353"
+    },
+    {
+      "name": "seller askPriceMicrousdPerKwh",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "101",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x5a4ecc5602b39c37fe3705ed945838dcd49c826ddd1d87ee67fcd4df28169750"
+    },
+    {
+      "name": "seller xKm",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.5",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x3b7e0880a909bb87e9cd61a58a46442ef5e306cbdab894c3ec392eae6be9bafe"
+    },
+    {
+      "name": "seller yKm",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-3",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x4d61bd04867a8a4f11cd23f28d1a7fa293bfaa77586477e50eff330f1bcbbe5d"
+    },
+    {
+      "name": "seller reputation",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "91",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x39ccda38c197b515767066b1018ea689bd05f015ede3b090e1fbb5dc62c1b110"
+    },
+    {
+      "name": "seller evmAddress",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x3333333333333333333333333333333333333333"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x707d9537b7b005a174597700e7aeb6d795c63cae7116a74a59727e29d41c4727"
+    },
+    {
+      "name": "buyer maxPriceMicrousdPerKwh",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "151",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x0b3d042dda0632964a15fea0700e1dce2281f2eb8dca0279f875c5e854626564"
+    },
+    {
+      "name": "buyer preferredEnergyType",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "WIND",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x79ce4b35549ea64c01a2673068c629ee583dcac6ddec1543333da09c66a33eeb"
+    },
+    {
+      "name": "buyer evmAddress",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x4444444444444444444444444444444444444444"
+          }
+        ]
+      },
+      "hash": "0x654af701ddd2a0d48a5294483a4bc131c04ba4e5baab75bcdf6bb2369b692a85"
+    },
+    {
+      "name": "seller production",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1051",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1001",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x52db8ae863f33d950fdd45fd8966188b86ab2b543690920e0b455a9835a9faa5"
+    },
+    {
+      "name": "buyer consumption",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "901",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "901",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x819317d3f64437c0b744712fbbea6bb494dce71fab225935a2b7699afa528d30"
+    },
+    {
+      "name": "algorithmVersion",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-2",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x410e7c4f9bd88f779f29cee2d6d5598552b0fb3a65bcc5dbe6e1b6077c411206"
+    },
+    {
+      "name": "pricingPolicyVersion",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-2",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0xe44ea6d173fc4a9b1a2830bc223a7c84ffbeb981af40c9d539c46ff152ec0ec5"
+    },
+    {
+      "name": "maximumDistanceKm",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "11",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0xece5c5ad3acafa2bfd475f018e1dbb00871ca0ad44b7b7f32f1d814d8c9ec7d1"
+    },
+    {
+      "name": "snapshotHash",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x6a58f994ba18dfa9b7873655b01e45c718a3896aa333a8afc7d643972b52abe2"
+    },
+    {
+      "name": "marketId",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x1bd7d522f372a97044da0819257e7f795cbbcc89ad075392c9a269036a9f190d"
+    },
+    {
+      "name": "weight quantity",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.3",
+          "price": "0.2",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x03fa10ffc1ebf228018efbf1467ad56e4e1d2bdf7dc8b5c2333bc0ee2c2353bc"
+    },
+    {
+      "name": "weight price",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.3",
+          "distance": "0.2",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x90ac5a70a7285310a756c4f1dcc9753d471e0b999aa234ea00a70d0bcd53d6de"
+    },
+    {
+      "name": "weight distance",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.3",
+          "reputation": "0.2"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x8f51d738bfb9065723719010f5eff75ac33e4f9fff7366acab7f60868dd67f1d"
+    },
+    {
+      "name": "weight reputation",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.2",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.3"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x52f58c159ee4a7604e85a46dcb56e7f1fa86aa4825ff59ba2221fa2e4de5edbe"
+    },
+    {
+      "name": "seller UUID",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174009",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x9177bc88e47de726cfeb269684abc9c74d850068cfbf74e481f38328f21e3ff3"
+    },
+    {
+      "name": "seller consumption",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "51",
+            "marketRole": "SELLER",
+            "availableWh": "999",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x27dc636407e4b01228c24d6f001dca051ea1e6eef7d2f300697057b74571ec1f"
+    },
+    {
+      "name": "buyer production",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "899",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x57bb3f76880a87c9da55808bb91a265d1acc03748e74c386a99e2bcc92280cbe"
+    },
+    {
+      "name": "buyer xKm",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2.5",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0xa0bca5fbb5bcb690f37eb0d73edce8318163a518142f06c9d58468e0c526c9b1"
+    },
+    {
+      "name": "buyer yKm",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "1",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x5a886bdd4007b36886855b5fc2881c598b27d58dcd67f21a5826d8e0e04f86b8"
+    },
+    {
+      "name": "buyer reputation",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "81",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0xd9617394c1a3e747e5b067504a7bf2306db536ac727f487ac37fcd83e4f06ad3"
+    },
+    {
+      "name": "seller preference",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "WIND",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0xff6ee45ffb6924c32254c72b557e9ec5cfc37956248dd5a1de35ff5b191e7e0e"
+    },
+    {
+      "name": "seller changes role",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T01:00:00.000Z",
+        "intervalEnd": "2026-11-19T02:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "50",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "50",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "120",
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T01:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0x89f4d50f11316fb2393f67527f2c1197de3492716293e3bcc8e0e7d18d8fa70d"
+    },
+    {
+      "name": "interval and slot",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "marketId": "0xd16fe09a6f3d48aaecac82a249870b3ec48ea1ab4c50a093b6f02946a61e012e",
+        "snapshotHash": "0x7b5c589b7d1af3191a3804cd6063e51e0dd1830c87a8d942c2fa4099797bb0a6",
+        "intervalStart": "2026-11-19T03:00:00.000Z",
+        "intervalEnd": "2026-11-19T04:00:00.000Z",
+        "algorithmVersion": "greedy-1",
+        "pricingPolicyVersion": "price-1",
+        "maximumDistanceKm": "10",
+        "scoringWeights": {
+          "quantity": "0.25",
+          "price": "0.25",
+          "distance": "0.25",
+          "reputation": "0.25"
+        },
+        "participants": [
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174000",
+            "timeSlot": "2026-11-19T03:00:00.000Z",
+            "productionWh": "1050",
+            "consumptionWh": "50",
+            "marketRole": "SELLER",
+            "availableWh": "1000",
+            "requiredWh": "0",
+            "energyType": "SOLAR",
+            "askPriceMicrousdPerKwh": "100",
+            "maxPriceMicrousdPerKwh": null,
+            "xKm": "1.25",
+            "yKm": "-2",
+            "reputation": "90",
+            "preferredEnergyType": "ANY",
+            "evmAddress": "0x2222222222222222222222222222222222222222"
+          },
+          {
+            "userId": "123e4567-e89b-42d3-a456-426614174001",
+            "timeSlot": "2026-11-19T03:00:00.000Z",
+            "productionWh": "0",
+            "consumptionWh": "900",
+            "marketRole": "BUYER",
+            "availableWh": "0",
+            "requiredWh": "900",
+            "energyType": null,
+            "askPriceMicrousdPerKwh": null,
+            "maxPriceMicrousdPerKwh": "150",
+            "xKm": "2",
+            "yKm": "0",
+            "reputation": "80",
+            "preferredEnergyType": "SOLAR",
+            "evmAddress": "0x1111111111111111111111111111111111111111"
+          }
+        ]
+      },
+      "hash": "0xbcebdc39f4585bef47405f57cbc94773dcdb36b54cda9dd073a207c8254d0e7e"
+    }
+  ]
+}
