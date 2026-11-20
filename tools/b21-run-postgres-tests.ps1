@@ -45,7 +45,7 @@ try {
     node tools/b21-correction-concurrency.mjs; Check-Native
     .\.venv\Scripts\python.exe tools/b21-postgres-manifest-vectors.py | docker exec -i $containerId psql -q -v ON_ERROR_STOP=1 -U b21test -d b21_fresh_review; Check-Native
     docker exec $containerId createdb -U b21test b21_baseline_review; Check-Native
-    Get-ChildItem database/migrations -Directory | Where-Object { $_.Name -notlike '*b21*' } | Sort-Object Name | ForEach-Object { Run-SqlFile 'b21_baseline_review' (Join-Path $_.FullName 'migration.sql') }
+    Get-ChildItem database/migrations -Directory | Where-Object { $_.Name -notmatch 'b21|b22' } | Sort-Object Name | ForEach-Object { Run-SqlFile 'b21_baseline_review' (Join-Path $_.FullName 'migration.sql') }
     Run-SqlFile 'b21_baseline_review' 'database/migrations/20261119000000_b21_v2_market/migration.sql'
     Add-Marker 'b21_baseline_review'
     Run-SqlFile 'b21_baseline_review' 'tools/b21-postgres-safety.sql'
@@ -54,7 +54,7 @@ try {
     docker exec $containerId createdb -U b21test b21_legacy_final; Check-Native
     $legacyIdentity = docker exec $containerId psql -U b21test -d b21_legacy_final -Atc "SELECT current_database() || ':' || count(*) FROM pg_tables WHERE schemaname='public'"; Check-Native
     if ($legacyIdentity -ne 'b21_legacy_final:0') { throw 'Legacy test database is not empty' }
-    Get-ChildItem database/migrations -Directory | Where-Object { $_.Name -notlike '*b21*' } | Sort-Object Name | ForEach-Object { Run-SqlFile 'b21_legacy_final' (Join-Path $_.FullName 'migration.sql') }
+    Get-ChildItem database/migrations -Directory | Where-Object { $_.Name -notmatch 'b21|b22' } | Sort-Object Name | ForEach-Object { Run-SqlFile 'b21_legacy_final' (Join-Path $_.FullName 'migration.sql') }
     Add-Marker 'b21_legacy_final'
     Run-SqlFile 'b21_legacy_final' 'tools/b21-legacy-fixture.sql'
     $tables=@('--table=users','--table=wallets','--table=energy_records','--table=matches','--table=trades','--table=b14_transaction_intents','--table=b16_oracle_intents','--table=b17_operator_intents','--table=blockchain_transactions')
@@ -62,7 +62,7 @@ try {
     # The database is isolated and already has the exact legacy SQL schema.
     # Record those eight migrations in its own ledger, then deploy all three B21 migrations.
     $env:DATABASE_URL="postgresql://b21test:$testPassword@127.0.0.1:$($binding.HostPort)/b21_legacy_final?schema=public"
-    Get-ChildItem database/migrations -Directory | Where-Object { $_.Name -notlike '*b21*' } | Sort-Object Name | ForEach-Object {
+    Get-ChildItem database/migrations -Directory | Where-Object { $_.Name -notmatch 'b21|b22' } | Sort-Object Name | ForEach-Object {
         & .\node_modules\.bin\prisma.cmd migrate resolve --applied $_.Name --config prisma7.config.ts; Check-Native
     }
     & .\node_modules\.bin\prisma.cmd migrate deploy --config prisma7.config.ts; Check-Native

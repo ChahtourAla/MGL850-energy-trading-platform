@@ -1,0 +1,203 @@
+{
+  "snapshot": {
+    "schemaVersion": "1.0.0",
+    "snapshotId": "55555555-5555-4555-8555-555555555555",
+    "timeSlot": "2026-10-17T14:00:00Z",
+    "generatorVersion": "1.0.0",
+    "users": [
+      {
+        "recordId": "00000001-2222-4222-8222-222222222222",
+        "userId": "00000001-1111-4111-8111-111111111111",
+        "timeSlot": "2026-10-17T14:00:00Z",
+        "productionWh": 6000,
+        "consumptionWh": 1000,
+        "netEnergyWh": 5000,
+        "marketRole": "SELLER",
+        "availableEnergyWh": 5000,
+        "requiredEnergyWh": 0,
+        "energyType": "SOLAR",
+        "askPriceMicrousdPerKwh": 140000,
+        "maxPriceMicrousdPerKwh": null,
+        "xKm": 1,
+        "yKm": 0,
+        "reputation": 92,
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x0000000000000000000000000000000000000001"
+      },
+      {
+        "recordId": "00000002-2222-4222-8222-222222222222",
+        "userId": "00000002-1111-4111-8111-111111111111",
+        "timeSlot": "2026-10-17T14:00:00Z",
+        "productionWh": 6000,
+        "consumptionWh": 1000,
+        "netEnergyWh": 5000,
+        "marketRole": "SELLER",
+        "availableEnergyWh": 5000,
+        "requiredEnergyWh": 0,
+        "energyType": "SOLAR",
+        "askPriceMicrousdPerKwh": 140000,
+        "maxPriceMicrousdPerKwh": null,
+        "xKm": 2,
+        "yKm": 0,
+        "reputation": 92,
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x0000000000000000000000000000000000000002"
+      },
+      {
+        "recordId": "00000003-2222-4222-8222-222222222222",
+        "userId": "00000003-1111-4111-8111-111111111111",
+        "timeSlot": "2026-10-17T14:00:00Z",
+        "productionWh": 6000,
+        "consumptionWh": 1000,
+        "netEnergyWh": 5000,
+        "marketRole": "SELLER",
+        "availableEnergyWh": 5000,
+        "requiredEnergyWh": 0,
+        "energyType": "SOLAR",
+        "askPriceMicrousdPerKwh": 140000,
+        "maxPriceMicrousdPerKwh": null,
+        "xKm": 3,
+        "yKm": 0,
+        "reputation": 92,
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x0000000000000000000000000000000000000003"
+      },
+      {
+        "recordId": "00000004-2222-4222-8222-222222222222",
+        "userId": "00000004-1111-4111-8111-111111111111",
+        "timeSlot": "2026-10-17T14:00:00Z",
+        "productionWh": 0,
+        "consumptionWh": 4000,
+        "netEnergyWh": -4000,
+        "marketRole": "BUYER",
+        "availableEnergyWh": 0,
+        "requiredEnergyWh": 4000,
+        "energyType": null,
+        "askPriceMicrousdPerKwh": null,
+        "maxPriceMicrousdPerKwh": 170000,
+        "xKm": 4,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x0000000000000000000000000000000000000004"
+      },
+      {
+        "recordId": "00000005-2222-4222-8222-222222222222",
+        "userId": "00000005-1111-4111-8111-111111111111",
+        "timeSlot": "2026-10-17T14:00:00Z",
+        "productionWh": 0,
+        "consumptionWh": 5000,
+        "netEnergyWh": -5000,
+        "marketRole": "BUYER",
+        "availableEnergyWh": 0,
+        "requiredEnergyWh": 5000,
+        "energyType": null,
+        "askPriceMicrousdPerKwh": null,
+        "maxPriceMicrousdPerKwh": 170000,
+        "xKm": 5,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x0000000000000000000000000000000000000005"
+      },
+      {
+        "recordId": "00000006-2222-4222-8222-222222222222",
+        "userId": "00000006-1111-4111-8111-111111111111",
+        "timeSlot": "2026-10-17T14:00:00Z",
+        "productionWh": 0,
+        "consumptionWh": 6000,
+        "netEnergyWh": -6000,
+        "marketRole": "BUYER",
+        "availableEnergyWh": 0,
+        "requiredEnergyWh": 6000,
+        "energyType": null,
+        "askPriceMicrousdPerKwh": null,
+        "maxPriceMicrousdPerKwh": 170000,
+        "xKm": 6,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x0000000000000000000000000000000000000006"
+      },
+      {
+        "recordId": "00000007-2222-4222-8222-222222222222",
+        "userId": "00000007-1111-4111-8111-111111111111",
+        "timeSlot": "2026-10-17T14:00:00Z",
+        "productionWh": 1000,
+        "consumptionWh": 1000,
+        "netEnergyWh": 0,
+        "marketRole": "NEUTRAL",
+        "availableEnergyWh": 0,
+        "requiredEnergyWh": 0,
+        "energyType": null,
+        "askPriceMicrousdPerKwh": null,
+        "maxPriceMicrousdPerKwh": null,
+        "xKm": 7,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY",
+        "evmAddress": "0x0000000000000000000000000000000000000007"
+      }
+    ]
+  },
+  "registry": {
+    "users": [
+      {
+        "userId": "00000001-1111-4111-8111-111111111111",
+        "evmAddress": "0x0000000000000000000000000000000000000001",
+        "xKm": 1,
+        "yKm": 0,
+        "reputation": 92,
+        "preferredEnergyType": "ANY"
+      },
+      {
+        "userId": "00000002-1111-4111-8111-111111111111",
+        "evmAddress": "0x0000000000000000000000000000000000000002",
+        "xKm": 2,
+        "yKm": 0,
+        "reputation": 92,
+        "preferredEnergyType": "ANY"
+      },
+      {
+        "userId": "00000003-1111-4111-8111-111111111111",
+        "evmAddress": "0x0000000000000000000000000000000000000003",
+        "xKm": 3,
+        "yKm": 0,
+        "reputation": 92,
+        "preferredEnergyType": "ANY"
+      },
+      {
+        "userId": "00000004-1111-4111-8111-111111111111",
+        "evmAddress": "0x0000000000000000000000000000000000000004",
+        "xKm": 4,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY"
+      },
+      {
+        "userId": "00000005-1111-4111-8111-111111111111",
+        "evmAddress": "0x0000000000000000000000000000000000000005",
+        "xKm": 5,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY"
+      },
+      {
+        "userId": "00000006-1111-4111-8111-111111111111",
+        "evmAddress": "0x0000000000000000000000000000000000000006",
+        "xKm": 6,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY"
+      },
+      {
+        "userId": "00000007-1111-4111-8111-111111111111",
+        "evmAddress": "0x0000000000000000000000000000000000000007",
+        "xKm": 7,
+        "yKm": 0,
+        "reputation": 75,
+        "preferredEnergyType": "ANY"
+      }
+    ]
+  }
+}

@@ -380,6 +380,7 @@ model V2Market {
   plans V2AllocationPlan[]
   positions V2Position[]
   allocations V2Allocation[]
+  b22Ingestions B22Ingestion[]
   @@unique([namespace, intervalStart, intervalEnd])
   @@index([status, intervalEnd])
 }
@@ -408,6 +409,7 @@ model V2Snapshot {
   measurements V2SnapshotMeasurement[]
   plans V2AllocationPlan[]
   allocations V2Allocation[]
+  b22Ingestion B22Ingestion?
   @@unique([id, marketId])
   @@index([marketId, status])
 }
@@ -546,4 +548,40 @@ model V2AllocationPlan {
   @@unique([id, marketId, snapshotId])
   @@unique([marketId, planVersion])
   @@index([marketId, status])
+}
+
+// B22-A: administrator-approved, immutable hourly participant roster.
+model B22HourlyRegistry {
+  id String @id @db.Uuid
+  intervalStart DateTime @db.Timestamptz(3)
+  intervalEnd DateTime @db.Timestamptz(3)
+  revision Int
+  profiles Json
+  approvedBy String @db.VarChar(128)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  ingestions B22Ingestion[]
+  @@unique([intervalStart, revision])
+  @@index([intervalStart, intervalEnd])
+}
+
+// B22-A: trusted backend generator execution bound to its exact result.
+model B22Ingestion {
+  id String @id @db.Uuid
+  marketId String @db.VarChar(66)
+  snapshotId String @unique @db.Uuid
+  registryId String @db.Uuid
+  sourceIdentity String @db.VarChar(128)
+  sourceVersion String @db.VarChar(128)
+  principal String @db.VarChar(128)
+  configHash String @db.VarChar(66)
+  executableHash String @db.VarChar(66)
+  payloadHash String @db.VarChar(66)
+  contentDigest String @db.VarChar(66)
+  payload Json
+  result String @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  market V2Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  snapshot V2Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict)
+  registry B22HourlyRegistry @relation(fields: [registryId], references: [id], onDelete: Restrict)
+  @@index([marketId])
 }
