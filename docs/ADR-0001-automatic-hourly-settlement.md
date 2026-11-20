@@ -1,0 +1,17 @@
+# ADR 0001: Automatic hourly settlement
+
+Status: product direction approved by project owner; implementation policies below remain open. Baseline: `e87cb3dd62c6c024fb5496758b06ebeaa40b6f10` (B19). B20 is documentation only.
+
+## Context and decision
+
+The existing system generates hourly positions and matches, then B14 creates and funds a forward-looking escrow trade; B16 confirms delivery and releases payment, or B17 handles expiration/refund. This workflow requires delivery evidence and separate operator actions. The approved target instead processes a completed historical hour: finalize trustworthy measurements, classify each participant by production minus consumption, automatically match compatible positions, validate payment readiness, directly transfer TEUSD buyer to seller, and reconcile confirmed evidence. No delivery-confirmation oracle is needed for new allocations. Historical readings are not automatically trustworthy; validation, provenance, source accountability and finalization are essential. A financial allocation does not establish a physical electricity path.
+
+Keep Hedera Testnet, six-decimal TEUSD, custodial backend wallets, Python matching and PostgreSQL. Users do not create offers, select partners, confirm delivery or initiate settlement. Test-token top-up is controlled. The new contract and worker are planned, not implemented. Preserve the escrow, old roles, records, ABIs, journals and operational recovery paths separately; never translate old escrow states into new settlement states or fabricate delivery evidence.
+
+## Controls and consequences
+
+The market identity is the market namespace plus UTC interval [start,end), independent of retry or simulation speed. A finalized, versioned snapshot carries source identity, collection and validation evidence, completeness, finalizer, timestamp and a stable canonical content hash. Lock the interval to one financial allocation plan; correction must never silently rematch or repay it. Stable domain-separated settlement IDs bind chain, settlement contract, token, market, interval, snapshot hash, policy version, buyer, seller, quantity, price and allocation identity. Database uniqueness, transaction journal, contract replay protection and chain reconciliation jointly enforce at-most-once payment; a hash alone does not. Canonical encoding and ID details are B21/B23 gates.
+
+Custodial keys stay encrypted and backend-only; scoped, auditable signing authority, buyer authorization, allowance and balance checks, fee limits, role separation, pause and key rotation require design and tests. A timeout is unknown, never success or permission to blindly rebroadcast. Confirm receipt and matching contract/token events before projecting seller credit; reconcile the same transaction identity after crashes. The chain transfer is authoritative and DB projections are repairable. Testnet token and simulated data are not proof of real-world energy or production-grade safety.
+
+Exact policy remains undecided: finalization authority, completeness and late data rules (B22); price, matching split, rounding and dust (B22 before financial use); settlement identity encoding, contract replay domain, events, access/pause and atomicity (B21/B23); buyer consent, allowances, key custody, top-up quotas and revocation (B24); transaction recovery/finality and partial payments (B25); scheduler lease and correction operations (B26). No unattended live deployment until these gates and B28 audit pass.
