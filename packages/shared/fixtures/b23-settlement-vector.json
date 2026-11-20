@@ -1,0 +1,89 @@
+{
+  "domain": {
+    "name": "MGL850 Energy Settlement",
+    "version": "1",
+    "chainId": 296,
+    "verifyingContract": "0x1111111111111111111111111111111111111111"
+  },
+  "types": {
+    "Settlement": [
+      {
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "name": "marketId",
+        "type": "bytes32"
+      },
+      {
+        "name": "snapshotHash",
+        "type": "bytes32"
+      },
+      {
+        "name": "planCommitment",
+        "type": "bytes32"
+      },
+      {
+        "name": "allocationId",
+        "type": "bytes32"
+      },
+      {
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "name": "seller",
+        "type": "address"
+      },
+      {
+        "name": "quantityWh",
+        "type": "uint256"
+      },
+      {
+        "name": "unitPriceMicrousdPerKwh",
+        "type": "uint256"
+      },
+      {
+        "name": "amountBaseUnits",
+        "type": "uint256"
+      },
+      {
+        "name": "algorithmId",
+        "type": "bytes32"
+      },
+      {
+        "name": "pricingPolicyId",
+        "type": "bytes32"
+      },
+      {
+        "name": "nonce",
+        "type": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ]
+  },
+  "manifestHash": "0xc973f01c30db151771eca5d5661d5262b8df81b0f801adc18cd689e95256cb4e",
+  "allocationIds": [
+    "0xf96f9891e6ddd310141c323b55c40e1ccf0fcb5560f755b3387240dee7f177a1"
+  ],
+  "value": {
+    "token": "0x2222222222222222222222222222222222222222",
+    "marketId": "0x8b30951df380b6b10da747e1167dd8e40bf8604c88c75b245dc172767f3b7320",
+    "snapshotHash": "0xde77e793564bc5ba0713b610c743ab0d819d9580fcae7c67b4c6f835fb9ee500",
+    "planCommitment": "0x30fe189336865807b377276dbe6ab24d3ca954b08de1c330b84738788aaeab71",
+    "allocationId": "0xf96f9891e6ddd310141c323b55c40e1ccf0fcb5560f755b3387240dee7f177a1",
+    "buyer": "0x3333333333333333333333333333333333333333",
+    "seller": "0x4444444444444444444444444444444444444444",
+    "quantityWh": "28",
+    "unitPriceMicrousdPerKwh": "90750",
+    "amountBaseUnits": "2541",
+    "algorithmId": "0x06c015bd22b4c69690933c1058878ebdfef31f9aaae40bbe86d8a09fe1b2972c",
+    "pricingPolicyId": "0x0a45778c0a10464d99a3a5ea8ecc6a85a967bd616ba322e38f0fa745045a409d",
+    "nonce": "1",
+    "deadline": "2000000000"
+  },
+  "settlementId": "0xe1f3b303d995705506f2e67b1ac79a36cc5c34906eb612997c82a7c2b509b826"
+}
