@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {prepareHourly,runHourlyDryRun} from './b22-hourly-core.mjs';
+import {assertMatchingBusinessRules} from './b12-matching-core.mjs';
+const fixture=name=>JSON.parse(readFileSync(new URL(`../../../packages/shared/fixtures/${name}.sample.json`,import.meta.url),'utf8'));
+const snap=fixture('energy-snapshot'),cfg=fixture('matching-config'),out=fixture('matching-output');
+const registry={users:snap.users.map(({userId,evmAddress,xKm,yKm,reputation,preferredEnergyType})=>({userId,evmAddress,xKm,yKm,reputation,preferredEnergyType}))};
+const options={sourcePolicy:'LOCAL_SIMULATOR_V1',expectedUsers:2,now:Date.parse('2026-10-17T15:00:00Z'),python:process.env.B21_PYTHON||'python'};
+const input=()=>structuredClone(prepareHourly(snap,registry,cfg,options).input);
+test('V1 rejects duplicate buyer and over-allocation at matcher output boundary',()=>{const i=input(),m=out.matches[0];assert.throws(()=>assertMatchingBusinessRules(i,{...out,matches:[m,m]}),/repeated buyer/);assert.throws(()=>assertMatchingBusinessRules(i,{...out,matches:[{...m,quantityWh:m.quantityWh+1}]}),/quantities, prices or wallets/);assert.throws(()=>assertMatchingBusinessRules(i,{...out,matches:[{...m,quantityWh:m.quantityWh-1}]}),/quantities, prices or wallets/);});
+test('aggregate seller inventory cannot be allocated twice',()=>{const i=input(),m=out.matches[0],b=i.users.find(u=>u.marketRole==='BUYER');const extra={...b,userId:'33333333-3333-4333-8333-333333333333',evmAddress:'0x'+'3'.repeat(40),requiredEnergyWh:1};i.users.push(extra);assert.throws(()=>assertMatchingBusinessRules(i,{...out,matches:[m,{...m,buyerId:extra.userId,buyerWallet:extra.evmAddress,quantityWh:1}]}),/oversells seller inventory/);});
+test('incompatible energy and mismatched wallet are rejected',()=>{let i=input(),b=i.users.find(u=>u.marketRole==='BUYER');b.preferredEnergyType='WIND';assert.throws(()=>assertMatchingBusinessRules(i,out),/energy-type preference/);i=input();assert.throws(()=>assertMatchingBusinessRules(i,{...out,matches:[{...out.matches[0],buyerWallet:'0x'+'3'.repeat(40)}]}),/quantities, prices or wallets/);});
+test('zero-base-unit payment is rejected by the V1 output contract',async()=>{const s={...snap.users[0],productionWh:2001,netEnergyWh:1,availableEnergyWh:1,askPriceMicrousdPerKwh:1};const b={...snap.users[1],consumptionWh:1,netEnergyWh:-1,requiredEnergyWh:1};await assert.rejects(runHourlyDryRun({...snap,users:[s,b]},registry,cfg,options),/Matching process failed:[\s\S]*totalAmountMicrousd/);});

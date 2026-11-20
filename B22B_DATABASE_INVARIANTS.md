@@ -1,0 +1,13 @@
+# B22-B database invariants and open verification
+
+- B21 plan guards bind manifest, market, finalized snapshot and measurements; the partial unique index permits one authoritative plan per market. No B21 migration is modified.
+- B21 allocation guards enforce plan and manifest terms; service reference selection and totals are additionally checked by the existing B22 core.
+- The new snapshot trigger denies `b22_match` writes despite the column privilege needed by B21 `SELECT FOR UPDATE` guards. Role denial was exercised on the disposable database. The role cannot insert roster, ingestion or settlement records in that test.
+- The writer uses the B22-A market advisory lock, rechecks archival evidence, and inserts plan, allocations and positions in one transaction. Existing incomplete drafts are rejected rather than silently repaired.
+- Monetary remainder or zero amount prevents authorization in the service. This policy is not a new on-chain or database-wide guarantee.
+
+The database owner can bypass ordinary role restrictions. Restricted matching-role provisioning and all code remain a disposable-only prototype. A nonzero exact authorization, identical concurrency, three rollback boundaries, and unique-index rejection of a competing database activation were tested. An externally created incomplete draft was blocked and a correction after authorization was refused. Five corrupted Python outputs (oversized quantity, seller identity, score, price and payment total) were rejected before any plan write. Separate aggregate buyer/seller over-allocation and the remaining service-level different-configuration conflict and financial attack cases still need verification.
+
+Historical replay reconstructs the configuration from the stored manifest, recomputes its canonical hash against the archived roster and readings, validates allocation identities and exact arithmetic, and reconciles aggregate participant projections without invoking Python. This does not replay an old scoring engine; the authorized selection remains a recorded immutable fact.
+
+V1 historical reconciliation additionally requires each matched quantity to equal the buyer requirement. Two test-only fixed configurations raced using separate authenticated sessions paused at transaction entry: different manifest hashes, one authorized plan and a rejected conflicting caller. Matcher-output unit tests enforce unique buyers, full buyer requirement, seller aggregate inventory, energy compatibility and wallet identity; SQL-boundary tests assert wallet, manifest hash, quotient and remainder failures with complete rollback. A zero token amount fails the existing Python MatchResult output validation before any database write.

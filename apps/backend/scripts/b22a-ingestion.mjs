@@ -16,15 +16,15 @@ const configPath=join(root,'services/data-generator/config/energy-generation-con
 const matchPath=join(root,'packages/shared/fixtures/matching-config.sample.json');
 const pythonPath=resolve(root,process.platform==='win32'?'.venv/Scripts/python.exe':'.venv/bin/python');
 const digest=value=>'0x'+createHash('sha256').update(value).digest('hex');
-async function assertDisposable(client){
+async function assertDisposable(client, {readOnly=false}={}){
  const target=client.connectionParameters;
- if(target?.host!=='127.0.0.1'||target?.database!=='b22_disposable_review'||target?.user!=='b22_ingest')throw Error('Refusing non-disposable database target');
+ if(target?.host!=='127.0.0.1'||target?.database!=='b22_disposable_review'||!(target?.user==='b22_ingest'||(readOnly&&target?.user==='b22_match')))throw Error('Refusing non-disposable database target');
  const marker=await client.query("SELECT current_database() AS name, EXISTS(SELECT 1 FROM b22_guard.marker WHERE value='b22-isolated-test-only') AS ok");
  if(marker.rows[0]?.name!=='b22_disposable_review'||marker.rows[0]?.ok!==true)throw Error('Disposable database marker missing');
 }
 /** Read-only historical reconciliation: never regenerates or consults mutable profiles. */
 export async function inspectHistoricalHour(client,timeSlot){
- requireHour(timeSlot);await assertDisposable(client);
+ requireHour(timeSlot);await assertDisposable(client,{readOnly:true});
  const start=new Date(timeSlot).toISOString(),end=new Date(Date.parse(timeSlot)+3600000).toISOString(),id=marketId('hourly','HOURLY',start,end);
  const rows=await client.query('SELECT s.id,s.status,s."marketId",s."payloadHash",s."configHash",s."expectedCount",s."actualCount",s."supersedesId",i."registryId",i."marketId" AS "auditMarket",i."sourceIdentity",i."sourceVersion",i.principal,i."payloadHash" AS "auditHash",i."configHash" AS "auditConfig",i."contentDigest",i."executableHash",i.payload,i.result,r."intervalStart" AS "registryStart",r."intervalEnd" AS "registryEnd",jsonb_array_length(r.profiles) AS "registryCount",(SELECT count(*)::int FROM "V2SnapshotMeasurement" x WHERE x."snapshotId"=s.id) AS "measurementCount",(SELECT count(DISTINCT p->>\'userId\')::int FROM jsonb_array_elements(COALESCE(r.profiles,\'[]\'::jsonb)) p JOIN "V2SnapshotMeasurement" x ON x."snapshotId"=s.id AND x."userId"::text=p->>\'userId\') AS "registryMatched",(SELECT count(DISTINCT p->>\'userId\')::int FROM jsonb_array_elements(CASE WHEN jsonb_typeof(i.payload->\'users\')=\'array\' THEN i.payload->\'users\' ELSE \'[]\'::jsonb END) p JOIN "V2SnapshotMeasurement" x ON x."snapshotId"=s.id AND x."userId"::text=p->>\'userId\' AND x."productionWh"::text=p->>\'productionWh\' AND x."consumptionWh"::text=p->>\'consumptionWh\') AS "payloadMatched", "v2_snapshot_measurement_hash"(s.id) AS "actualHash" FROM "V2Snapshot" s LEFT JOIN "B22Ingestion" i ON i."snapshotId"=s.id LEFT JOIN "B22HourlyRegistry" r ON r.id=i."registryId" WHERE s."marketId"=$1 ORDER BY s."collectedAt" DESC,s.id',[id]);
  if(!rows.rows.length){const market=await client.query('SELECT status FROM "V2Market" WHERE id=$1',[id]);return market.rowCount?{marketId:id,state:'QUARANTINED',marketStatus:market.rows[0].status,snapshots:[]}:{marketId:id,state:'ABSENT',snapshots:[]};}

@@ -1,6 +1,6 @@
-# B22 automatic hourly market — incomplete
+# B22 automatic hourly market â€” incomplete
 
-Status: `B22_A_IMPLEMENTED_AWAITING_REVIEW`. This branch contains an offline proposal and a disposable-database ingestion prototype, not a complete or production-ready B22 market workflow. Do not use its output for settlement or treat a proposal as an authoritative allocation plan.
+B22-A was independently accepted and committed at `441b636f81a5b9a0d5c8ea65caf806f257ed61f4`. B22-B remains uncommitted and under review. This disposable-database prototype is not a production settlement system.
 
 `apps/backend/scripts/b22-hourly-core.mjs` checks a completed UTC hourly V1 generator snapshot against a caller-supplied registry, derives roles and B21 hashes, invokes the existing Python CLI using isolated temporary files, validates its output, checks individual and aggregate energy and calculates TEUSD quotient and remainder. The proposed price policy is `SELLER_ASK_V1`; zero or fractional base-unit amounts are flagged. The process is read-only and removes its own temporary files. Source identity and registry inputs are caller supplied and have not been independently verified against a trusted database; a content hash does not prove physical measurement accuracy. The proposal is not proof of the physical path of electricity.
 
@@ -23,3 +23,11 @@ The disposable harness `powershell -NoProfile -ExecutionPolicy Bypass -File tool
 **Not production-ready:** recovery of externally created partial drafts remains deliberately manual. Runtime role provisioning and monitoring require separate controlled operations, and neither a database owner/superuser compromise nor factual accuracy of the simulated input is addressed. The writer must not be used outside the disposable harness. B22-B allocation persistence and future payments, signing and scheduling remain unimplemented.
 
 Future milestones must resolve prefunding and payment authority, permanent dust/aggregation policy, deployment-bound settlement identity, blockchain reconciliation, and scheduling.
+
+## B22-B draft (not accepted)
+
+`apps/backend/scripts/b22b-matching.mjs` reads the archived B22-A ingestion and roster, verifies their finalized history and B21 commitments, executes the existing Python matcher and reference checks outside a transaction, then locks and rechecks the market before writing. Exact positive allocations are inserted planned, validated, and selected by the authoritative plan; position projections and plan selection are committed atomically. No-match plans select zero allocations and record zero matching. Fractional or zero payment results stay in a nonpayable draft with no positions. Matching requires the disposable marker, loopback target, and `b22_match` identity. This prototype is not a production deployment interface.
+
+The B22-B work is **awaiting independent review**: the PostgreSQL tests have demonstrated a nonzero exact-payment authoritative allocation, database rejection of a competing plan, rollback at three transaction boundaries, and Python-free historical replay; different-configuration concurrent service conflict and additional financial-boundary scenarios have been tested; independent review and the limitations in the evidence remain. Do not treat this draft as independently review-ready or use it to authorize real markets. B22-B creates no settlement intent or blockchain operation.
+
+B22-B accepts only hard-coded backend configuration identities. The alternate `v1-disposable-distance-test` configuration is restricted to the disposable service guard. The manifest commits scoring inputs, so competing configurations have different hashes. Historical reconciliation uses the archived manifest and requires every matched V1 buyer to receive their entire requirement; no Python process is run. A zero-base-unit V1 match is rejected by the Python output contract before persistence.
