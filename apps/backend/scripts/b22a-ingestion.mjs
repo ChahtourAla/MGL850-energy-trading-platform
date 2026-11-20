@@ -18,7 +18,7 @@ const pythonPath=resolve(root,process.platform==='win32'?'.venv/Scripts/python.e
 const digest=value=>'0x'+createHash('sha256').update(value).digest('hex');
 async function assertDisposable(client, {readOnly=false}={}){
  const target=client.connectionParameters;
- if(target?.host!=='127.0.0.1'||target?.database!=='b22_disposable_review'||!(target?.user==='b22_ingest'||(readOnly&&['b22_match','b24_evaluator'].includes(target?.user))))throw Error('Refusing non-disposable database target');
+ if(target?.host!=='127.0.0.1'||target?.database!=='b22_disposable_review'||!(target?.user==='b22_ingest'||(readOnly&&['b22_match','b24_evaluator','b24_preflight'].includes(target?.user))))throw Error('Refusing non-disposable database target');
  const marker=await client.query("SELECT current_database() AS name, EXISTS(SELECT 1 FROM b22_guard.marker WHERE value='b22-isolated-test-only') AS ok");
  if(marker.rows[0]?.name!=='b22_disposable_review'||marker.rows[0]?.ok!==true)throw Error('Disposable database marker missing');
 }

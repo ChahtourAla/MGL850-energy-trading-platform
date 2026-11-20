@@ -82,16 +82,19 @@ try{
  const reservationState=async()=> (await owner.query('SELECT row_to_json(r) AS reservation,(SELECT count(*)::int FROM "B24AuthorizationReservation" WHERE "allocationId"=$1) AS allocation_count,(SELECT count(*)::int FROM "B24AuthorizationReservation" WHERE "deploymentId"=$2 AND "buyerAddress"=$3 AND nonce=$4) AS nonce_count,(SELECT sum("amountBaseUnits")::text FROM "B24AuthorizationReservation" WHERE "policyId"=$5) AS reserved FROM "B24AuthorizationReservation" r WHERE r.id=$6',[allocation.id,deployment,allocation.buyerAddress,stored[0].nonce,policy,stored[0].id])).rows[0];
  const baseline=await reservationState();assert.equal(baseline.reserved,'2541');assert.equal(baseline.allocation_count,1);assert.equal(baseline.nonce_count,1);
  const checkBlocked=async(state,reason)=>{const result=await prepareAuthorization(evaluator,{...req,execute:true});assert.equal(result.state,state);assert.equal(result.reason,reason);assert.equal(result.currentEligibility,'BLOCKED');assert.equal(result.historicalStatus,'RESERVED');assert.equal(result.reservationId,stored[0].id);assert.equal('reservation' in result,false);assert.deepEqual(await reservationState(),baseline);};
+ if(process.env.B24_A2_TEST==='1')await (await import('./b24a2-postgres.mjs')).testEligible({owner,approver,allocation,policy,deployment,stored:stored[0]});
  const realNow=Date.now;
  try{
   const expiry=(await owner.query('SELECT "expiresAt" FROM "B24SpendingPolicy" WHERE id=$1',[policy])).rows[0].expiresAt;
   Date.now=()=>expiry.getTime()+1000;await checkBlocked('EXPIRED','POLICY_EXPIRED');
   Date.now=()=>stored[0].deadline.getTime()+1000;await checkBlocked('EXPIRED','AUTHORIZATION_DEADLINE_EXPIRED');
  }finally{Date.now=realNow;}
- await approver.query('UPDATE "B24SpendingPolicy" SET status=\'REVOKED\' WHERE id=$1',[policy]);
+ if(process.env.B24_A2_TEST==='1')await (await import('./b24a2-postgres.mjs')).testRace({approver,policy,stored:stored[0]}); else await approver.query('UPDATE "B24SpendingPolicy" SET status=\'REVOKED\' WHERE id=$1',[policy]);
  await checkBlocked('REVOKED','POLICY_REVOKED');
+ if(process.env.B24_A2_TEST==='1')await (await import('./b24a2-postgres.mjs')).testRevoked({stored:stored[0]});
  await approver.query('UPDATE "B24Deployment" SET status=\'RETIRED\' WHERE id=$1',[deployment]);
  await checkBlocked('BLOCKED','DEPLOYMENT_NOT_APPROVED');
+ if(process.env.B24_A2_TEST==='1')await (await import('./b24a2-postgres.mjs')).testRetired({stored:stored[0]});
  const audit=await inspectReservation(evaluator,allocation.id);assert.equal(audit.historicalStatus,'RESERVED');assert.equal(audit.currentEligibility,'NOT_EVALUATED');assert.equal(audit.reservation.id,stored[0].id);assert.deepEqual(await reservationState(),baseline);
  assert.deepEqual((await owner.query('SELECT (SELECT count(*)::int FROM "V2SettlementIntent") intents,(SELECT count(*)::int FROM "V2SettlementAttempt") attempts,(SELECT count(*)::int FROM "V2SettlementEvidence") evidence')).rows[0],{intents:0,attempts:0,evidence:0});
  console.log('PASS reservation replay: policy expiry, deadline expiry, revocation, retirement and immutable budget/audit');

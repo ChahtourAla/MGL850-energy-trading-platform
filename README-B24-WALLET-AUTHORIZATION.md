@@ -9,3 +9,7 @@ Use `powershell -NoProfile -ExecutionPolicy Bypass -File tools/b24a1-run-postgre
 No B24-B signing, real user consent, live verified deployment, token funding, automatic allowance or B25 execution/reconciliation is provided. A future signer must independently revalidate stored terms, policy and chain state; reservation is not confirmation of payment.
 
 Before any future B24-B signature, the signer must independently verify the current policy status and scope, policy and authorization expiration, deployment activation, the complete authoritative allocation plan and B23 plan commitment, the EIP-712 domain and digest, and reservation identity, nonce and deadline. A raw reservation alone never authorizes signing. Preview is a point-in-time check and cannot protect a later signing operation from revocation.
+
+## B24-A2 read-only signing preflight
+
+`verifySigningPreflight(client, {reservationId})` independently reads archived evidence and the complete authoritative plan as `b24_preflight` on the marked disposable database. It reconstructs the B23 commitment and typed-data digest, checks the fixture deployment, policy, budget, nonce and deadline, and returns only simulation eligibility. It never signs. See `docs/B24-A2-SIGNING-PREFLIGHT-DESIGN.md` and `B24A2_TEST_EVIDENCE.md`.
