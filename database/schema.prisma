@@ -31,6 +31,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
+  b24Policies B24SpendingPolicy[]
   v2Measurements V2SnapshotMeasurement[]
   v2Positions V2Position[]
   v2Purchases V2Allocation[] @relation("V2Buyer")
@@ -455,6 +456,7 @@ model V2Allocation {
   plan V2AllocationPlan @relation(fields: [planId, marketId, snapshotId], references: [id, marketId, snapshotId], onDelete: Restrict)
   buyer User @relation("V2Buyer", fields: [buyerId], references: [id], onDelete: Restrict)
   seller User @relation("V2Seller", fields: [sellerId], references: [id], onDelete: Restrict)
+  b24Reservation B24AuthorizationReservation?
   intent V2SettlementIntent?
   @@unique([id, marketId])
   @@unique([marketId, snapshotId, buyerId, sellerId, buyerAddress, sellerAddress, quantityWh, unitPriceMicrousdPerKwh, algorithmVersion, pricingVersion, planVersion], map: "V2Allocation_logical_key")
@@ -584,4 +586,64 @@ model B22Ingestion {
   snapshot V2Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict)
   registry B22HourlyRegistry @relation(fields: [registryId], references: [id], onDelete: Restrict)
   @@index([marketId])
+}
+
+// B24-A1: offline fixture authority and durable reservations, distinct from payments.
+model B24Deployment {
+  id String @id @db.Uuid
+  status String @db.VarChar(24)
+  chainId Int
+  contractAddress String @db.VarChar(42)
+  tokenAddress String @db.VarChar(42)
+  tokenDecimals Int
+  codeHash String @db.VarChar(66)
+  artifactHash String @db.VarChar(66)
+  approvalPrincipal String @db.VarChar(128)
+  approvalEvidence String @db.Text
+  verifiedAt DateTime @db.Timestamptz(3)
+  policies B24SpendingPolicy[]
+  reservations B24AuthorizationReservation[]
+  @@unique([chainId, contractAddress])
+}
+model B24SpendingPolicy {
+  id String @id @db.Uuid
+  buyerId String @db.Uuid
+  buyerAddress String @db.VarChar(42)
+  deploymentId String @db.Uuid
+  tokenAddress String @db.VarChar(42)
+  marketId String? @db.VarChar(66)
+  perAllocationLimit BigInt
+  cumulativeLimit BigInt
+  effectiveAt DateTime @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  status String @db.VarChar(16)
+  consentKind String @db.VarChar(32)
+  version Int
+  approver String @db.VarChar(128)
+  auditReference String @db.Text
+  buyer User @relation(fields:[buyerId], references:[id], onDelete: Restrict)
+  deployment B24Deployment @relation(fields:[deploymentId], references:[id], onDelete: Restrict)
+  reservations B24AuthorizationReservation[]
+}
+model B24AuthorizationReservation {
+  id String @id @db.Uuid
+  allocationId String @unique @db.VarChar(66)
+  marketId String @db.VarChar(66)
+  deploymentId String @db.Uuid
+  policyId String @db.Uuid
+  buyerAddress String @db.VarChar(42)
+  amountBaseUnits BigInt
+  nonce BigInt
+  deadline DateTime @db.Timestamptz(3)
+  planCommitment String @db.VarChar(66)
+  settlementId String @db.VarChar(66)
+  terms Json
+  status String @default("RESERVED") @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  allocation V2Allocation @relation(fields:[allocationId,marketId], references:[id,marketId], onDelete: Restrict)
+  deployment B24Deployment @relation(fields:[deploymentId], references:[id], onDelete: Restrict)
+  policy B24SpendingPolicy @relation(fields:[policyId], references:[id], onDelete: Restrict)
+  @@unique([allocationId,marketId])
+  @@unique([deploymentId,buyerAddress,nonce])
+  @@index([policyId])
 }

@@ -33,7 +33,7 @@ function verifyReadback(proposal,plan,allocations,positions){
  for(const p of proposal.positions){const s=byId.get(p.userId);if(!s||s.role!==p.role||s.productionWh!==p.productionWh||s.consumptionWh!==p.consumptionWh||s.matchedBoughtWh!==(p.role==='BUYER'?p.matchedWh:'0')||s.matchedSoldWh!==(p.role==='SELLER'?p.matchedWh:'0')||s.unmatchedDeficitWh!==(p.role==='BUYER'?p.unmatchedWh:'0')||s.unmatchedSurplusWh!==(p.role==='SELLER'?p.unmatchedWh:'0'))throw Error('Persisted position mismatch');}
 }
 /** Validate persisted facts without calling the current Python matcher. */
-async function reconcile(client,slot,history,plan){
+export async function reconcile(client,slot,history,plan){
  const m=plan.manifest;
  if(plan.marketId!==history.marketId||plan.snapshotId!==history.snapshots[0].snapshotId||matchingInputHash(m)!==plan.manifestHash||plan.id!==planId(plan.marketId,plan.snapshotId,plan.manifestHash)||plan.planVersion!==`b22-${plan.manifestHash.slice(2)}`)throw Error('Conflicting historical plan identity or manifest');
  const archivedConfig={schemaVersion:'1.0.0',algorithmVersion:m.algorithmVersion,maximumDistanceKm:Number(m.maximumDistanceKm),scoringWeights:Object.fromEntries(Object.entries(m.scoringWeights).map(([k,v])=>[k,Number(v)]))};

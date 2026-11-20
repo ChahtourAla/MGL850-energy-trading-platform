@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {assessSpendingPolicy} from './b24a-policy.mjs';
+const p={status:'ACTIVE',consentKind:'SIMULATED_TEST',buyerId:'buyer',buyerAddress:'0xabc',deploymentId:'test',tokenAddress:'0xdef',marketId:'market',effectiveAt:'2026-01-01T00:00:00.000Z',expiresAt:'2027-01-01T00:00:00.000Z',approver:'test-role',auditReference:'fixture',perAllocationLimit:'2541',cumulativeLimit:'5000'};
+const d={id:'test',status:'TEST_FIXTURE',tokenAddress:'0xdef'},a={buyerId:'buyer',buyerAddress:'0xabc',marketId:'market',amountBaseUnits:'2541'};
+const check=(policy=p,allocation=a,deployment=d,reservedBaseUnits='0',now='2026-11-20T00:00:00.000Z')=>assessSpendingPolicy({policy,allocation,deployment,reservedBaseUnits,now});
+test('default has no policy approval',()=>assert.deepEqual(check(null),{state:'NO_POLICY',reason:'NO_POLICY'}));
+test('simulated policy uses exact integer budget',()=>assert.deepEqual(check(),{state:'CANDIDATE_POLICY_PASS',amountBaseUnits:'2541',remainingAfterReservation:'2459'}));
+test('rejects exhaustion, noncanonical amount and bigint overflow',()=>{assert.equal(check(p,a,d,'2460').reason,'CUMULATIVE_LIMIT');assert.throws(()=>check(p,{...a,amountBaseUnits:'01'}));assert.throws(()=>check(p,{...a,amountBaseUnits:'9223372036854775808'}));});
+test('fails closed for expired, revoked, missing evidence, wrong context and unverified deployments',()=>{assert.equal(check({...p,status:'REVOKED'}).state,'REVOKED');assert.equal(check({...p,expiresAt:'2026-10-01T00:00:00.000Z'}).state,'EXPIRED');assert.equal(check({...p,approver:''}).reason,'MISSING_APPROVAL_EVIDENCE');assert.equal(check({...p,buyerId:'wrong'}).reason,'POLICY_SCOPE_MISMATCH');assert.equal(check(p,a,{...d,status:'UNVERIFIED'}).reason,'DEPLOYMENT_NOT_APPROVED');assert.equal(check({...p,consentKind:'USER'}).reason,'CONSENT_NOT_VERIFIED_FOR_OFFLINE_MODE');});
