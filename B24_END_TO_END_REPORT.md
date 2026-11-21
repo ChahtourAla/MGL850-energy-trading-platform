@@ -1,0 +1,7 @@
+# B24 offline end-to-end evidence
+
+The dedicated `tools/b24-wallet-bound-postgres.ps1` harness creates a labeled disposable PostgreSQL 17 container and a local in-process Hardhat chain. It enrolls a new ephemeral buyer before B22 ingestion, obtains an authoritative historical allocation and reserves its payment under a simulated B24 policy. The allocation is 28 Wh at 90,750 micro-USD/kWh: exactly 2,541 TEUSD base units with zero remainder.
+
+The test calls the authenticated signing, funding and allowance services, checks their durable records and receipts, and requires `READY_FOR_LOCAL_SETTLEMENT`. It then invokes the B23 contract only on the local chain. The buyer debit and seller credit are exactly 2,541, the settlement contract retains zero tokens, the B23 and ERC-20 events are present, and replay is rejected. No V2 settlement intent or confirmation is created.
+
+Independent database sessions are coordinated on actual row locks for identical funding and allowance requests. Injected lost submission responses are recovered by sender and nonce without a second mint or approval. A lost allowance receipt is reconciled after policy revocation and deployment retirement. An EVM revert after the session anchor causes previously verified local transactions to be reported unresolved. These checks do not establish live Hedera operation, independent user consent, or production custody security.

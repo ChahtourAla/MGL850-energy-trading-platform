@@ -1,0 +1,12 @@
+GRANT SELECT,INSERT,UPDATE(status) ON "B24LocalFundingGrant" TO b24_approver;
+GRANT SELECT,INSERT,UPDATE(status) ON "B24LocalFundingBudget" TO b24_approver;
+GRANT SELECT,INSERT ON "B24LocalFundingBudgetGrant" TO b24_approver;
+GRANT USAGE ON SCHEMA public,b22_guard TO b24_funder;
+GRANT SELECT ON b22_guard.marker TO b24_funder;
+GRANT EXECUTE ON FUNCTION "b24_prepare_local_funding"(UUID,UUID,BIGINT,BIGINT),"b24_submit_local_funding"(UUID,TEXT) TO b24_funder;
+GRANT EXECUTE ON FUNCTION "b24_lock_local_funding"(UUID) TO b24_funder;
+GRANT EXECUTE ON FUNCTION "b24_mark_local_unresolved"(TEXT,UUID) TO b24_funder;
+GRANT EXECUTE ON FUNCTION "b24_attach_local_submission"(TEXT,UUID,TEXT) TO b24_funder;
+GRANT EXECUTE ON FUNCTION "b24_local_recovery_context"(TEXT,UUID) TO b24_funder;
+GRANT EXECUTE ON FUNCTION "b24_lock_local_funding_budget"(UUID) TO b24_funder;
+GRANT EXECUTE ON FUNCTION "b24_find_local_funding"(UUID,UUID) TO b24_funder;

@@ -603,6 +603,7 @@ model B24Deployment {
   verifiedAt DateTime @db.Timestamptz(3)
   policies B24SpendingPolicy[]
   reservations B24AuthorizationReservation[]
+  localSessions B24LocalChainSession[]
   @@unique([chainId, contractAddress])
 }
 model B24SpendingPolicy {
@@ -643,7 +644,204 @@ model B24AuthorizationReservation {
   allocation V2Allocation @relation(fields:[allocationId,marketId], references:[id,marketId], onDelete: Restrict)
   deployment B24Deployment @relation(fields:[deploymentId], references:[id], onDelete: Restrict)
   policy B24SpendingPolicy @relation(fields:[policyId], references:[id], onDelete: Restrict)
+  signedAuthorization B24SignedAuthorization?
+  signingOperations B24SigningOperation[]
+  fundingOperations B24FundingOperation[]
+  allowanceOperations B24AllowanceOperation[]
+  localSessions B24LocalChainSession[]
+  fundingSubmission B24FundingSubmission?
+  allowanceSubmissions B24AllowanceSubmission[]
   @@unique([allocationId,marketId])
   @@unique([deploymentId,buyerAddress,nonce])
   @@index([policyId])
+}
+
+model B24LocalChainSession {
+  id String @id @db.Uuid
+  reservationId String @db.Uuid
+  deploymentId String @db.Uuid
+  buyerAddress String @db.VarChar(42)
+  tokenAddress String @db.VarChar(42)
+  contractAddress String @db.VarChar(42)
+  chainId Int
+  anchorTransactionHash String @db.VarChar(66)
+  anchorBlockHash String @db.VarChar(66)
+  anchorBlockNumber BigInt
+  tokenRuntimeHash String @db.VarChar(66)
+  contractRuntimeHash String @db.VarChar(66)
+  status String @default("ACTIVE") @db.VarChar(16)
+  approvedBy String @db.VarChar(128)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  deployment B24Deployment @relation(fields:[deploymentId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  fundingGrants B24LocalFundingGrant[]
+  fundingSubmissions B24FundingSubmission[]
+  allowanceSubmissions B24AllowanceSubmission[]
+}
+
+
+// B24 draft journals: no runtime grants or payment execution are enabled.
+model B24SigningOperation {
+  id String @id @db.Uuid
+  reservationId String @unique @db.Uuid
+  idempotencyKey String @unique @db.VarChar(128)
+  principal String @db.VarChar(128)
+  state String @default("REQUESTED") @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict)
+  events B24OperationEvent[]
+  signedAuthorization B24SignedAuthorization?
+}
+model B24FundingOperation {
+  id String @id @db.Uuid
+  reservationId String @db.Uuid
+  idempotencyKey String @unique @db.VarChar(128)
+  principal String @db.VarChar(128)
+  amountBaseUnits BigInt
+  sessionId String @db.VarChar(128)
+  state String @default("PREPARED") @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict)
+  events B24OperationEvent[]
+  receipt B24ReceiptEvidence?
+  submission B24FundingSubmission?
+  @@index([reservationId])
+}
+
+model B24LocalFundingGrant {
+  id String @id @db.Uuid
+  sessionId String @db.Uuid
+  minterAddress String @db.VarChar(42)
+  perOperationLimit BigInt
+  cumulativeLimit BigInt
+  status String @default("ACTIVE") @db.VarChar(16)
+  approvedBy String @db.VarChar(128)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  session B24LocalChainSession @relation(fields:[sessionId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  submissions B24FundingSubmission[]
+  budgetBinding B24LocalFundingBudgetGrant?
+}
+
+model B24LocalFundingBudget {
+  id String @id @db.Uuid
+  buyerAddress String @db.VarChar(42)
+  tokenAddress String @db.VarChar(42)
+  minterAddress String @db.VarChar(42)
+  cumulativeLimit BigInt
+  status String @default("ACTIVE") @db.VarChar(16)
+  approvedBy String @db.VarChar(128)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  grants B24LocalFundingBudgetGrant[]
+  @@unique([buyerAddress,tokenAddress,minterAddress])
+}
+
+model B24LocalFundingBudgetGrant {
+  grantId String @id @db.Uuid
+  budgetId String @db.Uuid
+  grant B24LocalFundingGrant @relation(fields:[grantId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  budget B24LocalFundingBudget @relation(fields:[budgetId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+}
+
+model B24FundingSubmission {
+  operationId String @id @db.Uuid
+  reservationId String @unique @db.Uuid
+  grantId String @db.Uuid
+  sessionId String @db.Uuid
+  senderAddress String @db.VarChar(42)
+  senderNonce BigInt
+  operation B24FundingOperation @relation(fields:[operationId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  grant B24LocalFundingGrant @relation(fields:[grantId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  session B24LocalChainSession @relation(fields:[sessionId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([sessionId,senderAddress,senderNonce])
+}
+model B24AllowanceOperation {
+  id String @id @db.Uuid
+  reservationId String @db.Uuid
+  idempotencyKey String @unique @db.VarChar(128)
+  principal String @db.VarChar(128)
+  amountBaseUnits BigInt
+  sessionId String @db.VarChar(128)
+  state String @default("PREPARED") @db.VarChar(24)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict)
+  events B24OperationEvent[]
+  receipt B24ReceiptEvidence?
+  submission B24AllowanceSubmission?
+  @@index([reservationId])
+}
+
+model B24AllowanceSubmission {
+  operationId String @id @db.Uuid
+  reservationId String @db.Uuid
+  sessionId String @db.Uuid
+  senderNonce BigInt
+  targetAmount BigInt
+  operation B24AllowanceOperation @relation(fields:[operationId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  session B24LocalChainSession @relation(fields:[sessionId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([reservationId,targetAmount])
+  @@unique([sessionId,senderNonce])
+}
+
+model B24LocalSenderNonce {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  senderAddress String @db.VarChar(42)
+  senderNonce BigInt
+  kind String @db.VarChar(16)
+  operationId String @db.Uuid
+  @@unique([senderAddress,senderNonce])
+  @@unique([kind,operationId])
+}
+
+// Receipt evidence is an assertion by a trusted local verifier, not chain proof by PostgreSQL.
+model B24ReceiptEvidence {
+  id String @id @db.Uuid
+  fundingOperationId String? @unique @db.Uuid
+  allowanceOperationId String? @unique @db.Uuid
+  txHash String @db.VarChar(66)
+  blockHash String @db.VarChar(66)
+  blockNumber BigInt
+  logIndex Int
+  sessionId String @db.VarChar(128)
+  tokenAddress String @db.VarChar(42)
+  buyerAddress String @db.VarChar(42)
+  spenderAddress String? @db.VarChar(42)
+  amountBaseUnits BigInt
+  verifiedBy String @db.VarChar(128)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  fundingOperation B24FundingOperation? @relation(fields:[fundingOperationId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  allowanceOperation B24AllowanceOperation? @relation(fields:[allowanceOperationId], references:[id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([sessionId,txHash,logIndex])
+}
+
+// Append-only draft events. Successful execution is not yet enabled.
+model B24OperationEvent {
+  id String @id @db.Uuid
+  signingOperationId String? @db.Uuid
+  fundingOperationId String? @db.Uuid
+  allowanceOperationId String? @db.Uuid
+  sequence Int
+  state String @db.VarChar(24)
+  actor String @db.VarChar(128)
+  txHash String? @db.VarChar(66)
+  reason String? @db.Text
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  signingOperation B24SigningOperation? @relation(fields:[signingOperationId], references:[id], onDelete: Restrict)
+  fundingOperation B24FundingOperation? @relation(fields:[fundingOperationId], references:[id], onDelete: Restrict)
+  allowanceOperation B24AllowanceOperation? @relation(fields:[allowanceOperationId], references:[id], onDelete: Restrict)
+  @@unique([signingOperationId,sequence])
+  @@unique([fundingOperationId,sequence])
+  @@unique([allowanceOperationId,sequence])
+}
+// Draft offline signing record. Signature access must be restricted to trusted roles.
+model B24SignedAuthorization {
+  reservationId String @id @db.Uuid
+  operationId String @unique @db.Uuid
+  settlementId String @db.VarChar(66)
+  buyerAddress String @db.VarChar(42)
+  signature String @db.Text
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict)
+  operation B24SigningOperation @relation(fields:[operationId], references:[id], onDelete: Restrict)
 }
