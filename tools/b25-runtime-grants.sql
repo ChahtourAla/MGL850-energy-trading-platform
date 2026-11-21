@@ -1,0 +1,18 @@
+GRANT USAGE ON SCHEMA b22_guard TO b25_executor;
+GRANT SELECT ON b22_guard.marker TO b25_executor;
+GRANT EXECUTE ON FUNCTION "b25_create_local_intent"(UUID,UUID,TEXT) TO b25_executor;
+GRANT EXECUTE ON FUNCTION "b25_local_context"(TEXT), "b25_prepare_local_attempt"(TEXT,UUID,UUID,TEXT,BIGINT,TEXT,TEXT) TO b25_executor;
+GRANT SELECT ON "V2SettlementIntent", "V2SettlementEvidence" TO b25_executor;
+GRANT USAGE ON SCHEMA b22_guard TO b25_verifier;
+GRANT SELECT ON b22_guard.marker TO b25_verifier;
+GRANT SELECT ON "V2SettlementIntent", "V2SettlementEvidence" TO b25_verifier;
+GRANT EXECUTE ON FUNCTION "b25_receipt_context"(UUID) TO b25_verifier;
+GRANT USAGE ON SCHEMA b22_guard TO b25_reporter;
+GRANT SELECT ON b22_guard.marker TO b25_reporter;
+GRANT SELECT ON "V2Allocation", "V2AllocationPlan", "V2SettlementIntent", "B25LocalIntentBinding", "B25LocalAttempt", "V2SettlementEvidence" TO b25_reporter;
+GRANT EXECUTE ON FUNCTION "b25_lock_local_submission"(UUID) TO b25_executor;
+GRANT EXECUTE ON FUNCTION "b25_authorize_handoff"(UUID) TO b25_executor;
+GRANT EXECUTE ON FUNCTION "b25_record_nonce_conflict"(UUID,UUID,TEXT) TO b25_verifier;
+GRANT SELECT ON "B25RevertEvidence" TO b25_reporter;
+GRANT SELECT ON "B25CanonicalOutcomeEvent" TO b25_verifier, b25_reporter;
+GRANT EXECUTE ON FUNCTION "b25_record_outcome"(UUID,UUID,TEXT,TEXT,BIGINT,INTEGER,INTEGER,UUID) TO b25_verifier;

@@ -478,6 +478,7 @@ model V2SettlementIntent {
   allocation V2Allocation @relation(fields: [allocationId, marketId], references: [id, marketId], onDelete: Restrict)
   attempts V2SettlementAttempt[]
   evidence V2SettlementEvidence[]
+  b25LocalBinding B25LocalIntentBinding?
   @@unique([allocationId, marketId])
   @@index([status, updatedAt])
 }
@@ -516,6 +517,7 @@ model V2SettlementEvidence {
   confirmedAt DateTime @db.Timestamptz(3)
   verificationStatus String @db.VarChar(24)
   settlement V2SettlementIntent @relation(fields: [settlementId], references: [id], onDelete: Restrict)
+  b25LocalEvidence B25LocalEvidence?
   @@unique([chainId, txHash, logIndex])
   @@index([settlementId, verificationStatus])
 }
@@ -651,6 +653,7 @@ model B24AuthorizationReservation {
   localSessions B24LocalChainSession[]
   fundingSubmission B24FundingSubmission?
   allowanceSubmissions B24AllowanceSubmission[]
+  b25Binding B25LocalIntentBinding?
   @@unique([allocationId,marketId])
   @@unique([deploymentId,buyerAddress,nonce])
   @@index([policyId])
@@ -677,6 +680,10 @@ model B24LocalChainSession {
   fundingGrants B24LocalFundingGrant[]
   fundingSubmissions B24FundingSubmission[]
   allowanceSubmissions B24AllowanceSubmission[]
+  b25Bindings B25LocalIntentBinding[]
+  b25Attempts B25LocalAttempt[]
+  b25Evidence B25LocalEvidence[]
+  b25OutcomeEvents B25CanonicalOutcomeEvent[]
 }
 
 
@@ -844,4 +851,115 @@ model B24SignedAuthorization {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   reservation B24AuthorizationReservation @relation(fields:[reservationId], references:[id], onDelete: Restrict)
   operation B24SigningOperation @relation(fields:[operationId], references:[id], onDelete: Restrict)
+}
+
+// B25 local-only linkage. PostgreSQL functions enforce all runtime writes.
+model B25LocalIntentBinding {
+  intentId String @id @db.VarChar(66)
+  reservationId String @unique @db.Uuid
+  sessionId String @db.Uuid
+  settlementDigest String @unique @db.VarChar(66)
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  intent V2SettlementIntent @relation(fields: [intentId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  reservation B24AuthorizationReservation @relation(fields: [reservationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  session B24LocalChainSession @relation(fields: [sessionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  attempt B25LocalAttempt?
+  outcomes B25CanonicalOutcomeEvent[]
+}
+model B25LocalAttempt {
+  id String @id @db.Uuid
+  intentId String @unique @db.VarChar(66)
+  sessionId String @db.Uuid
+  operatorAddress String @db.VarChar(42)
+  operatorNonce BigInt
+  transactionHash String @unique @db.VarChar(66)
+  calldataHash String @db.VarChar(66)
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  intent B25LocalIntentBinding @relation(fields: [intentId], references: [intentId], onDelete: Restrict, onUpdate: NoAction)
+  session B24LocalChainSession @relation(fields: [sessionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  evidence B25LocalEvidence?
+  observations B25EvidenceObservation[]
+  recoveryObservations B25RecoveryObservation[]
+  revertEvidence B25RevertEvidence?
+  handoff B25DispatchHandoff?
+  outcomes B25CanonicalOutcomeEvent[]
+  @@unique([operatorAddress,operatorNonce])
+}
+model B25LocalEvidence {
+  evidenceId String @id @db.Uuid
+  attemptId String @unique @db.Uuid
+  sessionId String @db.Uuid
+  settlementDigest String @db.VarChar(66)
+  blockHash String @db.VarChar(66)
+  blockNumber BigInt
+  transferLogIndex Int
+  verifiedBy String
+  verifiedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  evidence V2SettlementEvidence @relation(fields: [evidenceId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  attempt B25LocalAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  session B24LocalChainSession @relation(fields: [sessionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+}
+
+model B25EvidenceObservation {
+  id String @id @db.Uuid
+  attemptId String @db.Uuid
+  state String
+  observedBy String
+  observedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  attempt B25LocalAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+}
+
+model B25DispatchHandoff {
+  attemptId String @id @db.Uuid
+  authorizedBy String
+  authorizedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  attempt B25LocalAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+}
+
+model B25RecoveryObservation {
+  id String @id @db.Uuid
+  attemptId String @db.Uuid
+  state String
+  conflictingTransactionHash String @db.VarChar(66)
+  observedBy String
+  observedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  attempt B25LocalAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([attemptId,state,conflictingTransactionHash])
+}
+
+model B25RevertEvidence {
+  id String @id @db.Uuid
+  attemptId String @unique @db.Uuid
+  blockHash String @db.VarChar(66)
+  blockNumber BigInt
+  verifiedBy String
+  verifiedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  attempt B25LocalAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+}
+
+// Canonicality decisions are append-only; the SQL function serializes each attempt.
+model B25CanonicalOutcomeEvent {
+  id String @id @db.Uuid
+  attemptId String @db.Uuid
+  intentId String @db.VarChar(66)
+  sessionId String @db.Uuid
+  transactionHash String @db.VarChar(66)
+  operatorNonce BigInt
+  calldataHash String @db.VarChar(66)
+  settlementDigest String @db.VarChar(66)
+  sequence Int
+  outcome String
+  blockHash String @db.VarChar(66)
+  blockNumber BigInt
+  settlementLogIndex Int?
+  transferLogIndex Int?
+  supersedesId String? @db.Uuid
+  verifiedBy String
+  verifiedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(3)
+  attempt B25LocalAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  intent B25LocalIntentBinding @relation(fields: [intentId], references: [intentId], onDelete: Restrict, onUpdate: NoAction)
+  session B24LocalChainSession @relation(fields: [sessionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  supersedes B25CanonicalOutcomeEvent? @relation("B25OutcomeSupersession", fields: [supersedesId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  supersededBy B25CanonicalOutcomeEvent[] @relation("B25OutcomeSupersession")
+  @@unique([attemptId, sequence])
 }
