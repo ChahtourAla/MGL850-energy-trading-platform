@@ -4,7 +4,7 @@
   "private": true,
   "description": "Decentralized peer-to-peer energy trading platform on Hedera",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.22.3"
   },
   "scripts": {
     "build": "pnpm -r build",
@@ -16,5 +16,6 @@
     "prettier": "^3.9.9",
     "prettier-plugin-solidity": "^2.4.1",
     "prisma": "7.10.0"
-  }
+  },
+  "packageManager": "pnpm@10.33.4"
 }
