@@ -20,11 +20,16 @@ export async function createLocalOperatorRegistry({client,provider}){
  registryState.set(registry,{wallet,provider,host:client.connectionParameters.host,database:client.connectionParameters.database,port:client.connectionParameters.port});
  return registry;
 }
-export async function executeLocalSettlement({client,preflightClient,provider,session,registry,intentId}){
+export async function executeLocalSettlement({client,preflightClient,provider,session,registry,intentId,b26Fence}){
  guard(client);
  const state=registryState.get(registry),t=client.connectionParameters;
  if(!state||state.provider!==provider||state.host!==t.host||state.database!==t.database||state.port!==t.port)throw Error('Unregistered B25 operator');
  return withClientLock(client,async()=>{
+  if(b26Fence){
+   if(!/^[0-9a-f-]{36}$/i.test(b26Fence.runId??'')||!/^[0-9a-f-]{36}$/i.test(b26Fence.workerId??'')||!/^[1-9][0-9]*$/.test(String(b26Fence.fence)))throw Error('Invalid B26 execution fence');
+   await client.query("SELECT set_config('b26.run_id',$1,false),set_config('b26.worker_id',$2,false),set_config('b26.fence',$3,false)",[b26Fence.runId,b26Fence.workerId,String(b26Fence.fence)]);
+  }
+  try{
   const x=(await client.query('SELECT "b25_local_context"($1) context',[intentId])).rows[0]?.context;
   if(!x||x.sessionId!==session?.id)throw Error('B25 intent context invalid');
   if(x.attempt)return {state:'UNRESOLVED',phase:x.attempt.handedOff?'HANDED_OFF':'PREPARED',attemptId:x.attempt.id,transactionHash:x.attempt.transactionHash,reused:true,simulationOnly:true};
@@ -64,5 +69,8 @@ export async function executeLocalSettlement({client,preflightClient,provider,se
   try{await withLocalTimeout(provider.broadcastTransaction(raw));}
   catch{return {state:'UNRESOLVED',attemptId,transactionHash:hash,reused:false,simulationOnly:true};}
   return {state:'SUBMITTED',attemptId,transactionHash:hash,reused:false,simulationOnly:true};
+  }finally{
+   if(b26Fence)await client.query("SELECT set_config('b26.run_id','',false),set_config('b26.worker_id','',false),set_config('b26.fence','',false)");
+  }
  });
 }

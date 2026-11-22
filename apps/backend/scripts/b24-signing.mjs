@@ -32,6 +32,13 @@ export async function createEphemeralTestWalletRegistry({client,provider}){
  return registry;
 }
 
+/** Public membership check only; the registry never exports key material. */
+export function hasRegisteredTestBuyer(registry,address){
+ const registered=registries.get(registry);
+ if(!registered)return false;
+ try{return registered.wallets.has(getAddress(address));}catch{return false;}
+}
+
 export function createOfflineSigningService({client,preflightClient,registry,session}) {
  checkTarget(client);
  const registered=registries.get(registry);

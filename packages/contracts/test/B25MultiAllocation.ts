@@ -1,3 +1,10 @@
+import {runSchedulerTick,processControlRequest} from '../../../apps/backend/scripts/b26-market-scheduler.mjs';
+import {discoverExistingAuthorization} from '../../../apps/backend/scripts/b26-authorization-discovery.mjs';
+import {createOfflinePaymentSupervisor} from '../../../apps/backend/scripts/b26-payment-supervisor.mjs';
+import {attachSupervisorToWorker} from '../../../apps/backend/scripts/b26-supervisor-ipc.mjs';
+import {createDisposableFixtureProvisioner} from '../../../apps/backend/scripts/b26-fixture-provisioner.mjs';
+import {fork} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {expect} from 'chai';
 import assert from 'node:assert/strict';
 import {network} from 'hardhat';
@@ -47,6 +54,83 @@ describe('B25 genuine two-allocation market',function(){
    const localOperator=await createLocalOperatorRegistry({client:executor,provider:ethers.provider});await (await admin.sendTransaction({to:localOperator.address,value:ethers.parseEther('1')})).wait();await (await contract.grantRole(await contract.OPERATOR_ROLE(),localOperator.address)).wait();
    const sessions=new Map();let verified=0n;
    const initial=await reconcileLocalMarket({client:reporter,verifierClient:verifier,provider:ethers.provider,marketId:plan.marketId,sessions});expect(initial.pending).eq(2);expect(initial.verifiedPaidBaseUnits).eq('0');expect(initial.unpaidBaseUnits).eq('14608');
+   if(process.env.B26_TEST_COORDINATOR==='1'&&process.env.B26_WORKER_DATABASE_URL){
+    const adminUrl=new URL(process.env.B26_WORKER_DATABASE_URL);adminUrl.username='b26_admin';
+    const coord=new Client({connectionString:process.env.B26_WORKER_DATABASE_URL}),b26admin=new Client({connectionString:adminUrl.toString()});await Promise.all([coord.connect(),b26admin.connect()]);
+    try{
+     const fixtures:any[]=[];
+     for(let i=0;i<2;i++){
+      const a=plan.allocations.find((x:any)=>x.buyerId===users[i+1].userId),policy=randomUUID(),amount=BigInt(a.amountBaseUnits);
+      await approver.query(`INSERT INTO "B24SpendingPolicy"(id,"buyerId","buyerAddress","deploymentId","tokenAddress","marketId","perAllocationLimit","cumulativeLimit","effectiveAt","expiresAt",status,"consentKind",version,approver,"auditReference") VALUES($1,$2,$3,$4,$5,$6,$7,$7,now()-interval '1 minute',now()+interval '1 hour','ACTIVE','SIMULATED_TEST',1,'ignored','multi fixture')`,[policy,a.buyerId,buyers[i].address.toLowerCase(),deployment,tokenAddress,plan.marketId,amount.toString()]);
+      const before=await discoverExistingAuthorization({client:evaluator,slot,allocationId:a.allocationId,sessions:new Map(),grantsBySession:new Map()});
+      expect(before).deep.eq({state:'POLICY_CANDIDATE',policyId:policy,deploymentId:deployment});
+      expect((await evaluator.query('SELECT count(*)::int n FROM "B24AuthorizationReservation" WHERE "allocationId"=$1',[a.allocationId])).rows[0].n).eq(0);
+      const anchor=await (await admin.sendTransaction({to:buyers[i].address,value:ethers.parseEther('1')})).wait();
+      const budget=randomUUID();
+      await approver.query(`INSERT INTO "B24LocalFundingBudget"(id,"buyerAddress","tokenAddress","minterAddress","cumulativeLimit","approvedBy") VALUES($1,$2,$3,$4,$5,'ignored')`,[budget,buyers[i].address.toLowerCase(),tokenAddress,admin.address.toLowerCase(),amount.toString()]);
+      if(i===1){fixtures.push({a,policy,budget,anchor});continue;}
+      const row=(await prepareAuthorization(evaluator,{slot,allocationId:a.allocationId,policyId:policy,deploymentId:deployment,execute:true})).reservation;
+      const session=await establishLocalChainSession(preflight,{reservationId:row.id,provider:ethers.provider,anchorTransactionHash:anchor.hash,approvalClient:approver});sessions.set(row.id,session);
+      const grantId=randomUUID();
+      await approver.query(`INSERT INTO "B24LocalFundingGrant"(id,"sessionId","minterAddress","perOperationLimit","cumulativeLimit","approvedBy") VALUES($1,$2,$3,$4,$4,'ignored')`,[grantId,session.id,admin.address.toLowerCase(),amount.toString()]);
+      await approver.query('INSERT INTO "B24LocalFundingBudgetGrant"("grantId","budgetId") VALUES($1,$2)',[grantId,budget]);
+      fixtures.push({a,row,policy,session,grantId,budget,anchor});
+     }
+     const grantsBySession=new Map([[fixtures[0].session.id,fixtures[0].grantId]]);
+     const localPayments={clients:{evaluator,preflight,signer,funder,receiptVerifier:receiptClient,allowance:allowanceClient,executor,verifier,reporter},provider:ethers.provider,registry,operatorRegistry:localOperator,minter:admin,grantsBySession,sessions};
+     const buyerApprovals=new Map();
+     const fixtureProvisioner=await createDisposableFixtureProvisioner({approvalClient:approver,evaluator,preflight,provider:ethers.provider,registry,minter:admin,buyerApprovals,sessions,grantsBySession});
+     const missingArgs={slot,allocationId:fixtures[1].a.allocationId,policyId:fixtures[1].policy,deploymentId:deployment,checkLease:async()=>{}};
+     expect((await fixtureProvisioner.provision(missingArgs)).reason).eq('APPROVED_LOCAL_CAPABILITY_MISSING');
+     buyerApprovals.set(buyers[1].address.toLowerCase(),{deploymentId:deployment,budgetId:fixtures[0].budget,anchorTransactionHash:fixtures[1].anchor.hash});
+     await assert.rejects(fixtureProvisioner.provision(missingArgs),/Preapproved funding budget mismatch/);
+     buyerApprovals.delete(buyers[1].address.toLowerCase());
+     expect((await evaluator.query('SELECT count(*)::int n FROM "B24AuthorizationReservation" WHERE "allocationId"=$1',[fixtures[1].a.allocationId])).rows[0].n).eq(0);
+     (localPayments as any).supervisor=createOfflinePaymentSupervisor({coordinationClient:coord,matchingClient:matcher,localPayments,fixtureProvisioner});
+     const first=(await runSchedulerTick({coordinationClient:coord,matchingClient:matcher,from:new Date(slot),workerId:randomUUID(),limit:1,localPayments}))[0];
+     expect(first.state).eq('PARTIALLY_SETTLED');expect(first.report.confirmed).eq(1);expect(first.report.pending).eq(1);expect(first.report.expectedBaseUnits).eq('14608');
+     expect((await evaluator.query('SELECT count(*)::int n FROM "B24AuthorizationReservation" WHERE "allocationId"=$1',[fixtures[1].a.allocationId])).rows[0].n).eq(0);
+     await assert.rejects((localPayments as any).supervisor.execute({runId:first.run.id,workerId:randomUUID(),fence:'1',allocationId:fixtures[0].a.allocationId}),/stale worker/);
+     expect(BigInt(first.report.verifiedPaidBaseUnits)+BigInt(first.report.unpaidBaseUnits)).eq(14608n);
+     expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt" WHERE "intentId" IN (SELECT id FROM "V2SettlementIntent" WHERE "marketId"=$1)',[plan.marketId])).rows[0].n).eq(1);
+     buyerApprovals.set(buyers[1].address.toLowerCase(),{deploymentId:deployment,budgetId:fixtures[1].budget,anchorTransactionHash:fixtures[1].anchor.hash});
+     const requestId=randomUUID();await b26admin.query('SELECT b26_request_control($1,$2,$3,$4,$5)',[requestId,'RECOVER',first.run.id,null,null]);
+     // The scheduler runs in a different process; the parent retains the
+     // ephemeral wallets and exposes only the narrow IPC supervisor methods.
+     const child=fork(fileURLToPath(new URL('../../../apps/backend/scripts/b26-scheduler-cli.mjs',import.meta.url)),[],{env:{...process.env,B26_START_UTC:slot,B26_OFFLINE_SCHEDULER:'1',B26_SCHEDULER_MODE:'SUPERVISED_TEST'},stdio:['ignore','pipe','pipe','ipc']});
+     const detach=attachSupervisorToWorker(child,(localPayments as any).supervisor);
+     try{
+      const until=Date.now()+60000;
+      while(Date.now()<until){
+       if(child.exitCode!==null)throw Error(`Supervised scheduler exited: ${child.exitCode}`);
+       const status=(await owner.query('SELECT status FROM "B26MarketRun" WHERE id=$1',[first.run.id])).rows[0].status;
+       if(status==='SETTLED')break;
+       await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      expect((await owner.query('SELECT status FROM "B26MarketRun" WHERE id=$1',[first.run.id])).rows[0].status).eq('SETTLED');
+     } finally {detach();child.kill();}
+     const final=await reconcileLocalMarket({client:reporter,verifierClient:verifier,provider:ethers.provider,marketId:plan.marketId,sessions});
+     expect(final.confirmed).eq(2);expect(final.verifiedPaidBaseUnits).eq('14608');expect(final.unpaidBaseUnits).eq('0');
+     const provisioned=(await owner.query('SELECT r.id,s.id AS session_id,g.id AS grant_id FROM "B24AuthorizationReservation" r JOIN "B24LocalChainSession" s ON s."reservationId"=r.id JOIN "B24LocalFundingGrant" g ON g."sessionId"=s.id JOIN "B24LocalFundingBudgetGrant" bg ON bg."grantId"=g.id WHERE r."allocationId"=$1 AND bg."budgetId"=$2',[fixtures[1].a.allocationId,fixtures[1].budget])).rows;
+     expect(provisioned.length).eq(1);
+     expect((await owner.query('SELECT status FROM "B26MarketRun" WHERE id=$1',[first.run.id])).rows[0].status).eq('SETTLED');
+     expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt" WHERE "intentId" IN (SELECT id FROM "V2SettlementIntent" WHERE "marketId"=$1)',[plan.marketId])).rows[0].n).eq(2);
+     // A later revocation cannot erase the already-submitted transaction.
+     // Reconciliation uses its original evidence and never signs or broadcasts again.
+     await approver.query('UPDATE "B24SpendingPolicy" SET status=\'REVOKED\' WHERE id=$1',[fixtures[0].policy]);
+     grantsBySession.delete(fixtures[0].session.id);
+     sessions.delete(fixtures[0].row.id);
+     const revoked=await discoverExistingAuthorization({client:evaluator,executor,preflight,provider:ethers.provider,slot,allocationId:fixtures[0].a.allocationId,sessions,grantsBySession});
+     expect(revoked.state).eq('RECOVERY_ONLY');
+     expect(revoked.session.id).eq(fixtures[0].session.id);
+     await b26admin.query('SELECT b26_request_control($1,$2,$3,$4,$5)',[randomUUID(),'RECOVER',first.run.id,null,null]);
+     const afterRevocation=await processControlRequest({coordinationClient:coord,matchingClient:matcher,workerId:randomUUID(),localPayments});
+     expect(afterRevocation.state).eq('DONE');
+     expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt" WHERE "intentId" IN (SELECT id FROM "V2SettlementIntent" WHERE "marketId"=$1)',[plan.marketId])).rows[0].n).eq(2);
+     console.log(JSON.stringify({test:'B26_MULTI',partialPaid:first.report.verifiedPaidBaseUnits,totalPaid:final.verifiedPaidBaseUnits}));
+    }finally{await Promise.all([coord.end(),b26admin.end()]);}
+    return;
+   }
    for(let i=0;i<2;i++){
     const a=plan.allocations.find((x:any)=>x.buyerId===users[i+1].userId);expect(a).not.eq(undefined);
     const policy=randomUUID(),amount=BigInt(a.amountBaseUnits);

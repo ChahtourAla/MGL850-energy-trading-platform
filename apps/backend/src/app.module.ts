@@ -1,3 +1,4 @@
+import { B26MarketRunsModule } from './b26-market-runs/b26-market-runs.module.js';
 import { TradingApiModule } from './trading-api/trading-api.module.js';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +25,7 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 @Module({
   imports: [
+    B26MarketRunsModule,
     TradingApiModule,
     ConfigModule.forRoot({
       isGlobal: true,

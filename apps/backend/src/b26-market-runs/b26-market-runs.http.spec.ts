@@ -1,0 +1,30 @@
+﻿import {describe,it,expect,afterAll} from 'vitest';
+import {Test} from '@nestjs/testing';
+import {ConfigService} from '@nestjs/config';
+import type {INestApplication} from '@nestjs/common';
+import request from 'supertest';
+import {B26MarketRunsController} from './b26-market-runs.controller.js';
+import {B26MarketRunsService} from './b26-market-runs.service.js';
+import {B26AdminController} from './b26-admin.controller.js';
+import {B26AdminService} from './b26-admin.service.js';
+import {B26AdminGuard} from './b26-admin.guard.js';
+import {TradingApiAdminGuard} from '../trading-api/trading-api-admin.guard.js';
+let app:INestApplication|undefined;
+afterAll(async()=>{await app?.close();});
+describe('B26 internal reporting and administrative HTTP boundary',()=>{
+ it('separates read and admin credentials and validates requests',async()=>{
+  const readKey='b26-test-read-only-secret-over-thirty-two-characters';
+  const adminKey='b26-test-administration-secret-over-thirty-two-characters';
+  const module=await Test.createTestingModule({controllers:[B26MarketRunsController,B26AdminController],providers:[TradingApiAdminGuard,B26AdminGuard,{provide:ConfigService,useValue:{get:(key:string)=>key==='B26_ADMIN_KEY'?adminKey:readKey}},{provide:B26MarketRunsService,useValue:{list:()=>({runs:[],simulationOnly:true,financialSummaryVerified:false})}},{provide:B26AdminService,useValue:{request:(id:string)=>({requestId:id,status:'PENDING',simulationOnly:true})}}]}).compile();
+  app=module.createNestApplication();await app.init();
+  const path='/internal/v2/market-runs?from=2026-10-01T00:00:00Z&to=2026-10-02T00:00:00Z';
+  await request(app.getHttpServer()).get(path).expect(403);
+  await request(app.getHttpServer()).get(path).set('x-trading-read-key',readKey).expect(200).expect(({body})=>expect(body.financialSummaryVerified).toBe(false));
+  await request(app.getHttpServer()).get('/internal/v2/market-runs?from=bad&to=bad').set('x-trading-read-key',readKey).expect(400);
+  const body={requestId:'9db2796a-2ab8-4fd4-b170-42b23cfaf63f',from:'2026-10-01T00:00:00Z',to:'2026-10-02T00:00:00Z'};
+  await request(app.getHttpServer()).post('/internal/v2/market-runs/catch-up').set('x-trading-read-key',readKey).send(body).expect(403);
+  await request(app.getHttpServer()).post('/internal/v2/market-runs/catch-up').set('x-b26-admin-key',adminKey).send(body).expect(202);
+  await request(app.getHttpServer()).post('/internal/v2/market-runs/catch-up').set('x-b26-admin-key',adminKey).send({...body,amount:'1'}).expect(400);
+  await request(app.getHttpServer()).post('/internal/v2/market-runs/not-a-uuid/recover').set('x-b26-admin-key',adminKey).send({requestId:body.requestId}).expect(400);
+ });
+});

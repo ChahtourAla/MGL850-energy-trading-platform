@@ -1,4 +1,7 @@
 import {fork} from 'node:child_process';
+import {processLocalAllocation} from '../../../apps/backend/scripts/b26-local-payment.mjs';
+import {runSchedulerTick,runScheduler,createDisposableTestClock} from '../../../apps/backend/scripts/b26-market-scheduler.mjs';
+import {ensureMarketRun,claimMarketRun,releaseMarketRun,checkpointMarketRun} from '../../../apps/backend/scripts/b26-market-run.mjs';
 import {fileURLToPath} from 'node:url';
 import {reconcileLocalMarket} from '../../../apps/backend/scripts/b25-settlement-reconciliation.mjs';
 import {recoverLocalSettlement} from '../../../apps/backend/scripts/b25-settlement-recovery.mjs';
@@ -86,7 +89,14 @@ describe('B25 database-bound local settlement',function(){
    ] as any[])await assert.rejects(runtime.query(sql,args),reason);
    await assert.rejects(b25verifier.query('SELECT "b25_authorize_handoff"($1)',[randomUUID()]),(e:any)=>e.code==='42501');
    await assert.rejects(b25reporter.query('SELECT "b25_record_revert"($1,$2,$3,$4)',[randomUUID(),randomUUID(),'0x'+'00'.repeat(32),0]),(e:any)=>e.code==='42501');
-   const [admin,operator,pauser]=await ethers.getSigners();const registry=await createEphemeralTestWalletRegistry({client:signerClient,provider:ethers.provider});const buyer=registry.createBuyer();
+   const [admin,operator,pauser]=await ethers.getSigners();const registry=await createEphemeralTestWalletRegistry({client:signerClient,provider:ethers.provider});let buyer=registry.createBuyer();
+   let crashWorker:any,crashInfo:any;
+   if(process.env.B26_TEST_CRASH_AFTER_HANDOFF==='1'||process.env.B26_TEST_CRASH_AFTER_BROADCAST==='1'){
+    const childPath=fileURLToPath(new URL('../../../tools/b26-payment-restart-child.mjs',import.meta.url));
+    crashWorker=fork(childPath,['execute'],{stdio:['ignore','ignore','inherit','ipc']});
+    crashInfo=await new Promise((resolve,reject)=>{crashWorker.once('message',resolve);crashWorker.once('error',reject);crashWorker.once('exit',(code:any)=>reject(Error(`payment worker exited ${code}`)));});
+    expect(crashInfo.phase).eq('ready');buyer={address:crashInfo.buyer};
+   }
    const raw=JSON.parse(readFileSync(new URL('../../shared/fixtures/b22-hourly-prototype.json',import.meta.url),'utf8'));
    const users=raw.snapshot.users.map((u:any,i:number)=>({userId:u.userId,name:`Synthetic ${i}`,email:`wallet-bound-${i}@example.com`,physicalAddress:'Simulated road',xKm:u.xKm,yKm:u.yKm,preferredEnergyType:u.preferredEnergyType,reputation:u.reputation-(i===0?2:0),hederaAccountId:`0.0.${1000+i}`,evmAddress:i===4?buyer.address.toLowerCase():u.evmAddress}));
    for(const [i,u] of users.entries()){
@@ -146,6 +156,171 @@ describe('B25 database-bound local settlement',function(){
    await retireLocalChainSession(staleSession,approver);
    const anchor=await (await admin.sendTransaction({to:buyer.address,value:ethers.parseEther('1')})).wait();
    const session=await establishLocalChainSession(preflight,{reservationId:row.id,provider:ethers.provider,anchorTransactionHash:anchor.hash,approvalClient:approver});
+   if(process.env.B26_TEST_COORDINATOR==='1'){
+    const grantId=randomUUID(),fundingBudget=randomUUID();
+    await approver.query('INSERT INTO "B24LocalFundingGrant"(id,"sessionId","minterAddress","perOperationLimit","cumulativeLimit","approvedBy") VALUES($1,$2,$3,2541,2541,$4)',[grantId,session.id,admin.address.toLowerCase(),'ignored']);
+    await approver.query('INSERT INTO "B24LocalFundingBudget"(id,"buyerAddress","tokenAddress","minterAddress","cumulativeLimit","approvedBy") VALUES($1,$2,$3,$4,2541,$5)',[fundingBudget,buyer.address.toLowerCase(),tokenAddress,admin.address.toLowerCase(),'ignored']);
+    await approver.query('INSERT INTO "B24LocalFundingBudgetGrant"("grantId","budgetId") VALUES($1,$2)',[grantId,fundingBudget]);
+    const localOperator=await createLocalOperatorRegistry({client:b25executor,provider:ethers.provider});
+    await (await admin.sendTransaction({to:localOperator.address,value:ethers.parseEther('1')})).wait();
+    await (await contract.connect(admin).grantRole(await contract.OPERATOR_ROLE(),localOperator.address)).wait();
+    const paymentArgs={slot,allocationId:allocation.allocationId,policyId:policy,deploymentId:deployment,session,registry,operatorRegistry:localOperator,provider:ethers.provider,minter:admin,grantId,clients:{evaluator,preflight,signer:signerClient,funder,receiptVerifier,allowance:allowanceClient,executor:b25executor,verifier:b25verifier}};
+    await assert.rejects(processLocalAllocation({...paymentArgs,policyId:randomUUID()}),/Conflicting B24 authorization context/);
+    expect((await owner.query('SELECT count(*)::int n FROM "B24SignedAuthorization" WHERE "reservationId"=$1',[row.id])).rows[0].n).eq(0);
+    expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(0);
+    const sellerAddress=users.find((u:any)=>u.userId===allocation.sellerId).evmAddress;
+    const sellerBefore=await token.balanceOf(sellerAddress);
+    if(process.env.B26_TEST_CRASH_AFTER_HANDOFF==='1'||process.env.B26_TEST_CRASH_AFTER_BROADCAST==='1'){
+     await (await admin.sendTransaction({to:crashInfo.operator,value:ethers.parseEther('1')})).wait();
+     await (await contract.connect(admin).grantRole(await contract.OPERATOR_ROLE(),crashInfo.operator)).wait();
+     const broadcastCrash=process.env.B26_TEST_CRASH_AFTER_BROADCAST==='1';
+     const args={slot,allocationId:allocation.allocationId,policyId:policy,deploymentId:deployment,sessionId:session.id,grantId,reservationId:row.id,crashPoint:broadcastCrash?'broadcast':'handoff'};
+     const handoff=new Promise<any>((resolve,reject)=>{crashWorker.once('message',resolve);crashWorker.once('error',reject);});crashWorker.send(args);
+     const msg:any=await handoff;expect(msg.phase).eq(broadcastCrash?'broadcast':'handoff');
+     const stopped=new Promise<void>(resolve=>crashWorker.once('exit',()=>resolve()));crashWorker.kill();await stopped;
+     expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(1);
+     expect((await owner.query('SELECT count(*)::int n FROM "B25DispatchHandoff"')).rows[0].n).eq(1);
+     expect(await token.balanceOf(sellerAddress)).eq(sellerBefore+(broadcastCrash?2541n:0n));
+     await owner.query("UPDATE \"B26MarketRun\" SET \"leaseUntil\"=clock_timestamp()-interval '1 second' WHERE \"intervalStart\"=$1",[slot]);
+     const childPath=fileURLToPath(new URL('../../../tools/b26-payment-restart-child.mjs',import.meta.url));
+     const recovery=fork(childPath,['recover'],{stdio:['ignore','ignore','inherit','ipc']});
+     const ready:any=await new Promise((resolve,reject)=>{recovery.once('message',resolve);recovery.once('error',reject);recovery.once('exit',(code)=>reject(Error(`recovery exited ${code}`)));});expect(ready.phase).eq('awaiting');
+     const resultPromise=new Promise<any>((resolve,reject)=>{recovery.once('message',resolve);recovery.once('error',reject);});recovery.send(args);
+     const recovered=await resultPromise;expect(recovered.phase).eq('result');expect(recovered.state).eq(broadcastCrash?'SETTLED':'NEEDS_RECONCILIATION');expect(recovered.paid).eq(broadcastCrash?'2541':'0');expect(recovered.unresolved).eq(broadcastCrash?0:1);
+     await new Promise<void>((resolve,reject)=>{if(recovery.exitCode!==null){recovery.exitCode===0?resolve():reject(Error('recovery failed'));return;}recovery.once('exit',code=>code===0?resolve():reject(Error(`recovery exited ${code}`)));});
+     expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(1);expect(await token.balanceOf(sellerAddress)).eq(sellerBefore+(broadcastCrash?2541n:0n));
+     return;
+    }
+    if(process.env.B26_TEST_POST_HANDOFF_RACE==='1'){
+     const coord=new Client({connectionString:process.env.B26_WORKER_DATABASE_URL});await coord.connect();
+     let releaseGate:()=>void=()=>{};const gate=new Promise<void>(resolve=>releaseGate=resolve);
+     let signalHandoff:()=>void=()=>{};const handedOff=new Promise<void>(resolve=>signalHandoff=resolve);
+     const originalQuery=b25executor.query.bind(b25executor),originalBroadcast=ethers.provider.broadcastTransaction.bind(ethers.provider);let isHandoff=false,broadcasts=0;
+     try{
+      const run=await ensureMarketRun(coord,{start:new Date(slot)}),worker=randomUUID();
+      const lease=await claimMarketRun(coord,{runId:run.id,workerId:worker,leaseSeconds:60});
+      await checkpointMarketRun(coord,{runId:run.id,workerId:worker,fence:lease.fence,state:'SNAPSHOT_FINALIZED',snapshotId:snapshot.snapshotId,snapshotHash:snapshot.payloadHash});
+      await checkpointMarketRun(coord,{runId:run.id,workerId:worker,fence:lease.fence,state:'MATCHED',snapshotId:snapshot.snapshotId,snapshotHash:snapshot.payloadHash,planId:plan.planId});
+      (b25executor as any).query=async(...args:any[])=>{const result=await originalQuery(...args);if(typeof args[0]==='string'&&args[0].includes('b25_authorize_handoff'))isHandoff=true;return result;};
+      (ethers.provider as any).broadcastTransaction=async(...args:any[])=>{if(isHandoff){broadcasts++;signalHandoff();await gate;}return originalBroadcast(...args);};
+      const inFlight=processLocalAllocation({...paymentArgs,b26Fence:{runId:run.id,workerId:worker,fence:lease.fence}});await handedOff;
+      await approver.query("UPDATE \"B24SpendingPolicy\" SET status='REVOKED' WHERE id=$1",[policy]);
+      await owner.query("UPDATE \"B26MarketRun\" SET \"leaseUntil\"=clock_timestamp()-interval '1 second' WHERE id=$1",[run.id]);
+      const nextWorker=randomUUID(),newLease=await claimMarketRun(coord,{runId:run.id,workerId:nextWorker,leaseSeconds:60});expect(newLease).not.eq(null);
+      releaseGate();const outcome=await inFlight;expect(outcome.state).eq('CONFIRMED_LOCAL');expect(broadcasts).eq(1);
+      expect(await token.balanceOf(sellerAddress)).eq(sellerBefore+2541n);
+      expect((await owner.query('SELECT count(*)::int n FROM "B25DispatchHandoff"')).rows[0].n).eq(1);
+      const retry=await processLocalAllocation({...paymentArgs,b26Fence:{runId:run.id,workerId:nextWorker,fence:newLease.fence}});expect(retry.state).eq('CONFIRMED_LOCAL');expect(broadcasts).eq(1);
+      await releaseMarketRun(coord,{runId:run.id,workerId:nextWorker,fence:newLease.fence,state:'NEEDS_RECONCILIATION',code:'CANONICALITY_RECHECK_REQUIRED',retrySeconds:60});
+     }finally{releaseGate();(b25executor as any).query=originalQuery;(ethers.provider as any).broadcastTransaction=originalBroadcast;await coord.end();}
+     return;
+    }
+    if(process.env.B26_TEST_HANDOFF_RACE==='1'){
+     const coord=new Client({connectionString:process.env.B26_WORKER_DATABASE_URL});await coord.connect();
+     let releaseGate:()=>void=()=>{};const gate=new Promise<void>(resolve=>releaseGate=resolve);
+     let signalPrepared:()=>void=()=>{};const prepared=new Promise<void>(resolve=>signalPrepared=resolve);
+     const originalQuery=b25executor.query.bind(b25executor),originalBroadcast=ethers.provider.broadcastTransaction.bind(ethers.provider);let broadcasts=0;
+     try{
+      const run=await ensureMarketRun(coord,{start:new Date(slot)}),worker=randomUUID();
+      const lease=await claimMarketRun(coord,{runId:run.id,workerId:worker,leaseSeconds:60});
+      await checkpointMarketRun(coord,{runId:run.id,workerId:worker,fence:lease.fence,state:'SNAPSHOT_FINALIZED',snapshotId:snapshot.snapshotId,snapshotHash:snapshot.payloadHash});
+      await checkpointMarketRun(coord,{runId:run.id,workerId:worker,fence:lease.fence,state:'MATCHED',snapshotId:snapshot.snapshotId,snapshotHash:snapshot.payloadHash,planId:plan.planId});
+      (b25executor as any).query=async(...args:any[])=>{const result=await originalQuery(...args);if(typeof args[0]==='string'&&args[0].includes('b25_prepare_local_attempt')){signalPrepared();await gate;}return result;};
+      (ethers.provider as any).broadcastTransaction=async(...args:any[])=>{broadcasts++;return originalBroadcast(...args);};
+      const inFlight=processLocalAllocation({...paymentArgs,b26Fence:{runId:run.id,workerId:worker,fence:lease.fence}});
+      await prepared;broadcasts=0;
+      await owner.query("UPDATE \"B26MarketRun\" SET \"leaseUntil\"=clock_timestamp()-interval '1 second' WHERE id=$1",[run.id]);
+      const nextWorker=randomUUID(),newLease=await claimMarketRun(coord,{runId:run.id,workerId:nextWorker,leaseSeconds:60});expect(newLease).not.eq(null);
+      releaseGate();const outcome=await inFlight;expect(outcome.state).eq('UNRESOLVED');expect(broadcasts).eq(0);
+      expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(1);
+      expect((await owner.query('SELECT count(*)::int n FROM "B25DispatchHandoff"')).rows[0].n).eq(0);
+      expect(await token.balanceOf(sellerAddress)).eq(sellerBefore);
+      const retried=await processLocalAllocation({...paymentArgs,b26Fence:{runId:run.id,workerId:nextWorker,fence:newLease.fence}});expect(retried.state).eq('UNRESOLVED');expect(broadcasts).eq(0);
+      await releaseMarketRun(coord,{runId:run.id,workerId:nextWorker,fence:newLease.fence,state:'NEEDS_RECONCILIATION',code:'PAYMENT_OUTCOME_UNKNOWN',retrySeconds:60});
+     }finally{releaseGate();(b25executor as any).query=originalQuery;(ethers.provider as any).broadcastTransaction=originalBroadcast;await coord.end();}
+     return;
+    }
+    const beforeB26Payment=await ethers.provider.send('evm_snapshot',[]);
+    if(process.env.B26_TEST_24_HOURS==='1'){
+     for(let hour=0;hour<24;hour++){
+      if(hour===12)continue;
+      const start=new Date(Date.UTC(2026,9,3,hour));const end=new Date(start.getTime()+3600000);
+      const sourceSlot=start.toISOString().replace('.000Z','Z');
+      await roster.query('INSERT INTO "B22HourlyRegistry"(id,"intervalStart","intervalEnd",profiles,"approvedBy",revision) VALUES($1,$2,$3,$4,$5,1)',[randomUUID(),start,end,JSON.stringify(users),'ignored']);
+      const generated=await ingestLocalHour(ingest,sourceSlot,{execute:true});expect(generated.state??'FINALIZED').not.eq('QUARANTINED');
+     }
+    }
+    if(process.env.B26_TEST_24_HOURS==='1'){
+     const childPath=fileURLToPath(new URL('../../../tools/b26-restart-worker.mjs',import.meta.url));
+     const first=fork(childPath,['claim'],{stdio:['ignore','ignore','ignore','ipc']});
+     const message:any=await new Promise((resolve,reject)=>{first.once('message',resolve);first.once('error',reject);first.once('exit',(code)=>reject(Error(`first worker exited ${code}`)));});
+     expect(message.phase).eq('claimed');expect(message.processed).eq(3);const firstPid=first.pid;
+     const stopped=new Promise<void>(resolve=>first.once('exit',()=>resolve()));first.kill();await stopped;
+     let expired=false;for(let i=0;i<100;i++){const q=await owner.query('SELECT "leaseUntil"<=clock_timestamp() AS expired FROM "B26MarketRun" WHERE id=$1',[message.runId]);if(q.rows[0]?.expired){expired=true;break;}await new Promise(r=>setTimeout(r,50));}expect(expired).eq(true);
+     const second=fork(childPath,['recover'],{stdio:['ignore','ignore','ignore','ipc']});
+     const recovered:any=await new Promise((resolve,reject)=>{second.once('message',resolve);second.once('error',reject);second.once('exit',(code)=>{if(code!==0)reject(Error(`recovery worker exited ${code}`));});});
+     expect(recovered.phase).eq('recovered');expect(recovered.count).eq(24);expect(recovered.errors).eq(0);expect(second.pid).not.eq(firstPid);
+     await new Promise<void>((resolve,reject)=>{if(second.exitCode!==null){second.exitCode===0?resolve():reject(Error('recovery worker failed'));return;}second.once('exit',code=>code===0?resolve():reject(Error(`recovery worker exited ${code}`)));});
+    }
+    let payment:any;
+    if(process.env.B26_WORKER_DATABASE_URL){
+     const coord=new Client({connectionString:process.env.B26_WORKER_DATABASE_URL});await coord.connect();
+     try{
+      if(process.env.B26_TEST_24_HOURS==='1'){
+       const guarded=await ensureMarketRun(coord,{start:new Date(slot)}),oldWorker=randomUUID(),newWorker=randomUUID();
+       const stale=await claimMarketRun(coord,{runId:guarded.id,workerId:oldWorker,leaseSeconds:1});expect(stale).not.eq(null);
+       let expired=false;for(let i=0;i<100;i++){const q=await owner.query('SELECT "leaseUntil"<=clock_timestamp() AS expired FROM "B26MarketRun" WHERE id=$1',[guarded.id]);if(q.rows[0]?.expired){expired=true;break;}await new Promise(r=>setTimeout(r,50));}expect(expired).eq(true);
+       const current=await claimMarketRun(coord,{runId:guarded.id,workerId:newWorker,leaseSeconds:60});expect(current).not.eq(null);
+       await assert.rejects(processLocalAllocation({...paymentArgs,b26Fence:{runId:guarded.id,workerId:oldWorker,fence:stale.fence}}),/B26 stale execution fence/);
+       expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(0);
+       await releaseMarketRun(coord,{runId:guarded.id,workerId:newWorker,fence:current.fence,state:'MATCHED'});
+      }
+      const schedulerOptions={coordinationClient:coord,matchingClient:matcher,from:new Date(process.env.B26_TEST_24_HOURS==='1'?'2026-10-03T00:00:00Z':slot),workerId:randomUUID(),limit:process.env.B26_TEST_24_HOURS==='1'?24:1,localPayments:{clients:{...paymentArgs.clients,reporter:b25reporter},provider:ethers.provider,registry,operatorRegistry:localOperator,minter:admin,allocations:new Map([[allocation.allocationId,{policyId:policy,deploymentId:deployment,session,grantId}]]),sessions:new Map([[row.id,session]])}};
+      let scheduled:any[];
+      if(process.env.B26_TEST_24_HOURS==='1'){
+       scheduled=[];const stop=new AbortController();
+       const clock=await createDisposableTestClock(coord,new Date('2026-10-03T01:00:00Z'));
+       await runScheduler({...schedulerOptions,limit:1,testClock:clock,signal:stop.signal,onResult:(value:any)=>{scheduled.push(value);if(scheduled.length===24)stop.abort();else clock.advanceTo(new Date(Date.parse(value.intervalStart)+7200000));}});
+      }else scheduled=await runSchedulerTick(schedulerOptions);
+      expect(scheduled.length).eq(process.env.B26_TEST_24_HOURS==='1'?24:1);
+      const selected=scheduled.find((x:any)=>x.intervalStart===new Date(slot).toISOString());expect(selected.state).eq('SETTLED');expect(selected.report.verifiedPaidBaseUnits).eq('2541');payment=selected.outcomes[0];
+      if(process.env.B26_TEST_24_HOURS==='1'){
+       const counts=await owner.query('SELECT count(*)::int n,count(DISTINCT "intervalStart")::int distinct FROM "B26MarketRun"');expect(counts.rows[0]).deep.eq({n:24,distinct:24});
+       const states=(await owner.query('SELECT status,count(*)::int n FROM "B26MarketRun" GROUP BY status ORDER BY status')).rows;
+       console.log(JSON.stringify({test:'B26_24_HOURS',states,outcomes:scheduled.map((x:any)=>({interval:x.intervalStart,state:x.state,reason:x.reason??null}))}));
+       expect(scheduled.filter((x:any)=>x.reason==='PROCESSING_ERROR')).deep.eq([]);
+       expect((await owner.query('SELECT count(*)::int n FROM "B22Ingestion"')).rows[0].n).eq(24);
+       expect((await owner.query('SELECT count(*)::int n FROM "B24AuthorizationReservation"')).rows[0].n).eq(1);
+       expect((await owner.query('SELECT count(*)::int n FROM "V2SettlementIntent"')).rows[0].n).eq(1);
+       expect((await owner.query("SELECT count(*)::int n FROM (SELECT \"marketId\" FROM \"V2AllocationPlan\" WHERE status='AUTHORITATIVE' GROUP BY \"marketId\" HAVING count(*)>1) x")).rows[0].n).eq(0);
+       expect((await owner.query('SELECT count(*)::int n FROM (SELECT "allocationId" FROM "V2SettlementIntent" GROUP BY "allocationId" HAVING count(*)>1) x')).rows[0].n).eq(0);
+       const repeated=await runSchedulerTick({coordinationClient:coord,matchingClient:matcher,from:new Date('2026-10-03T00:00:00Z'),workerId:randomUUID(),limit:24,localPayments:{clients:{...paymentArgs.clients,reporter:b25reporter},provider:ethers.provider,registry,operatorRegistry:localOperator,minter:admin,allocations:new Map([[allocation.allocationId,{policyId:policy,deploymentId:deployment,session,grantId}]]),sessions:new Map([[row.id,session]])}});
+       expect(repeated.length).eq(24);expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(1);
+      }
+      await assert.rejects(coord.query('SELECT b26_record_reconciliation($1,$2,$3,$4)',[selected.run.id,randomUUID(),1,JSON.stringify(selected.report)]),(e:any)=>e.code==='42501');
+      await assert.rejects(b25verifier.query('SELECT b26_record_reconciliation($1,$2,$3,$4)',[selected.run.id,randomUUID(),1,JSON.stringify(selected.report)]),/B26 stale reconciliation/);
+     }finally{await coord.end();}
+    }else payment=await processLocalAllocation(paymentArgs);
+    expect(payment.state).eq('CONFIRMED_LOCAL');
+    const again=await processLocalAllocation(paymentArgs);expect(again.state).eq('CONFIRMED_LOCAL');expect(again.attemptId).eq(payment.attemptId);
+    expect(await token.balanceOf(buyer.address)).eq(0n);expect(await token.balanceOf(sellerAddress)).eq(sellerBefore+2541n);
+    expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(1);
+    expect((await owner.query('SELECT count(*)::int n FROM "B24SignedAuthorization" WHERE "reservationId"=$1',[row.id])).rows[0].n).eq(1);
+    const verified=await reconcileLocalMarket({client:b25reporter,verifierClient:b25verifier,provider:ethers.provider,marketId:plan.marketId,sessions:new Map([[row.id,session]])});
+    expect(verified.verifiedPaidBaseUnits).eq('2541');expect(verified.unpaidBaseUnits).eq('0');
+    if(process.env.B26_WORKER_DATABASE_URL){
+     await ethers.provider.send('evm_revert',[beforeB26Payment]);
+     await owner.query("UPDATE \"B26MarketRun\" SET \"nextRetryAt\"=now()-interval '1 second' WHERE \"intervalStart\"=$1",[slot]);
+     const coord2=new Client({connectionString:process.env.B26_WORKER_DATABASE_URL});await coord2.connect();
+     try{
+      const rechecked=await runSchedulerTick({coordinationClient:coord2,matchingClient:matcher,from:new Date(slot),workerId:randomUUID(),limit:1,localPayments:{clients:{...paymentArgs.clients,reporter:b25reporter},provider:ethers.provider,registry,operatorRegistry:localOperator,minter:admin,allocations:new Map([[allocation.allocationId,{policyId:policy,deploymentId:deployment,session,grantId}]]),sessions:new Map([[row.id,session]])}});
+      expect(rechecked[0].state).eq('NEEDS_RECONCILIATION');expect(rechecked[0].report.verifiedPaidBaseUnits).eq('0');expect(rechecked[0].report.unpaidBaseUnits).eq('2541');
+      expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt"')).rows[0].n).eq(1);
+     }finally{await coord2.end();}
+    }
+    return;
+   }
+
    // A second authentic historical market for the same buyer shares the funding budget.
    const budgetSlot='2026-06-29T12:00:00Z';await roster.query('INSERT INTO "B22HourlyRegistry"(id,"intervalStart","intervalEnd",profiles,"approvedBy",revision) VALUES($1,$2,$3,$4,\'ignored\',1)',[randomUUID(),budgetSlot,'2026-06-29T13:00:00Z',JSON.stringify(users)]);
    await ingestLocalHour(ingest,budgetSlot,{execute:true});const budgetPlan=await processFinalizedHour(matcher,budgetSlot,{execute:true});expect(budgetPlan.status).eq('AUTHORITATIVE');

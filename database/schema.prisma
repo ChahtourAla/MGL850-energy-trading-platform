@@ -963,3 +963,73 @@ model B25CanonicalOutcomeEvent {
   supersededBy B25CanonicalOutcomeEvent[] @relation("B25OutcomeSupersession")
   @@unique([attemptId, sequence])
 }
+
+// B26 offline scheduler checkpoint; financial evidence remains in B21-B25.
+model B26MarketRun {
+  id String @id @db.Uuid
+  intervalStart DateTime @db.Timestamptz(6)
+  intervalEnd DateTime @db.Timestamptz(6)
+  configuration String
+  status String @default("WAITING_FOR_DATA")
+  snapshotId String? @db.VarChar(66)
+  snapshotHash String? @db.VarChar(66)
+  planId String? @db.VarChar(66)
+  workerId String? @db.Uuid
+  fence BigInt @default(0)
+  leaseUntil DateTime? @db.Timestamptz(6)
+  attempts Int @default(0)
+  retryable Boolean @default(true)
+  nextRetryAt DateTime? @db.Timestamptz(6)
+  failureCode String?
+  summary Json?
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updatedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  completedAt DateTime? @db.Timestamptz(6)
+  events B26MarketRunEvent[]
+  controls B26ControlRequest[]
+  @@unique([intervalStart, configuration], map: "b26_run_unique")
+}
+model B26MarketRunEvent {
+  id BigInt @id @default(autoincrement())
+  runId String @db.Uuid
+  fence BigInt
+  kind String
+  actor String @default(dbgenerated("SESSION_USER"))
+  details Json @default("{}")
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  run B26MarketRun @relation(fields: [runId], references: [id], onDelete: Restrict)
+}
+
+model B26ControlRequest {
+  id String @id @db.Uuid
+  kind String
+  runId String? @db.Uuid
+  intervalStart DateTime? @db.Timestamptz(6)
+  intervalEnd DateTime? @db.Timestamptz(6)
+  status String @default("PENDING")
+  claimedBy String? @db.Uuid
+  fence BigInt @default(0)
+  leaseUntil DateTime? @db.Timestamptz(6)
+  requestedBy String
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updatedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  run B26MarketRun? @relation(fields:[runId],references:[id],onDelete:Restrict,onUpdate:Cascade)
+  events B26ControlEvent[]
+}
+
+model B26WorkerHeartbeat {
+  workerId String @id @db.Uuid
+  lastTickAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  ticks BigInt @default(0)
+  lastIntervalCount Int @default(0)
+}
+
+model B26ControlEvent {
+  id BigInt @id @default(autoincrement())
+  requestId String @db.Uuid
+  fence BigInt
+  kind String
+  actor String @default(dbgenerated("SESSION_USER"))
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  request B26ControlRequest @relation(fields:[requestId],references:[id],onDelete:Restrict,onUpdate:Cascade)
+}
