@@ -1,5 +1,5 @@
 /** Offline-only signing. Do not connect this prototype to a real wallet or network. */
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHmac} from 'node:crypto';
 import {Contract,TypedDataEncoder,verifyTypedData,getAddress,Wallet} from '../../../packages/contracts/node_modules/ethers/lib.esm/index.js';
 import {verifySigningPreflight} from './b24a2-signing-preflight.mjs';
 import {verifyRecordedAuthorization} from './b24-signature-verification.mjs';
@@ -30,6 +30,30 @@ export async function createEphemeralTestWalletRegistry({client,provider}){
  const registry=Object.freeze({createBuyer(){const wallet=Wallet.createRandom();const address=getAddress(wallet.address);wallets.set(address,wallet);return Object.freeze({address});}});
  registries.set(registry,{wallets,provider,host:client.connectionParameters.host,database:client.connectionParameters.database,port:client.connectionParameters.port});
  return registry;
+}
+
+/**
+ * Deterministic, disposable fixture recovery ONLY. A trusted test harness
+ * keeps a randomly generated seed outside the restarted signer process and
+ * provides it over its private child IPC channel. No production key store,
+ * wallet export, file storage, or network-facing recovery interface exists.
+ *
+ * Callers never receive a private key; the registry remains in the WeakMap.
+ */
+export async function createSeededDisposableTestWalletRegistry({client,provider,seed,count}){
+ if(process.env.B26_TEST_SIGNER_RESTART!=='1')throw Error('Test signer restart is disabled');
+ if(typeof seed!=='string'||!/^0x[0-9a-f]{64}$/i.test(seed)||!Number.isSafeInteger(count)||count<1||count>8)throw Error('Invalid disposable test signer recovery');
+ const registry=await createEphemeralTestWalletRegistry({client,provider});
+ const record=registries.get(registry),buyers=[];
+ for(let index=0;index<count;index++){
+  // HMAC domain separation prevents accidental cross-use of the fixture seed.
+  const material=createHmac('sha256',Buffer.from(seed.slice(2),'hex')).update(`mgl850-b26-fixture-v1:${index}`).digest('hex');
+  const wallet=new Wallet('0x'+material),address=getAddress(wallet.address);
+  if(record.wallets.has(address))throw Error('Duplicate disposable test buyer');
+  record.wallets.set(address,wallet);
+  buyers.push(Object.freeze({address}));
+ }
+ return Object.freeze({registry,buyers:Object.freeze(buyers)});
 }
 
 /** Public membership check only; the registry never exports key material. */

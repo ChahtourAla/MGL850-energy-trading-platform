@@ -1,4 +1,4 @@
-﻿/** Local B24/B25 coordination. All authority and financial facts remain in accepted services. */
+/** Local B24/B25 coordination. All authority and financial facts remain in accepted services. */
 import {prepareAuthorization} from './b24a1-authorization.mjs';
 import {createOfflineSigningService} from './b24-signing.mjs';
 import {fundLocalReservation} from './b24-funding.mjs';
@@ -38,10 +38,18 @@ export async function processLocalAllocation({slot,allocationId,policyId,deploym
  await assertCurrent();
  await signing.signReservation(reservationId);
  await assertCurrent();
- const funding=await fundLocalReservation({client:clients.funder,preflightClient:clients.preflight,receiptClient:clients.receiptVerifier,provider,session,minter,reservationId,grantId});
+ // Treat a rejected funding RPC or database call as UNKNOWN, never as permission
+ // to rerun an already prepared operation. B24's durable journal owns recovery.
+ let funding;
+ try { funding=await fundLocalReservation({client:clients.funder,preflightClient:clients.preflight,receiptClient:clients.receiptVerifier,provider,session,minter,reservationId,grantId}); }
+ catch { return {state:'UNRESOLVED',reason:'FUNDING_OUTCOME_UNKNOWN',reservationId}; }
  if(!['VERIFIED','FUNDING_NOT_REQUIRED'].includes(funding.state))return {state:'UNRESOLVED',reason:'FUNDING_OUTCOME_UNKNOWN',reservationId};
  await assertCurrent();
- const allowance=await setLocalAllowance({client:clients.allowance,preflightClient:clients.preflight,receiptClient:clients.receiptVerifier,provider,session,registry,reservationId});
+ // An uncertain allowance must also fail closed; the canonical B24 operation
+ // identifier, if allocated, remains durable and is reused on recovery.
+ let allowance;
+ try { allowance=await setLocalAllowance({client:clients.allowance,preflightClient:clients.preflight,receiptClient:clients.receiptVerifier,provider,session,registry,reservationId}); }
+ catch { return {state:'UNRESOLVED',reason:'ALLOWANCE_OUTCOME_UNKNOWN',reservationId}; }
  if(allowance.state!=='VERIFIED')return {state:'UNRESOLVED',reason:'ALLOWANCE_OUTCOME_UNKNOWN',reservationId};
  const readiness=await inspectLocalReadiness(clients.preflight,{reservationId,provider,session});
  if(readiness.state!=='READY_FOR_LOCAL_SETTLEMENT')return {state:readiness.state==='UNRESOLVED'?'UNRESOLVED':'BLOCKED',reason:readiness.reason??readiness.state,reservationId};

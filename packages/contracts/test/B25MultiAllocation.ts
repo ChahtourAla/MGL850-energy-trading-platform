@@ -15,8 +15,8 @@ import {ingestLocalHour} from '../../../apps/backend/scripts/b22a-ingestion.mjs'
 import {processFinalizedHour} from '../../../apps/backend/scripts/b22b-matching.mjs';
 import {prepareAuthorization} from '../../../apps/backend/scripts/b24a1-authorization.mjs';
 import {verifySigningPreflight} from '../../../apps/backend/scripts/b24a2-signing-preflight.mjs';
-import {createOfflineSigningService,createEphemeralTestWalletRegistry} from '../../../apps/backend/scripts/b24-signing.mjs';
-import {establishLocalChainSession} from '../../../apps/backend/scripts/b24-local-chain-session.mjs';
+import {createOfflineSigningService,createEphemeralTestWalletRegistry,createSeededDisposableTestWalletRegistry} from '../../../apps/backend/scripts/b24-signing.mjs';
+import {establishLocalChainSession,restoreLocalChainSession} from '../../../apps/backend/scripts/b24-local-chain-session.mjs';
 import {fundLocalReservation} from '../../../apps/backend/scripts/b24-funding.mjs';
 import {setLocalAllowance} from '../../../apps/backend/scripts/b24-allowance.mjs';
 import {inspectLocalReadiness} from '../../../apps/backend/scripts/b24-readiness.mjs';
@@ -35,7 +35,16 @@ describe('B25 genuine two-allocation market',function(){
   const [owner,roster,ingest,matcher,approver,evaluator,preflight,signer,receiptClient,funder,allowanceClient,executor,verifier,reporter]=clients;
   try{
    const [admin,operator,pauser]=await ethers.getSigners();
-   const registry=await createEphemeralTestWalletRegistry({client:signer,provider:ethers.provider});const buyers=[registry.createBuyer(),registry.createBuyer()];
+   const testSignerRestart=process.env.B26_TEST_SIGNER_RESTART==='1'&&process.env.B26_TEST_COORDINATOR==='1';
+   const fixtureSeed=testSignerRestart?ethers.hexlify(ethers.randomBytes(32)):null;
+   let registry:any,buyers:any[];
+   if(testSignerRestart){
+    const seeded=await createSeededDisposableTestWalletRegistry({client:signer,provider:ethers.provider,seed:fixtureSeed,count:2});
+    registry=seeded.registry;buyers=[...seeded.buyers];
+   }else{
+    registry=await createEphemeralTestWalletRegistry({client:signer,provider:ethers.provider});
+    buyers=[registry.createBuyer(),registry.createBuyer()];
+   }
    const ids=['00000000-0000-4000-8000-000000000075','00000000-0000-4000-8000-000000000015','00000000-0000-4000-8000-00000000001b'];
    const users=ids.map((userId,i)=>({userId,name:`B25 multi ${i}`,email:`b25-multi-${i}@example.com`,physicalAddress:'Simulation',xKm:0,yKm:0,preferredEnergyType:'ANY',reputation:80,hederaAccountId:`0.0.${3000+i}`,evmAddress:i?buyers[i-1].address.toLowerCase():'0x0000000000000000000000000000000000000075'}));
    for(const u of users){
@@ -94,6 +103,104 @@ describe('B25 genuine two-allocation market',function(){
      expect(BigInt(first.report.verifiedPaidBaseUnits)+BigInt(first.report.unpaidBaseUnits)).eq(14608n);
      expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt" WHERE "intentId" IN (SELECT id FROM "V2SettlementIntent" WHERE "marketId"=$1)',[plan.marketId])).rows[0].n).eq(1);
      buyerApprovals.set(buyers[1].address.toLowerCase(),{deploymentId:deployment,budgetId:fixtures[1].budget,anchorTransactionHash:fixtures[1].anchor.hash});
+     if(process.env.B26_TEST_FAILURE_MATRIX==='1'){
+      // Drive *actual B26 control requests* through the existing trusted fixture
+      // supervisor, not mocked settlement accounting. The second allocation is
+      // approved but has not been signed or paid at this point.
+      const stageResults:any[]=[];
+      const trackedContext={...localPayments,supervisor:{
+       execute:async(request:any)=>{
+        const result=await (localPayments as any).supervisor.execute(request);
+        stageResults.push({allocationId:request.allocationId,...result});
+        return result;
+       },
+       reconcile:(request:any)=>(localPayments as any).supervisor.reconcile(request)
+      }};
+      const recoverWith=async(context:any)=>{
+       await b26admin.query('SELECT b26_request_control($1,$2,$3,$4,$5)',[randomUUID(),'RECOVER',first.run.id,null,null]);
+       return processControlRequest({coordinationClient:coord,matchingClient:matcher,workerId:randomUUID(),localPayments:context});
+      };
+      const attemptCount=async()=>Number((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt" WHERE "intentId" IN (SELECT id FROM "V2SettlementIntent" WHERE "marketId"=$1)',[plan.marketId])).rows[0].n);
+      const assertUnpaidSecond=async()=>{
+       expect(await attemptCount()).eq(1);
+       const verification=await reconcileLocalMarket({client:reporter,verifierClient:verifier,provider:ethers.provider,marketId:plan.marketId,sessions});
+       expect(verification.confirmed).eq(1);
+       expect(verification.verifiedPaidBaseUnits).eq('10624');
+       expect(verification.unpaidBaseUnits).eq('3984');
+      };
+      // Failure while preparing B24 funding: no B25 attempt may be created,
+      // and the coordinator must report the stage rather than fake success.
+      const originalFundingQuery=funder.query;
+      (funder as any).query=(...args:any[])=>{
+       if(typeof args[0]==='string'&&args[0].includes('b24_lock_local_funding_budget'))throw Error('INJECTED_B26_FUNDING_DB_TIMEOUT');
+       return (originalFundingQuery as any).apply(funder,args);
+      };
+      let fundingRetry:any;
+      try{fundingRetry=await recoverWith(trackedContext);}finally{(funder as any).query=originalFundingQuery;}
+      expect(fundingRetry.state).eq('DONE');
+      expect(stageResults.some(x=>x.allocationId===fixtures[1].a.allocationId&&x.reason==='FUNDING_OUTCOME_UNKNOWN')).eq(true);
+      await assertUnpaidSecond();
+      // Next attempt successfully funds the buyer, but allowance persistence
+      // fails. Recovery must not create a B25 payment until the allowance is
+      // durably verified.
+      const originalAllowanceQuery=allowanceClient.query;
+      (allowanceClient as any).query=(...args:any[])=>{
+       if(typeof args[0]==='string'&&args[0].includes('b24_prepare_local_allowance'))throw Error('INJECTED_B26_ALLOWANCE_DB_TIMEOUT');
+       return (originalAllowanceQuery as any).apply(allowanceClient,args);
+      };
+      let allowanceRetry:any;
+      try{allowanceRetry=await recoverWith(trackedContext);}finally{(allowanceClient as any).query=originalAllowanceQuery;}
+      expect(allowanceRetry.state).eq('DONE');
+      expect(stageResults.some(x=>x.allocationId===fixtures[1].a.allocationId&&x.reason==='ALLOWANCE_OUTCOME_UNKNOWN')).eq(true);
+      await assertUnpaidSecond();
+      // The IPC or RPC response may be lost even when its financial outcome is
+      // unknown. Never infer settlement from a missing supervisor response.
+      const uncertainContext={...localPayments,supervisor:{
+       execute:async()=>{throw Error('INJECTED_B26_SUPERVISOR_RPC_TIMEOUT');},
+       reconcile:async()=>{throw Error('INJECTED_B26_RECONCILIATION_TIMEOUT');}
+      },remoteSupervisor:true};
+      const unresolved=await recoverWith(uncertainContext);
+      expect(unresolved.state).eq('DEFERRED');
+      expect((await owner.query('SELECT status FROM "B26MarketRun" WHERE id=$1',[first.run.id])).rows[0].status).eq('NEEDS_RECONCILIATION');
+      await assertUnpaidSecond();
+      // The scheduler below issues a new, authorized RECOVER request and must
+      // finish the real B24/B25 payments exactly once.
+      console.log('PASS B26 injected funding/allowance failures and supervisor RPC/reconciliation loss stayed fail-closed with one previously paid allocation');
+     }
+     if(testSignerRestart){
+      // Trusted fixture approval occurs before spawning a NEW signer process.
+      // The second allocation is genuinely unsigned at the restart boundary.
+      const provisioned=await fixtureProvisioner.provision(missingArgs);
+      expect(provisioned.state).eq('APPROVED');
+      const unsigned=(await owner.query('SELECT count(*)::int n FROM "B24SignedAuthorization" WHERE "reservationId"=$1',[(await owner.query('SELECT id FROM "B24AuthorizationReservation" WHERE "allocationId"=$1',[fixtures[1].a.allocationId])).rows[0].id])).rows[0];
+      expect(unsigned.n).eq(0);
+      const reservationId=(await owner.query('SELECT id FROM "B24AuthorizationReservation" WHERE "allocationId"=$1',[fixtures[1].a.allocationId])).rows[0].id;
+      const signerChild=fork(fileURLToPath(new URL('../../../tools/b26-signer-restart-child.mjs',import.meta.url)),[],{env:{...process.env},stdio:['ignore','ignore','pipe','ipc']});
+      let signedMessage:any;
+      const exitCode=await new Promise<number|null>((resolve,reject)=>{
+       const timer=setTimeout(()=>{signerChild.kill();reject(Error('B26 restarted signer timed out'));},45000);
+       signerChild.on('message',(message:any)=>{signedMessage=message;});
+       signerChild.once('error',(error)=>{clearTimeout(timer);reject(error);});
+       signerChild.once('exit',(code)=>{clearTimeout(timer);resolve(code);});
+       signerChild.send({seed:fixtureSeed,reservationId,sessionId:provisioned.session.id,expectedBuyer:buyers[1].address});
+      });
+      expect(exitCode).eq(0);expect(signedMessage).deep.eq({phase:'signed',reservationId,reused:false});
+      expect((await owner.query('SELECT count(*)::int n FROM "B24SignedAuthorization" WHERE "reservationId"=$1',[reservationId])).rows[0].n).eq(1);
+      // Discard original signer and session registries. A trusted fixture
+      // owner reconstructs the capabilities after the signer has exited.
+      const restored=await createSeededDisposableTestWalletRegistry({client:signer,provider:ethers.provider,seed:fixtureSeed,count:2});
+      expect(restored.buyers.map((x:any)=>x.address)).deep.eq(buyers.map((x:any)=>x.address));
+      registry=restored.registry;
+      sessions.clear();grantsBySession.clear();
+      const firstSession=await restoreLocalChainSession(preflight,{sessionId:fixtures[0].session.id,provider:ethers.provider});
+      const secondSession=await restoreLocalChainSession(preflight,{sessionId:provisioned.session.id,provider:ethers.provider});
+      sessions.set(fixtures[0].row.id,firstSession);sessions.set(reservationId,secondSession);
+      grantsBySession.set(firstSession.id,fixtures[0].grantId);
+      grantsBySession.set(secondSession.id,provisioned.grantId);
+      localPayments.registry=registry;
+      const restartedProvisioner=await createDisposableFixtureProvisioner({approvalClient:approver,evaluator,preflight,provider:ethers.provider,registry,minter:admin,buyerApprovals,sessions,grantsBySession});
+      (localPayments as any).supervisor=createOfflinePaymentSupervisor({coordinationClient:coord,matchingClient:matcher,localPayments,fixtureProvisioner:restartedProvisioner});
+     }
      const requestId=randomUUID();await b26admin.query('SELECT b26_request_control($1,$2,$3,$4,$5)',[requestId,'RECOVER',first.run.id,null,null]);
      // The scheduler runs in a different process; the parent retains the
      // ephemeral wallets and exposes only the narrow IPC supervisor methods.
@@ -127,6 +234,7 @@ describe('B25 genuine two-allocation market',function(){
      const afterRevocation=await processControlRequest({coordinationClient:coord,matchingClient:matcher,workerId:randomUUID(),localPayments});
      expect(afterRevocation.state).eq('DONE');
      expect((await owner.query('SELECT count(*)::int n FROM "B25LocalAttempt" WHERE "intentId" IN (SELECT id FROM "V2SettlementIntent" WHERE "marketId"=$1)',[plan.marketId])).rows[0].n).eq(2);
+     if(testSignerRestart)console.log('PASS B26 disposable signer restarted in a separate process, signed a previously unsigned allocation, and rehydrated its trusted supervisor');
      console.log(JSON.stringify({test:'B26_MULTI',partialPaid:first.report.verifiedPaidBaseUnits,totalPaid:final.verifiedPaidBaseUnits}));
     }finally{await Promise.all([coord.end(),b26admin.end()]);}
     return;
