@@ -73,6 +73,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         path: request.path,
         statusCode,
         errorType: exception instanceof Error ? exception.name : typeof exception,
+        ...(process.env.NODE_ENV !== 'production' && request.path.startsWith('/internal/v2/demo/')
+          ? {
+              diagnosticMessage: exception instanceof Error ? exception.message : String(exception),
+            }
+          : {}),
       });
     }
 

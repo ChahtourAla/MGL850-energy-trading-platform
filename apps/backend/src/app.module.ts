@@ -1,3 +1,4 @@
+﻿import { B27LiveBalanceController } from './b27-demo/b27-live-balance.controller.js';
 import { B26MarketRunsModule } from './b26-market-runs/b26-market-runs.module.js';
 import { TradingApiModule } from './trading-api/trading-api.module.js';
 import { dirname, resolve } from 'node:path';
@@ -20,6 +21,7 @@ import { RegistryImportModule } from './registry-import/registry-import.module.j
 import { EnergyImportModule } from './energy-import/energy-import.module.js';
 import { SimulationWalletOnboardingModule } from './simulation-wallets/simulation-wallet-onboarding.module.js';
 import { HederaContractsModule } from './hedera-contracts/hedera-contracts.module.js';
+import { B27DemoModule } from './b27-demo/b27-demo.module.js';
 
 const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -43,9 +45,10 @@ const backendRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     EnergyImportModule,
     SimulationWalletOnboardingModule,
     HederaContractsModule,
+    B27DemoModule,
   ],
 
-  controllers: [AppController],
+  controllers: [B27LiveBalanceController, AppController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {assertTarget,assertAdminIdentity,assertWriterIdentity,assertSafeRole,pendingMigrations,MIGRATION_NAME,ROLE_SETUP_SQL,migrationMatches,TARGET} from './b28-one-step-core.mjs';
+const plan=()=>({marketId:TARGET.marketId,planId:TARGET.planId,snapshotId:TARGET.snapshotId,policy:'b28-teusd-half-even-1',positions:Array(12).fill({}),manifest:{participants:Array(12).fill({})},allocations:TARGET.matches.map(x=>({buyerId:x.buyer,sellerId:x.seller,quantityWh:x.q,unitPriceMicrousdPerKwh:x.price,amountBaseUnits:x.base,remainder:x.remainder,status:'VALIDATED'}))});
+test('accept pinned historical simulated proposal only',()=>assert.equal(assertTarget(plan(),TARGET.slot).totalBaseUnits,'458177'));
+test('reject mutated payment',()=>{const p=plan();p.allocations[0].amountBaseUnits='397925';assert.throws(()=>assertTarget(p,TARGET.slot),/differ/);});
+test('reject modified seller identity',()=>{const p=plan();p.allocations[0].sellerId=TARGET.matches[2].seller;assert.throws(()=>assertTarget(p,TARGET.slot),/differ/);});
+test('reject modified snapshot or market',()=>{const p=plan();p.snapshotId='other';assert.throws(()=>assertTarget(p,TARGET.slot),/mismatch/);});
+test('reject unapproved hour',()=>assert.throws(()=>assertTarget(plan(),'2026-11-10T15:00:00Z'),/mismatch/));
+test('only energy_admin session is permitted',()=>{assertAdminIdentity({db:'energy_trading',actor:'energy_admin',session_actor:'energy_admin'});assert.throws(()=>assertAdminIdentity({db:'energy_trading',actor:'other',session_actor:'other'}),/energy_admin/);});
+test('restricted SET LOCAL ROLE verified',()=>{assertWriterIdentity({db:'energy_trading',actor:'b28_market_writer',session_actor:'energy_admin'});assert.throws(()=>assertWriterIdentity({db:'energy_trading',actor:'energy_admin',session_actor:'energy_admin'}),/restricted/);});
+test('writer role cannot have LOGIN or superuser powers',()=>{assertSafeRole({rolcanlogin:false,rolsuper:false,rolcreatedb:false,rolcreaterole:false,rolreplication:false,rolbypassrls:false,rolinherit:true});assert.throws(()=>assertSafeRole({rolcanlogin:true}),/unsafe/);});
+test('role is NOLOGIN and contains no financial permissions',()=>{assert.match(ROLE_SETUP_SQL,/CREATE ROLE b28_market_writer NOLOGIN/);assert.doesNotMatch(ROLE_SETUP_SQL,/PRIVATE.KEY|SIGN|V2SettlementIntent|V2SettlementEvidence|B24SignedAuthorization|DELETE ON|ALTER ROLE.*LOGIN/i);});
+test('blocks other pending Prisma migrations',()=>{assert.equal(pendingMigrations([MIGRATION_NAME],[{migration_name:'baseline',finished_at:'date',rolled_back_at:null}]),true);assert.throws(()=>pendingMigrations(['another',MIGRATION_NAME],[]),/Unexpected/);});
+test('blocks unresolved Prisma migration',()=>assert.throws(()=>pendingMigrations([MIGRATION_NAME],[{migration_name:'bad',finished_at:null,rolled_back_at:null}]),/failed/));
+test('previously recorded migration is idempotent',()=>assert.equal(pendingMigrations([MIGRATION_NAME],[{migration_name:MIGRATION_NAME,finished_at:'date',rolled_back_at:null}]),false));
+test('constraint definition fingerprint requires new pricing rule',()=>{assert.equal(migrationMatches('amountBaseUnits remainder b28-teusd-half-even-1'),true);assert.equal(migrationMatches('legacy amountBaseUnits remainder'),false);});

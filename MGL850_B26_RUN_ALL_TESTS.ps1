@@ -68,6 +68,7 @@ function Add-Harness {
 # Static and in-process checks.
 Add-Case 'Git whitespace check' 'git' @('diff', '--check')
 Add-Case 'B26 UTC/calendar unit tests' 'node' @('--test', 'apps/backend/scripts/b26-utc-hours.test.mjs') @{} @('# tests 4')
+Add-Case 'B26 supervisor IPC disconnect/replay unit tests' 'node' @('--test', 'apps/backend/scripts/b26-supervisor-ipc.test.mjs') @{} @('# tests 3')
 Add-Case 'Backend TypeScript typecheck' 'corepack' @('pnpm', '--dir', 'apps/backend', 'typecheck')
 Add-Case 'Backend lint' 'corepack' @('pnpm', '--dir', 'apps/backend', 'lint')
 Add-Case 'Full backend Vitest suite' 'corepack' @('pnpm', '--dir', 'apps/backend', 'test')
@@ -93,6 +94,10 @@ Add-Harness 'B26 crash after broadcast' '.\tools\b26-wallet-bound-postgres.ps1' 
 Add-Harness 'B26 long B24 signing preflight lease' '.\tools\b26-wallet-bound-postgres.ps1' @{B26_TEST_SIGNING_LEASE='1'} @('PASS B26 signing-preflight wait exceeded 60 seconds', 'B26_24_HOURS') -NeedsMocha
 Add-Harness 'B26 long funding lease' '.\tools\b26-wallet-bound-postgres.ps1' @{B26_TEST_FUNDING_LEASE='1'} @('PASS B26 funding wait exceeded 60 seconds', 'B26_24_HOURS') -NeedsMocha
 Add-Harness 'B26 long allowance lease' '.\tools\b26-wallet-bound-postgres.ps1' @{B26_TEST_ALLOWANCE_LEASE='1'} @('PASS B26 allowance wait exceeded 60 seconds', 'B26_24_HOURS') -NeedsMocha
+
+# Added fixture-only signer process restart; asserts previously unsigned reservation
+# is signed in a fresh process and existing 2-allocation market still settles.
+Add-Harness 'B26 disposable signer process restart and new unsigned allocation' '.\tools\b26-wallet-bound-postgres.ps1' @{B26_TEST_SIGNER_RESTART='1'} @('PASS B26 disposable signer restarted in a separate process', 'B26_MULTI') -NeedsMocha
 
 # B25 financial fault-injection suite. These are existing B25 regression
 # branches, not claims of end-to-end B26 scheduler fault coverage.
