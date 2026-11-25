@@ -24,16 +24,19 @@ export function verifiedHederaTransactionLink(proof: {
 
   if (
     !explorerUrl ||
-    !/^https:\/\/hashscan\.io\/testnet\/transaction\/0\.0\.\d+(?:%40|@|-)\d+(?:\.|-)\d+$/i.test(
-      explorerUrl,
-    )
+    !/^https:\/\/hashscan\.io\/testnet\/transaction\/(?:0\.0\.\d+(?:%40|@|-)[1-9]\d{9,}(?:\.|-)\d{9}|[1-9]\d{9,}\.\d{9})$/i.test(explorerUrl)
   ) {
     return null;
   }
 
+  // Field name retained for compatibility; HashScan also accepts a consensus
+  // timestamp instead of a Hedera transaction ID.
   const hederaTransactionId = decodeURIComponent(explorerUrl.slice(prefix.length));
 
-  if (!/^0\.0\.\d+(?:@|-)\d+(?:\.|-)\d+$/.test(hederaTransactionId)) {
+  if (
+    !/^0\.0\.\d+(?:@|-)[1-9]\d{9,}(?:\.|-)\d{9}$/.test(hederaTransactionId) &&
+    !/^[1-9]\d{9,}\.\d{9}$/.test(hederaTransactionId)
+  ) {
     return null;
   }
 

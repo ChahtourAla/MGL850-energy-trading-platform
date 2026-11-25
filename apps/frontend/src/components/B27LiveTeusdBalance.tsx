@@ -1,4 +1,4 @@
-/** Server component: keeps TRADING_API_READ_ADMIN_KEY on the server only. */
+/** Server component: the admin read key never leaves Next.js. */
 type BalancePayload = {
   token: {
     symbol: string;
@@ -13,10 +13,10 @@ type BalancePayload = {
 
 function displayTokenAmount(value: string | null): string | null {
   if (value === null || !/^\d+$/.test(value)) return null;
-  const digits = value.padStart(7, '0');
-  const whole = digits.slice(0, -6).replace(/^0+(?=\d)/, '');
-  const fraction = digits.slice(-6).replace(/0+$/, '');
-  return fraction ? `${whole}.${fraction}` : whole;
+  const n = BigInt(value);
+  const whole = n / BigInt(1_000_000);
+  const fraction = String(n % BigInt(1_000_000)).padStart(6, '0').replace(/0+$/, '');
+  return fraction ? `${whole}.${fraction}` : String(whole);
 }
 
 export default async function B27LiveTeusdBalance({ userId }: { userId: string }) {
@@ -32,44 +32,32 @@ export default async function B27LiveTeusdBalance({ userId }: { userId: string }
         cache: 'no-store',
         signal: AbortSignal.timeout(12000),
       });
-      if (response.ok) balance = await response.json() as BalancePayload;
+      if (response.ok) balance = (await response.json()) as BalancePayload;
     } catch {
-      // Fail closed: do not display a fabricated balance.
+      // Unavailable RPC reads must never appear as confirmed balances.
     }
   }
 
-  const confirmed = balance?.token?.balanceStatus === 'VERIFIED_ON_CHAIN';
-  const amount = confirmed
-    ? displayTokenAmount(balance?.token.onChainBalanceBaseUnits ?? null)
-    : null;
+  const verified = balance?.token?.balanceStatus === 'VERIFIED_ON_CHAIN';
+  const amount = verified ? displayTokenAmount(balance?.token.onChainBalanceBaseUnits ?? null) : null;
 
   return (
-    <section className="my-4 rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+    <section className="rounded-xl border border-slate-700 bg-slate-900/60 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-slate-100">
-          Live TEUSD wallet balance
-        </h3>
-        <span className={confirmed && amount !== null
-          ? 'text-xs text-emerald-300'
-          : 'text-xs text-amber-300'}>
-          {confirmed && amount !== null ? 'Hedera Testnet · Verified read' : 'Not verified'}
+        <h4 className="font-semibold text-slate-100">Available TEUSD</h4>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${verified && amount !== null ? 'bg-emerald-500/10 text-emerald-300' : 'bg-amber-500/10 text-amber-200'}`}>
+          {verified && amount !== null ? 'Live balance verified' : 'Balance unavailable'}
         </span>
       </div>
-      {confirmed && amount !== null ? (
+      {verified && amount !== null ? (
         <>
-          <p className="mt-2 text-2xl font-bold text-white">{amount} TEUSD</p>
-          <p className="mt-1 text-xs text-slate-400">
-            Read at block {balance?.token.blockNumber ?? 'unknown'} · Checked {balance?.token.checkedAt ?? 'unknown'}
-          </p>
+          <p className="mt-5 text-3xl font-bold tracking-tight text-white tabular-nums">{amount} <span className="text-xl font-medium text-slate-300">TEUSD</span></p>
+          <p className="mt-2 text-xs text-slate-400">Checked on Hedera Testnet{balance?.token.blockNumber ? ` · Block ${balance.token.blockNumber}` : ''}</p>
         </>
       ) : (
-        <p className="mt-2 text-sm text-amber-200">
-          {balance?.token?.reason ?? 'Live balance unavailable. Check backend URL and read key.'}
-        </p>
+        <p className="mt-5 text-sm text-amber-200">{balance?.token?.reason ?? 'Could not read the current Testnet balance.'}</p>
       )}
-      <p className="mt-2 text-xs text-slate-400">
-        Token balance is separate from recorded trading activity and does not prove payment settlement.
-      </p>
+      <p className="mt-4 text-xs text-slate-400">This is your current test-token balance, not your earnings for the selected dates.</p>
     </section>
   );
 }

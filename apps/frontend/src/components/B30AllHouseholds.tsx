@@ -1,63 +1,104 @@
 import B27OnchainVerification from './B27OnchainVerification';
-import { buildHouseholdOverview, type Household, type HouseholdTrade, type HouseholdResult } from './b30-household-model';
+import {
+  buildHouseholdOverview,
+  type Household,
+  type HouseholdTrade,
+  type HouseholdResult,
+} from './b30-household-model';
 
 async function readApi<T>(path: string): Promise<T> {
   const base = process.env.B27_BACKEND_URL;
   const key = process.env.TRADING_API_READ_ADMIN_KEY;
-  if (!base || !key) throw new Error('Dashboard backend/read-key configuration missing');
-  const response=await fetch(new URL(path,base),{
-    headers: {'x-trading-read-key':key}, cache:'no-store', signal:AbortSignal.timeout(12000),
+  if (!base || !key) throw new Error('Read-only dashboard configuration missing');
+  const response = await fetch(new URL(path, base), {
+    headers: { 'x-trading-read-key': key },
+    cache: 'no-store',
+    signal: AbortSignal.timeout(12000),
   });
-  if(!response.ok) throw new Error(`Backend HTTP ${response.status}`);
-  return await response.json() as T;
+  if (!response.ok) throw new Error(`Backend HTTP ${response.status}`);
+  return (await response.json()) as T;
 }
-function fmtEnergy(wh:string) {
-  if(!/^\d+$/.test(wh)) return 'Unknown';
-  const n=BigInt(wh);return `${n/BigInt(1000)}.${String(n%BigInt(1000)).padStart(3,'0')} kWh`;
+
+function number(value: string, decimals: number): string {
+  if (!/^\d+$/.test(value)) return 'Unavailable';
+  const n = BigInt(value);
+  const scale = BigInt(10) ** BigInt(decimals);
+  return `${n / scale}.${String(n % scale).padStart(decimals, '0')}`;
 }
-function fmtTeusd(value:string) {
-  if(!/^\d+$/.test(value)) return 'Unknown';
-  const n=BigInt(value);return `${n/BigInt(1000000)}.${String(n%BigInt(1000000)).padStart(6,'0')} TEUSD`;
-}
-export default async function B30AllHouseholds({from,to}:{from:string;to:string}) {
-  let users: Household[]=[];
-  try {users=(await readApi<{users:Household[]}>('/internal/v2/demo/users')).users;}
-  catch {return <section className="rounded-xl border border-amber-900/60 bg-slate-900 p-5 text-amber-200">All-household settlement overview unavailable. Verify backend and read credentials.</section>;}
-  // Use existing guarded API. Do not query DB directly from Next.js or expose the read key.
-  const responses=await Promise.all(users.map(async (u):Promise<HouseholdResult>=>{
+
+export default async function B30AllHouseholds({ from, to }: { from: string; to: string }) {
+  let users: Household[];
+  try {
+    users = (await readApi<{ users: Household[] }>('/internal/v2/demo/users')).users;
+  } catch {
+    return <p className="text-sm text-amber-200">Community trading activity is temporarily unavailable.</p>;
+  }
+
+  const responses = await Promise.all(users.map(async (user): Promise<HouseholdResult> => {
     try {
-      const query=new URLSearchParams({from,to,limit:'50',offset:'0'});
-      const result=await readApi<{trades:HouseholdTrade[];pagination:{hasMore:boolean}}>(`/internal/v2/demo/users/${encodeURIComponent(u.userId)}/trades?${query}`);
-      return {userId:u.userId,trades:result.trades,hasMore:result.pagination.hasMore,failed:false};
-    } catch {return {userId:u.userId,trades:[],hasMore:false,failed:true};}
+      const query = new URLSearchParams({ from, to, limit: '50', offset: '0' });
+      const result = await readApi<{ trades: HouseholdTrade[]; pagination: { hasMore: boolean } }>(
+        `/internal/v2/demo/users/${encodeURIComponent(user.userId)}/trades?${query}`,
+      );
+      return { userId: user.userId, trades: result.trades, hasMore: result.pagination.hasMore, failed: false };
+    } catch {
+      return { userId: user.userId, trades: [], hasMore: false, failed: true };
+    }
   }));
-  const overview=buildHouseholdOverview(users,responses);
-  return <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-    <header className="border-b border-slate-800 p-5">
-      <h3 className="text-xl font-semibold">All-household energy payments</h3>
-      <p className="mt-2 text-sm text-slate-400">All {users.length} simulated households. Only matched energy allocations create payments. A transaction link appears only after independent Hedera confirmation.</p>
-      {!overview.complete && <p className="mt-2 text-amber-300 text-xs">Some household records could not be retrieved or have more than 50 trades. Totals may be incomplete.</p>}
-    </header>
-    <div className="grid gap-2 border-b border-slate-800 p-5 sm:grid-cols-2 lg:grid-cols-4">
-      {overview.householdStates.map(h=><div className="rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2" key={h.userId}>
-        <p className="font-medium text-sm">{h.name}</p>
-        <p className={h.status==='MATCHED'?'mt-1 text-xs text-emerald-300':'mt-1 text-xs text-slate-400'}>
-          {h.status==='UNAVAILABLE'?'Data unavailable':h.status==='PARTIAL'?'More trades exist':h.status==='NO_MATCH'?'No matched energy trade':`${h.matches} matched trade${h.matches===1?'':'s'}`}
-        </p>
-      </div>)}
+
+  const overview = buildHouseholdOverview(users, responses);
+  const active = overview.householdStates.filter(h => h.status === 'MATCHED').length;
+
+  return (
+    <div>
+      <h3 className="text-lg font-semibold">Community trading activity</h3>
+      <p className="mt-2 text-sm text-slate-400">
+        See which simulated households took part in recorded electricity trades during these dates.
+      </p>
+      {!overview.complete && <p className="mt-3 text-xs text-amber-200">Some household records could not be loaded or have additional pages. This summary may be incomplete.</p>}
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {overview.householdStates.map(h => (
+          <div key={h.userId} className="rounded-lg border border-slate-700/60 bg-slate-800/40 p-3">
+            <p className="text-sm font-medium">{h.name}</p>
+            <p className={`mt-1 text-xs ${h.status === 'MATCHED' ? 'text-emerald-300' : 'text-slate-400'}`}>
+              {h.status === 'UNAVAILABLE' ? 'Data unavailable' :
+                h.status === 'PARTIAL' ? 'Additional trades available' :
+                h.status === 'NO_MATCH' ? 'No recorded trades' :
+                `${h.matches} trade${h.matches === 1 ? '' : 's'}`}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-xs text-slate-400">{active} of {users.length} households have a recorded trade in this selection.</p>
+      {overview.trades.length > 0 && (
+        <details className="mt-5 rounded-xl border border-slate-700/60 bg-slate-900/40">
+          <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-cyan-300 focus-visible:outline-2 focus-visible:outline-cyan-300">
+            See all community trades ({overview.trades.length})
+          </summary>
+          <div className="overflow-x-auto border-t border-slate-800">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-800/70 text-slate-300">
+                <tr>{['Buyer', 'Seller', 'Electricity', 'Trade amount', 'Payment'].map(label => (
+                  <th scope="col" key={label} className="px-4 py-3 font-medium">{label}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {overview.trades.map(({ ownerId, buyerName, sellerName, trade }) => (
+                  <tr key={trade.allocationId} className="border-t border-slate-800/80 align-top">
+                    <td className="px-4 py-3">{buyerName}</td>
+                    <td className="px-4 py-3">{sellerName}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{number(trade.quantityWh, 3)} kWh</td>
+                    <td className="whitespace-nowrap px-4 py-3">{number(trade.expectedPaymentBaseUnits, 6)} TEUSD</td>
+                    <td className="px-4 py-3">
+                      <B27OnchainVerification userId={ownerId} allocationId={trade.allocationId} network={trade.network} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      )}
     </div>
-    {overview.trades.length===0?<p className="p-5 text-sm text-slate-400">No verified authoritative allocations found for this time interval. No payments should be invented.</p>:
-    <div className="overflow-x-auto"><table className="w-full text-left text-sm">
-      <thead className="bg-slate-800 text-slate-300"><tr>{['Buyer','Seller','Energy','Expected payment','Recorded state / independently verified transaction'].map(h=><th key={h} className="p-4">{h}</th>)}</tr></thead>
-      <tbody>{overview.trades.map(({ownerId,buyerName,sellerName,trade})=><tr key={trade.allocationId} className="border-t border-slate-800 align-top">
-        <td className="p-4">{buyerName}</td><td className="p-4">{sellerName}</td>
-        <td className="p-4 whitespace-nowrap">{fmtEnergy(trade.quantityWh)}</td>
-        <td className="p-4 whitespace-nowrap">{fmtTeusd(trade.expectedPaymentBaseUnits)}</td>
-        <td className="p-4 min-w-80">
-          <p className="text-xs text-slate-400">Database: {trade.paymentStatus.replaceAll('_',' ')}</p>
-          <B27OnchainVerification userId={ownerId} allocationId={trade.allocationId} network={trade.network==='LOCAL_HARDHAT'?'LOCAL_HARDHAT':'HEDERA_TESTNET'} />
-        </td>
-      </tr>)}</tbody>
-    </table></div>}
-  </section>;
+  );
 }

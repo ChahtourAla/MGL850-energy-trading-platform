@@ -184,32 +184,64 @@ async function rpcRequest(
   return result.result;
 }
 
+/**
+ * Read-only resolution of a verified EVM transaction hash into a canonical
+ * HashScan Testnet transaction reference. Mirror Node contract results often
+ * have a consensus `timestamp` but no `transaction_id` field.
+ */
+const EVM_HASH = /^0x[0-9a-fA-F]{64}$/;
+const CONSENSUS_TIMESTAMP = /^[1-9]\d{9,}\.\d{9}$/;
+const HEDERA_TRANSACTION_ID = /^0\.0\.\d+[@-][1-9]\d{9,}[.-]\d{9}$/;
+
+/** Never resolve a URL from a result for a *different* EVM transaction. */
+export function mirrorExplorerReference(
+  payload: unknown,
+  verifiedEvmHash: string,
+): string | null {
+  if (!EVM_HASH.test(verifiedEvmHash)) return null;
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+
+  const body = payload as Record<string, unknown>;
+  if (
+    typeof body.hash !== 'string' ||
+    !EVM_HASH.test(body.hash) ||
+    body.hash.toLowerCase() !== verifiedEvmHash.toLowerCase()
+  ) return null;
+
+  // Consensus timestamp is present on the contract result returned by the
+  // official Mirror Node for this project; it is directly supported by HashScan.
+  if (typeof body.timestamp === 'string' && CONSENSUS_TIMESTAMP.test(body.timestamp)) {
+    return body.timestamp;
+  }
+  if (typeof body.transaction_id === 'string' && HEDERA_TRANSACTION_ID.test(body.transaction_id)) {
+    return body.transaction_id;
+  }
+  return null;
+}
+
+/** Build a URL from a strict reference only; never forward arbitrary URLs. */
+export function hashscanTestnetUrl(reference: string | null): string | null {
+  if (!reference || !(
+    CONSENSUS_TIMESTAMP.test(reference) ||
+    HEDERA_TRANSACTION_ID.test(reference)
+  )) return null;
+  return `https://hashscan.io/testnet/transaction/${encodeURIComponent(reference)}`;
+}
+
 async function mirrorLookup(hash: string): Promise<string | null> {
   try {
     const response = await fetch(
       `https://testnet.mirrornode.hedera.com/api/v1/contracts/results/${hash}`,
-      { signal: AbortSignal.timeout(6000) },
+      { signal: AbortSignal.timeout(8000) },
     );
 
     if (!response.ok) return null;
 
-    const body = object(await response.json());
-
-    if (
-      typeof body?.hash === 'string' &&
-      HASH.test(body.hash) &&
-      !same(body.hash, hash, HASH)
-    ) {
-      return null;
-    }
-
-    const id = body?.transaction_id;
-
-    return typeof id === 'string' &&
-      /^0\.0\.\d+[@-]\d+[.-]\d+$/.test(id)
-      ? id
-      : null;
+    // A contract result reliably exposes the consensus timestamp, not
+    // necessarily transaction_id. Both formats can identify a HashScan URL.
+    return mirrorExplorerReference(await response.json(), hash);
   } catch {
+    // An explorer outage must not weaken or undo receipt verification.
     return null;
   }
 }
@@ -543,14 +575,12 @@ export async function verifyB27HederaTransfer(
   }
 
   const lookup = deps.mirrorTransactionId ?? mirrorLookup;
-  const transactionId =
+  const mirrorReference =
     await lookup(evidence.txHash).catch(() => null);
 
-  const explorerUrl =
-    transactionId &&
-    /^0\.0\.\d+[@-]\d+[.-]\d+$/.test(transactionId)
-      ? `https://hashscan.io/testnet/transaction/${encodeURIComponent(transactionId)}`
-      : null;
+  // The transaction was already validated against the canonical Hedera RPC
+  // receipt and TEUSD events above. Only then is this display link emitted.
+  const explorerUrl = hashscanTestnetUrl(mirrorReference);
 
   return {
     readOnly: true,

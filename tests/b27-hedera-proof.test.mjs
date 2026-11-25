@@ -1,4 +1,4 @@
-﻿import assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createRequire } from 'node:module';
 
@@ -8,7 +8,7 @@ const require = createRequire(
 
 const { Interface, TypedDataEncoder } = require('ethers');
 
-const { verifyB27HederaTransfer } =
+const { verifyB27HederaTransfer, mirrorExplorerReference, hashscanTestnetUrl } =
   await import('../apps/backend/src/b27-demo/b27-hedera-proof.ts');
 
 const buyer = '0x' + '11'.repeat(20);
@@ -305,4 +305,49 @@ test('requires matching settlement market', async () => {
   f.input.marketId = h('8');
 
   assert.equal((await check(f)).status, 'ONCHAIN_MISMATCH');
+});
+
+
+test('emits HashScan consensus timestamp only after verified TEUSD receipt', async () => {
+  const f = fixture();
+  f.deps.mirrorTransactionId = async () => '1795415309.464626984';
+  const result = await check(f);
+  assert.equal(result.status, 'VERIFIED_ON_CHAIN');
+  assert.equal(result.explorerUrl, 'https://hashscan.io/testnet/transaction/1795415309.464626984');
+
+  f.receipt.status = '0x0';
+  const failed = await check(f);
+  assert.equal(failed.status, 'ONCHAIN_MISMATCH');
+  assert.equal(failed.explorerUrl, null);
+});
+
+test('still supports Hedera transaction IDs and rejects invented URLs', async () => {
+  const f = fixture();
+  f.deps.mirrorTransactionId = async () => '0.0.12345@1795415309.464626984';
+  assert.equal((await check(f)).explorerUrl,
+    'https://hashscan.io/testnet/transaction/0.0.12345%401795415309.464626984');
+  f.deps.mirrorTransactionId = async () => 'https://evil.test/transaction/1';
+  assert.equal((await check(f)).explorerUrl, null);
+});
+
+
+test('actual Mirror Node result without transaction_id resolves via timestamp', () => {
+  const r = mirrorExplorerReference({hash: txHash, timestamp: '1795415309.464626984', transaction_id: null}, txHash);
+  assert.equal(hashscanTestnetUrl(r), 'https://hashscan.io/testnet/transaction/1795415309.464626984');
+  assert.equal(mirrorExplorerReference({hash: blockHash, timestamp: '1795415309.464626984'}, txHash), null);
+});
+
+test('real Mirror Node adapter uses timestamp response, not missing transaction_id', async () => {
+  const f = fixture();
+  delete f.deps.mirrorTransactionId;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    assert.equal(url, `https://testnet.mirrornode.hedera.com/api/v1/contracts/results/${txHash}`);
+    return { ok: true, json: async () => ({ hash: txHash, timestamp: '1795415309.464626984', transaction_id: null }) };
+  };
+  try {
+    assert.equal((await check(f)).explorerUrl, 'https://hashscan.io/testnet/transaction/1795415309.464626984');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
