@@ -19,7 +19,7 @@ export async function connect() {
   return client;
  } catch(e){await client.end().catch(()=>{});throw e;}
 }
-export async function getMarket(c,{readKey=false}={}){
+export async function getMarket(c,{readKey=false,allocationId=null}={}){
  const one=async(sql,args)=>{const x=await c.query(sql,args);if(x.rows.length!==1)throw Error('Missing or conflicting B28.1 authoritative data');return x.rows[0];};
  const [market,snapshot,plan,allocRows]=await (async()=>{
   const m=await one('SELECT * FROM "V2Market" WHERE id=$1',[MARKET]);
@@ -28,7 +28,7 @@ export async function getMarket(c,{readKey=false}={}){
   const a=(await c.query('SELECT * FROM "V2Allocation" WHERE "marketId"=$1 ORDER BY id',[MARKET])).rows;
   return [m,s,p,a];
  })();
- const selected=assertPinnedMarket(market,snapshot,plan,allocRows);
+ const selected=assertPinnedMarket(market,snapshot,plan,allocRows,allocationId);
  const {rows:wallets}=await c.query('SELECT user_id AS "userId",evm_address AS "evmAddress",hedera_account_id AS "hederaAccountId"'+(readKey?',public_key AS "publicKey",encrypted_private_key AS "encryptedPrivateKey",encryption_iv AS "encryptionIv",encryption_auth_tag AS "encryptionAuthTag",key_version AS "keyVersion"':'')+' FROM public.wallets WHERE user_id IN ($1,$2)',[selected.buyerId,selected.sellerId]);
  if(wallets.length!==2)throw Error('Buyer or seller has no provisioned wallet');
  const b=wallets.find(w=>w.userId===selected.buyerId),s=wallets.find(w=>w.userId===selected.sellerId);

@@ -1,4 +1,6 @@
-﻿type Proof = {
+import { verifiedHederaTransactionLink } from './hederaExplorer';
+
+type Proof = {
   readOnly: true;
   status: string;
   reason: string;
@@ -44,71 +46,80 @@ export default async function B27OnchainVerification({
         proof = (await response.json()) as Proof;
       }
     } catch {
-      // Do not infer payment success during an outage.
+      // Network errors must never turn an unverified payment into a paid one.
     }
   }
 
   if (!proof) {
-    return (
-      <p className="mt-2 text-xs text-amber-300">
-        Live Hedera verification unavailable.
-      </p>
-    );
+    return <p className="mt-2 text-xs text-amber-300">Live Hedera verification unavailable.</p>;
   }
 
   if (proof.status !== 'VERIFIED_ON_CHAIN') {
     return (
       <p className="mt-2 text-xs text-amber-300">
-        Hedera check: {proof.status.replaceAll('_', ' ')}.
-        {' '}{proof.reason}
+        Hedera check: {proof.status.replaceAll('_', ' ')}.{' '}
+        {proof.reason}
       </p>
     );
   }
 
   const rawAmount = proof.confirmedPaymentBaseUnits;
-
   const amount =
     rawAmount && /^\d+$/.test(rawAmount)
-      ? `${BigInt(rawAmount) / BigInt(1000000)}.${String(
-          BigInt(rawAmount) % BigInt(1000000),
-        ).padStart(6, '0')} TEUSD`
+      ? `${BigInt(rawAmount) / BigInt(1000000)}.${String(BigInt(rawAmount) % BigInt(1000000)).padStart(6, '0')} TEUSD`
       : 'Unavailable';
 
-  const url = proof.explorerUrl;
-
-  const safeUrl =
-    url &&
-    /^https:\/\/hashscan\.io\/testnet\/transaction\/[A-Za-z0-9@%._-]+$/.test(url)
-      ? url
+  const explorer = verifiedHederaTransactionLink(proof);
+  const verifiedHash =
+    proof.transactionHash && /^0x[0-9a-fA-F]{64}$/.test(proof.transactionHash)
+      ? proof.transactionHash
       : null;
 
   return (
     <div className="mt-3 rounded-lg border border-emerald-700/50 bg-emerald-950/20 p-3 text-xs">
-      <p className="font-semibold text-emerald-300">
-        Hedera transfer verified on-chain
-      </p>
+      <p className="font-semibold text-emerald-300">Hedera transfer verified on-chain</p>
+      <p className="mt-1 text-slate-200">Verified amount: {amount}</p>
+      <p className="mt-1 text-slate-400">Checked at: {proof.checkedAt ?? 'Unknown'}</p>
 
-      <p className="mt-1 text-slate-200">
-        Verified amount: {amount}
-      </p>
-
-      <p className="mt-1 text-slate-400">
-        Checked at: {proof.checkedAt ?? 'Unknown'}
-      </p>
-
-      {safeUrl ? (
-        <a
-          href={safeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 inline-block text-cyan-300 underline"
-        >
-          View verified transaction on HashScan
-        </a>
+      {explorer ? (
+        <div className="mt-3 space-y-2">
+          <div>
+            <p className="text-slate-400">Hedera transaction ID — open on HashScan</p>
+            <a
+              href={explorer.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block break-all font-medium text-cyan-300 underline underline-offset-2 hover:text-cyan-200"
+              aria-label={`Open Hedera transaction ${explorer.hederaTransactionId} on HashScan`}
+            >
+              {explorer.hederaTransactionId} ↗
+            </a>
+          </div>
+          <div>
+            <p className="text-slate-400">EVM transaction hash</p>
+            <a
+              href={explorer.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 block break-all text-cyan-300 underline underline-offset-2 hover:text-cyan-200"
+              aria-label="Open the verified payment transaction hash on HashScan"
+            >
+              {explorer.evmTransactionHash}
+            </a>
+          </div>
+        </div>
       ) : (
-        <p className="mt-2 text-slate-400">
-          Explorer transaction ID not resolved.
-        </p>
+        <div className="mt-3">
+          {verifiedHash && (
+            <>
+              <p className="text-slate-400">Verified EVM transaction hash</p>
+              <code className="mt-1 block break-all text-slate-200">{verifiedHash}</code>
+            </>
+          )}
+          <p className="mt-1 text-amber-300">
+            Hedera transaction ID has not been resolved by the mirror node, so a direct HashScan link is unavailable.
+          </p>
+        </div>
       )}
     </div>
   );

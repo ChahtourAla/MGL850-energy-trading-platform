@@ -14,7 +14,7 @@ const PATH=join(process.env.LOCALAPPDATA??join(homedir(),'.local','share'),'mgl8
 const TOK=/^0x[0-9a-fA-F]{64}$/;
 function args(argv){
  const o={};for(const arg of argv){const m=/^--([a-z-]+)=(.+)$/.exec(arg);if(!m||Object.hasOwn(o,m[1]))throw Error('Invalid or duplicate command-line option');o[m[1]]=m[2];}
- if(!['setup','deploy','reconcile-deployment','preflight','execute','reconcile','resume'].includes(o.mode))throw Error('Choose --mode=setup|deploy|reconcile-deployment|preflight|execute|reconcile|resume');
+ if(!['setup','deploy','reconcile-deployment','preflight','summary','execute','reconcile','resume'].includes(o.mode))throw Error('Choose --mode=setup|deploy|reconcile-deployment|preflight|summary|execute|reconcile|resume');
  if(Object.keys(o).some(k=>!['mode','allocation','amount','plan','confirm','allow-custody'].includes(k)))throw Error('Unknown B28 option');
  return o;
 }
@@ -26,9 +26,9 @@ async function saveState(s,{first=false}={}){
  else await writeFile(PATH,JSON.stringify(s,null,2),{mode:0o600});
 }
 function mustHaveLiveEnv(){if(process.env.B28_ENABLE_TESTNET_BROADCAST!=='I_ACCEPT_TESTNET_TRANSACTION_COSTS')throw Error('B28_ENABLE_TESTNET_BROADCAST acknowledgement missing');}
-async function pinnedView(c,{readKey=false}={}){
+async function pinnedView(c,{readKey=false,allocationId=null}={}){
  await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
- try{const x=await getMarket(c,{readKey});await c.query('COMMIT');return x;}
+ try{const x=await getMarket(c,{readKey,allocationId});await c.query('COMMIT');return x;}
  catch(e){await c.query('ROLLBACK').catch(()=>{});throw e;}
 }
 async function deployed(provider,operator){
@@ -69,34 +69,54 @@ async function reconcileDeployment(provider){
  const saved=await state();
  if(!saved||!TOK.test(saved.deployHash))throw Error('Missing signed deployment transaction journal');
  if(saved.state==='CONFIRMED'){
-  const operator=operatorWallet(provider);
-  const d=await deployed(provider,operator.address);
+  const d=await deployed(provider,saved.operator);
   console.log('PASS: Existing B28 deployment independently verified:',d.saved.contract);return;
  }
  const receipt=await provider.getTransactionReceipt(saved.deployHash);
  if(!receipt){console.log('DEPLOYMENT_OUTCOME_UNKNOWN: do not redeploy. Hash:',saved.deployHash);return;}
  if(receipt.status!==1||!receipt.contractAddress)throw Error('Deployment failed on-chain. Do not automatically resubmit.');
- const operator=operatorWallet(provider);
- if(saved.operator.toLowerCase()!==operator.address.toLowerCase())throw Error('Deployment operator key mismatch');
- const checked=await contractPreflight(provider,receipt.contractAddress,operator.address);
+ const checked=await contractPreflight(provider,receipt.contractAddress,saved.operator);
  await saveState({...saved,state:'CONFIRMED',contract:getAddress(receipt.contractAddress),codeHash:checked.codeHash,blockHash:receipt.blockHash,blockNumber:receipt.blockNumber});
  console.log('PASS: Deployment reconciled:',receipt.contractAddress);
 }
-async function preflight(provider,c){
- const view=await pinnedView(c);
- const operator=process.env.B28_TESTNET_OPERATOR_PRIVATE_KEY ? operatorWallet(provider).address : null;
- let contract=null,contractStatus='DEPLOYMENT_REQUIRED',allowance=null,balance=null;
- const buyerHbar=await provider.getBalance(view.allocation.buyerAddress);
- const operatorHbar=operator?await provider.getBalance(operator):null;
- if(operator){
-  const deployedState=await state();
-  if(deployedState?.state==='CONFIRMED'){
-   const d=await deployed(provider,operator);
-   contract=d.saved.contract;contractStatus='VERSIONED_CONTRACT_VERIFIED';
-   [allowance,balance]=await Promise.all([d.token.allowance(view.allocation.buyerAddress,contract),d.token.balanceOf(view.allocation.buyerAddress)]);
-  }
+async function preflight(provider,c,allocationId=null){
+ const view=await pinnedView(c,{allocationId});
+ const journal=await state();
+ const operator=process.env.B28_TESTNET_OPERATOR_PRIVATE_KEY ? operatorWallet(provider).address :
+  (process.env.B28_TESTNET_OPERATOR_ADDRESS??journal?.operator??null);
+ if(operator&&(!/^0x[0-9a-fA-F]{40}$/.test(operator)||
+   (journal?.operator&&journal.operator.toLowerCase()!==operator.toLowerCase())))
+   throw Error('Read-only operator address differs from the deployment journal');
+ const token=new Contract(TOKEN,TOKEN_ABI,provider);
+ const [buyerHbar,balance,deployerHbar,operatorHbar]=await Promise.all([
+  provider.getBalance(view.allocation.buyerAddress),token.balanceOf(view.allocation.buyerAddress),
+  provider.getBalance(ADMIN),operator?provider.getBalance(operator):Promise.resolve(null),
+ ]);
+ let contract=null,contractStatus='DEPLOYMENT_REQUIRED',allowance=null,onChainPaid=null;
+ if(journal?.state==='CONFIRMED'){
+  const d=await deployed(provider,journal.operator);
+  contract=d.saved.contract;contractStatus='VERSIONED_CONTRACT_VERIFIED';
+  [allowance,onChainPaid]=await Promise.all([
+   d.token.allowance(view.allocation.buyerAddress,contract),
+   d.settlement.paidAllocations(view.allocation.id),
+  ]);
+ }else if(journal){contractStatus='DEPLOYMENT_REQUIRES_RECONCILIATION';}
+ console.log(JSON.stringify({mode:'B28_TESTNET_READ_ONLY_PREFLIGHT',simulationOnly:true,chainId:CHAIN_ID,marketId:MARKET,planId:PLAN,allocationId:view.allocation.id,buyer:view.allocation.buyerAddress,seller:view.allocation.sellerAddress,quantityWh:String(view.allocation.quantityWh),paymentBaseUnits:String(view.allocation.amountBaseUnits),policy:view.allocation.pricingVersion,contract,contractStatus,allowanceBaseUnits:allowance?.toString()??null,buyerBalanceBaseUnits:balance.toString(),buyerHbarWei:buyerHbar.toString(),deployerAddress:ADMIN,deployerHbarWei:deployerHbar.toString(),operatorAddress:operator,operatorHbarWei:operatorHbar?.toString()??null,onChainPaid,existingIntentStatus:view.intent?.status??null,previousAttempts:view.attempts.length,readyForAutomaticLiveSend:false},null,2));
+}
+async function summary(c){
+ const first=await pinnedView(c);
+ const rows=[];
+ for(const a of first.allocations){
+  const view=a.id===first.allocation.id?first:await pinnedView(c,{allocationId:a.id});
+  rows.push({allocationId:a.id,buyer:view.allocation.buyerId,seller:view.allocation.sellerId,
+   buyerAddress:view.allocation.buyerAddress,sellerAddress:view.allocation.sellerAddress,
+   quantityWh:String(a.quantityWh),amountBaseUnits:String(a.amountBaseUnits),
+   intentStatus:view.intent?.status??null,attempts:view.attempts.length,
+   verifiedEvidence:view.evidence.filter(e=>e.verificationStatus==='VERIFIED').length});
  }
- console.log(JSON.stringify({mode:'B28_TESTNET_READ_ONLY_PREFLIGHT',simulationOnly:true,chainId:CHAIN_ID,marketId:MARKET,planId:PLAN,allocationId:view.allocation.id,buyer:view.allocation.buyerAddress,seller:view.allocation.sellerAddress,quantityWh:String(view.allocation.quantityWh),paymentBaseUnits:String(view.allocation.amountBaseUnits),policy:view.allocation.pricingVersion,contract,contractStatus,allowanceBaseUnits:allowance?.toString()??null,buyerBalanceBaseUnits:balance?.toString()??null,buyerHbarWei:buyerHbar.toString(),operatorHbarWei:operatorHbar?.toString()??null,existingIntentStatus:view.intent?.status??null,previousAttempts:view.attempts.length,readyForAutomaticLiveSend:false},null,2));
+ rows.sort((a,b)=>BigInt(a.amountBaseUnits)<BigInt(b.amountBaseUnits)?-1:BigInt(a.amountBaseUnits)>BigInt(b.amountBaseUnits)?1:0);
+ console.log(JSON.stringify({mode:'B28_DB_READ_ONLY_SUMMARY',marketId:MARKET,planId:PLAN,
+  allocations:rows,totals:{count:rows.length,totalBaseUnits:rows.reduce((x,a)=>x+BigInt(a.amountBaseUnits),0n).toString()}},null,2));
 }
 async function addAndBroadcast(c,{intentId,attempt,raw,hash,provider,intentStatus}){
  try{
@@ -133,13 +153,13 @@ async function finishSettlement(c,provider,{operator,view,terms,signature,settle
  // Independently re-open canonical transaction and event records before recording a payment.
  const evidence=await verifySettlement(provider,{hash:tx.hash,contract,allocation:view.allocation,allocations:view.allocations,expectedDigest:settlementId,operator:operator.address});
  await recordReceipt(c,{settlementId,attemptId:attempt.id,txHash:tx.hash,blockHash:evidence.blockHash,logIndex:evidence.settlementLogIndex,allocation:view.allocation,contract,token:TOKEN});
- const final=await pinnedView(c);
+ const final=await pinnedView(c,{allocationId:view.allocation.id});
  if(final.intent?.status!=='CONFIRMED'||final.evidence.length!==1||final.evidence[0].verificationStatus!=='VERIFIED')throw Error('Database final proof mismatch; manual reconciliation required');
  console.log(JSON.stringify({state:'B28_HE_DEMO_SETTLEMENT_CONFIRMED',transactionHash:tx.hash,allocationId:view.allocation.id,paymentBaseUnits:String(view.allocation.amountBaseUnits),buyer:view.allocation.buyerAddress,seller:view.allocation.sellerAddress,blockNumber:evidence.blockNumber,settlementEventIndex:evidence.settlementLogIndex,tokenTransferIndex:evidence.transferLogIndex,simulationOnly:true},null,2));
 }
 async function execute(c,provider,flags,resume=false){
  mustHaveLiveEnv();
- const view=await pinnedView(c,{readKey:true}),a=view.allocation;
+ const view=await pinnedView(c,{readKey:true,allocationId:flags.allocation}),a=view.allocation;
  assertExecutionApproval({mode:'execute',allocation:flags.allocation,amount:flags.amount,plan:flags.plan,confirm:flags.confirm,allowCustody:flags['allow-custody']},a);
  const operator=operatorWallet(provider),d=await deployed(provider,operator.address),contract=d.saved.contract;
  if((await provider.getBalance(operator.address))<=0n)throw Error('Hedera operator has no Testnet HBAR for settlement gas');
@@ -184,8 +204,8 @@ async function execute(c,provider,flags,resume=false){
  }
  await finishSettlement(c,provider,{operator,view,terms,signature,settlementId,contract,approvalAlreadyJournaled:resume});
 }
-async function reconcile(c,provider){
- const view=await pinnedView(c);
+async function reconcile(c,provider,allocationId=null){
+ const view=await pinnedView(c,{allocationId});
  if(!view.intent){console.log('NO_SETTLEMENT_INTENT: Nothing has been submitted or journaled.');return;}
  const op=operatorWallet(provider),d=await deployed(provider,op.address);
  if(view.intent.contractAddress?.toLowerCase()!==d.saved.contract.toLowerCase())throw Error('Recorded intent bound to a different contract');
@@ -223,12 +243,13 @@ async function main(){
    if(opts.confirm!=='B28_SETTLEMENT_ROLE_SETUP')throw Error('Explicit database role setup confirmation required');
    await setupRole(c);console.log('PASS: NOLOGIN B28 settlement writer role configured; no blockchain operation.');return;
   }
+  if(opts.mode==='summary'){if(opts.allocation)throw Error('Summary always lists every allocation');await summary(c);return;}
   const provider=await rpc();
   if(opts.mode==='deploy'){if(opts.confirm!=='DEPLOY_VERSIONED_HALF_EVEN_CONTRACT')throw Error('Deployment confirmation required');await deploy(provider);return;}
   if(opts.mode==='reconcile-deployment'){await reconcileDeployment(provider);return;}
-  if(opts.mode==='preflight'){await preflight(provider,c);return;}
+  if(opts.mode==='preflight'){await preflight(provider,c,opts.allocation??null);return;}
   if(opts.mode==='execute'||opts.mode==='resume'){await execute(c,provider,opts,opts.mode==='resume');return;}
-  if(opts.mode==='reconcile'){await reconcile(c,provider);return;}
+  if(opts.mode==='reconcile'){await reconcile(c,provider,opts.allocation??null);return;}
  }finally{await c.end().catch(()=>{});}
 }
 main().catch(e=>{console.error('B28 STOP:',safeMessage(e));console.error('If any transaction was journaled or broadcast, do not retry --mode=execute. Use --mode=reconcile first.');process.exitCode=1;});

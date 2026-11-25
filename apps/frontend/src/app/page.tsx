@@ -4,6 +4,7 @@ import EnergyHistoryChart from '../components/EnergyHistoryChart';
 import TradingWalletPanels from '../components/TradingWalletPanels';
 import MatchingHistoryPanel from '../components/MatchingHistoryPanel';
 import TradeLifecyclePanel from '../components/TradeLifecyclePanel';
+import B30AllHouseholds from '../components/B30AllHouseholds';
 
 type Household = {
   userId: string;
@@ -82,7 +83,7 @@ async function Dashboard({
 
   const from = datePattern.test(params.from ?? '') ? params.from! : '2026-11-09';
 
-  const to = datePattern.test(params.to ?? '') ? params.to! : '2026-11-10';
+  const to = datePattern.test(params.to ?? '') ? params.to! : '2026-11-11';
 
   let users: Household[] = [];
   let overview: EnergyOverview | null = null;
@@ -123,7 +124,7 @@ async function Dashboard({
             <p className="mt-1 text-sm text-slate-400">MGL850 · Peer-to-Peer Energy Trading</p>
           </div>
           <span className="rounded-full bg-amber-500/10 px-3 py-1 text-sm text-amber-300">
-            Offline demonstration
+            Simulated households · Hedera Testnet
           </span>
         </div>
       </header>
@@ -278,6 +279,12 @@ async function Dashboard({
           {selectedUser && !error && (
             <MatchingHistoryPanel
               userId={selectedUser.userId}
+              from={`${from}T00:00:00Z`}
+              to={`${to}T00:00:00Z`}
+            />
+          )}
+          {selectedUser && !error && (
+            <B30AllHouseholds
               from={`${from}T00:00:00Z`}
               to={`${to}T00:00:00Z`}
             />

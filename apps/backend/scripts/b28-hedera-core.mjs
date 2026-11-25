@@ -1,4 +1,6 @@
 /** Pure B28.2-B28.4 invariants. Never accesses credentials, PostgreSQL or Hedera. */
+import {TARGET} from './b28-one-step-core.mjs';
+import {allocationId as deriveAllocationId} from '../../../packages/shared/v2-identity.mjs';
 export const MARKET = '0x5661be2e34e1c2631f517dca6e879932671b78f8d4edc3df85350d2e80972188';
 export const PLAN = '0x72bfa3a65778cf258563c6acf6813f615c974f5a7a222547ee477f247e1f1a25';
 export const SNAPSHOT = '7372cfa7-d41f-5246-969a-5ccfb6033a7f';
@@ -8,6 +10,7 @@ export const TOKEN = '0x5B529135D699244D1247877353EaFdC429892bed';
 export const LEGACY_SETTLEMENT = '0xcbFfe6349c3337270d50AB8bb2f41E88E136D586';
 export const ADMIN = '0x30f98bBDCD8A334B0b382c0Ba521EECDb23592D4';
 export const PRICING = 'b28-teusd-half-even-1';
+export const PINNED_PLAN_VERSION='b28-'+MANIFEST_HASH.slice(2);
 export const CHAIN_ID = 296;
 export const CHOSEN = Object.freeze({
   buyerId:'bf625602-1885-5938-8982-d6058d51e5cc',
@@ -38,16 +41,38 @@ export function assertAllocation(a) {
   if(calc.amountBaseUnits!==String(a.amountBaseUnits)||calc.remainder!==Number(a.remainder))throw Error('Incorrect rounded price');
   return a;
 }
-export function assertPinnedMarket(market,snapshot,plan,allocations) {
-  if(market?.id!==MARKET||market?.status!=='MATCHED'||market.namespace!=='hourly'||market.mode!=='HOURLY'||snapshot?.id!==SNAPSHOT||snapshot.marketId!==MARKET||snapshot.status!=='FINALIZED'||snapshot.payloadHash!==SNAPSHOT_HASH||plan?.id!==PLAN||plan.snapshotId!==SNAPSHOT||plan.marketId!==MARKET||plan.status!=='AUTHORITATIVE'||plan.manifestHash!==MANIFEST_HASH||plan.manifest?.snapshotHash!==SNAPSHOT_HASH||plan.manifest?.pricingPolicyVersion!==PRICING)throw Error('B28.1 authoritative plan readback mismatch');
+export function assertPinnedMarket(market,snapshot,plan,allocations,allocationId=null) {
+  if(market?.id!==MARKET||market?.status!=='MATCHED'||market.namespace!=='hourly'||market.mode!=='HOURLY'||snapshot?.id!==SNAPSHOT||snapshot.marketId!==MARKET||snapshot.status!=='FINALIZED'||snapshot.payloadHash!==SNAPSHOT_HASH||plan?.id!==PLAN||plan.snapshotId!==SNAPSHOT||plan.marketId!==MARKET||plan.status!=='AUTHORITATIVE'||plan.manifestHash!==MANIFEST_HASH||plan.planVersion!==PINNED_PLAN_VERSION||plan.manifest?.snapshotHash!==SNAPSHOT_HASH||plan.manifest?.pricingPolicyVersion!==PRICING)throw Error('B28.1 authoritative plan readback mismatch');
   if(!Array.isArray(allocations)||allocations.length!==3||new Set(allocations.map(x=>x.id)).size!==3)throw Error('B28.1 expected three unique allocations');
   allocations.forEach(assertAllocation);
   if(allocations.reduce((s,a)=>s+BigInt(a.amountBaseUnits),0n)!==458177n)throw Error('Historical allocation total mismatch');
-  const matching=allocations.filter(a=>a.buyerId===CHOSEN.buyerId&&a.sellerId===CHOSEN.sellerId);
-  if(matching.length!==1)throw Error('Pinned selected buyer or seller missing');
-  const a=matching[0];
-  if(a.buyerAddress.toLowerCase()!==CHOSEN.buyerAddress.toLowerCase()||a.sellerAddress.toLowerCase()!==CHOSEN.sellerAddress.toLowerCase()||String(a.quantityWh)!==CHOSEN.quantityWh||String(a.amountBaseUnits)!==CHOSEN.amountBaseUnits||Number(a.remainder)!==CHOSEN.remainder)throw Error('Pinned selected allocation changed');
-  return a;
+  // Bind *every* payable allocation to the previously verified B28.1 economic terms.
+  // A successful total alone would allow swapping buyers/sellers or terms across rows.
+  const expected=new Map(TARGET.matches.map(x=>[`${x.buyer}/${x.seller}`,x]));
+  for(const a of allocations){
+    const key=`${a.buyerId}/${a.sellerId}`;
+    const x=expected.get(key);
+    if(!x||String(a.quantityWh)!==x.q||String(a.unitPriceMicrousdPerKwh)!==x.price||
+      String(a.amountBaseUnits)!==x.base||Number(a.remainder)!==x.remainder||
+      a.buyerAddress.toLowerCase()===a.sellerAddress.toLowerCase()||
+      a.planVersion!==PINNED_PLAN_VERSION)
+      throw Error('B28 approved household/energy/payment terms mismatch');
+    // Recompute the canonical allocation ID, including buyer/seller wallets,
+    // instead of trusting a database ID supplied alongside modified addresses.
+    const canonical=deriveAllocationId(MARKET,SNAPSHOT_HASH,a.buyerId,a.sellerId,
+      a.buyerAddress.toLowerCase(),a.sellerAddress.toLowerCase(),String(a.quantityWh),String(a.unitPriceMicrousdPerKwh),
+      a.algorithmVersion,a.pricingVersion,PINNED_PLAN_VERSION);
+    if(a.id!==canonical)throw Error('B28 allocation ID does not match canonical wallet-bound identity');
+    expected.delete(key);
+  }
+  if(expected.size)throw Error('B28 authoritative household allocations incomplete');
+  const chosen=allocations.find(a=>a.buyerId===CHOSEN.buyerId&&a.sellerId===CHOSEN.sellerId);
+  if(!chosen||chosen.buyerAddress.toLowerCase()!==CHOSEN.buyerAddress.toLowerCase()||
+    chosen.sellerAddress.toLowerCase()!==CHOSEN.sellerAddress.toLowerCase())
+    throw Error('Pinned first buyer/seller wallet mismatch');
+  const selected=allocationId===null?chosen:allocations.find(a=>a.id===allocationId);
+  if(!selected)throw Error('Requested allocation is not part of the verified B28.1 plan');
+  return selected;
 }
 export function assertExecutionApproval(flags,chosen) {
   if(flags.mode!=='execute'||flags.allocation!==chosen.id||flags.amount!==String(chosen.amountBaseUnits)||flags.plan!==PLAN||flags.confirm!=='I_AUTHORIZE_ONE_HEDERA_TESTNET_TRADE'||flags.allowCustody!=='YES')throw Error('Explicit allocation/plan/amount and demo custody approval required');

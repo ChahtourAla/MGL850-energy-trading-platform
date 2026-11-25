@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {ALLOCATIONS,CHAIN_ID,DEPLOYED_CONTRACT,MARKET_ID,PLAN_ID,parseJsonOutput,validateAll,validateSummary,classify} from './b30-batch-core.mjs';
+const summary=()=>({mode:'B28_DB_READ_ONLY_SUMMARY',marketId:MARKET_ID,planId:PLAN_ID,allocations:ALLOCATIONS.map(a=>({allocationId:a.id,buyerAddress:a.buyer,sellerAddress:a.seller,quantityWh:a.quantityWh,amountBaseUnits:a.amount,intentStatus:null,attempts:0,verifiedEvidence:0})),totals:{count:3,totalBaseUnits:'458177'}});
+const pf=(a)=>({mode:'B28_TESTNET_READ_ONLY_PREFLIGHT',simulationOnly:true,chainId:CHAIN_ID,marketId:MARKET_ID,planId:PLAN_ID,allocationId:a.id,buyer:a.buyer,seller:a.seller,quantityWh:a.quantityWh,paymentBaseUnits:a.amount,policy:'b28-teusd-half-even-1',contract:DEPLOYED_CONTRACT,contractStatus:'VERSIONED_CONTRACT_VERIFIED',onChainPaid:false,buyerBalanceBaseUnits:'100000000',buyerHbarWei:'3000000000000000000',operatorHbarWei:'5000000000000000000',existingIntentStatus:null,previousAttempts:0});
+test('three authoritative allocations validated without assuming twelve payments',()=>assert.deepEqual(validateAll(summary(),ALLOCATIONS.map(pf)).map(x=>x.state),['ELIGIBLE','ELIGIBLE','ELIGIBLE']));
+test('rejects unknown fourth trade',()=>{const s=summary();s.allocations.push({...s.allocations[0],allocationId:'0xdead'});assert.throws(()=>validateSummary(s));});
+test('rejects changed seller wallet',()=>{const s=summary();s.allocations[2].sellerAddress=ALLOCATIONS[0].seller;assert.throws(()=>validateSummary(s));});
+test('rejects onchain paid without verified DB evidence',()=>{const s=summary();const p=pf(ALLOCATIONS[0]);p.onChainPaid=true;assert.throws(()=>classify(s.allocations[0],p,ALLOCATIONS[0]));});
+test('accepts paid only with confirmed matching evidence',()=>{const s=summary();const r=s.allocations[0],p=pf(ALLOCATIONS[0]);Object.assign(r,{intentStatus:'CONFIRMED',attempts:2,verifiedEvidence:1});p.onChainPaid=true;p.existingIntentStatus='CONFIRMED';p.previousAttempts=2;assert.equal(classify(r,p,ALLOCATIONS[0]),'CONFIRMED');});
+test('resumes only the recorded ready approval',()=>{const s=summary();const r=s.allocations[0],p=pf(ALLOCATIONS[0]);r.intentStatus='READY';r.attempts=1;p.existingIntentStatus='READY';p.previousAttempts=1;assert.equal(classify(r,p,ALLOCATIONS[0]),'RESUME_AFTER_APPROVAL');});
+test('does not resubmit unresolved previous tx',()=>{const s=summary();const r=s.allocations[0],p=pf(ALLOCATIONS[0]);r.intentStatus='UNKNOWN';r.attempts=1;p.existingIntentStatus='UNKNOWN';p.previousAttempts=1;assert.throws(()=>classify(r,p,ALLOCATIONS[0]));});
+test('rejects untrusted deployed contract',()=>{const s=summary(),p=pf(ALLOCATIONS[0]);p.contract='0x0000000000000000000000000000000000000000';assert.throws(()=>classify(s.allocations[0],p,ALLOCATIONS[0]));});
+test('rejects insufficient TEUSD or gas',()=>{const s=summary(),p=pf(ALLOCATIONS[0]);p.buyerBalanceBaseUnits='0';assert.throws(()=>classify(s.allocations[0],p,ALLOCATIONS[0]));p.buyerBalanceBaseUnits='100000000';p.operatorHbarWei=null;assert.throws(()=>classify(s.allocations[0],p,ALLOCATIONS[0]));});
+test('rejects changed state between summary and preflight',()=>{const s=summary(),p=pf(ALLOCATIONS[0]);p.previousAttempts=1;assert.throws(()=>classify(s.allocations[0],p,ALLOCATIONS[0]));});
+test('accepts runner banner before JSON',()=>assert.equal(parseJsonOutput('=== B28 ===\n{"ok":true}').ok,true));
+test('malformed JSON fails closed',()=>assert.throws(()=>parseJsonOutput('=== B28 ===\n{foo:1}')));
