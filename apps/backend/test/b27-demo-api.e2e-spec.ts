@@ -1,4 +1,4 @@
-﻿import 'reflect-metadata';
+import 'reflect-metadata';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
@@ -86,6 +86,14 @@ const mockDb = {
       snapshot: { id: '33333333-3333-4333-8333-333333333333', intervalStart, intervalEnd },
     }]),
   },
+  energyRecord: {
+    findMany: vi.fn(async () => [] as Array<{
+      snapshotId: string;
+      timeSlot: Date;
+      productionWh: bigint;
+      consumptionWh: bigint;
+    }>),
+  },
   v2Allocation: {
     findMany: vi.fn(async (query: { take: number; skip?: number }) => {
       if (query.take === 5001) return fixtures;
@@ -157,6 +165,40 @@ describe('B27 presenter endpoints (HTTP integration; mocked Prisma)', () => {
     await request(app.getHttpServer())
       .get(`${root}/users/${buyerId}/energy?from=bad&to=bad`)
       .set('x-trading-read-key', readKey).expect(400);
+  });
+
+  it('merges distinct imported hours without double-counting a finalized V2 hour', async () => {
+    const previousHour = new Date('2026-10-03T11:00:00.000Z');
+    mockDb.energyRecord.findMany.mockResolvedValueOnce([
+      {
+        snapshotId: '44444444-4444-4444-8444-444444444444',
+        timeSlot: previousHour,
+        productionWh: 400n,
+        consumptionWh: 600n,
+      },
+      {
+        // Old B11 reading at the same slot as the authoritative V2 reading.
+        // It must NOT add a second chart point or change the totals.
+        snapshotId: '55555555-5555-4555-8555-555555555555',
+        timeSlot: intervalStart,
+        productionWh: 999_999n,
+        consumptionWh: 999_999n,
+      },
+    ]);
+    const res = await request(app.getHttpServer())
+      .get(`${root}/users/${buyerId}/energy?${dateQuery}`)
+      .set('x-trading-read-key', readKey).expect(200);
+    expect(res.body.source).toBe('MIXED_FINALIZED_V2_AND_TRUSTED_IMPORTED_LEGACY_HOURS');
+    expect(res.body.totals).toEqual({
+      productionWh: '1900', consumptionWh: '1600',
+      netEnergyWh: '300', recordedHours: 2,
+    });
+    expect(res.body.hours.map((h: { intervalStart: string }) => h.intervalStart)).toEqual([
+      '2026-10-03T11:00:00.000Z', '2026-10-03T12:00:00.000Z',
+    ]);
+    expect(res.body.hours.map((h: { source: string }) => h.source)).toEqual([
+      'TRUSTED_IMPORTED_LEGACY_ENERGY_RECORD', 'STORED_FINALIZED_HOURLY_SNAPSHOT',
+    ]);
   });
 
   it('distinguishes confirmed and noncanonical trades without fake explorer links', async () => {

@@ -4,6 +4,7 @@ import EnergyHistoryChart from '../components/EnergyHistoryChart';
 import TradingWalletPanels from '../components/TradingWalletPanels';
 import MatchingHistoryPanel from '../components/MatchingHistoryPanel';
 import TradeLifecyclePanel from '../components/TradeLifecyclePanel';
+import B34DayCoveragePanel from '../components/B34DayCoveragePanel';
 import B30AllHouseholds from '../components/B30AllHouseholds';
 
 type Household = {
@@ -84,6 +85,9 @@ async function Dashboard({
   const from = datePattern.test(params.from ?? '') ? params.from! : '2026-11-09';
 
   const to = datePattern.test(params.to ?? '') ? params.to! : '2026-11-11';
+  // One-day selections are dynamic; the two-day historical default highlights the Nov 10 demo.
+  const b34SpanMs = Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`);
+  const b34Day = b34SpanMs === 86400000 ? from : (from === '2026-11-09' && to === '2026-11-11' ? '2026-11-10' : null);
 
   let users: Household[] = [];
   let overview: EnergyOverview | null = null;
@@ -282,6 +286,9 @@ async function Dashboard({
               from={`${from}T00:00:00Z`}
               to={`${to}T00:00:00Z`}
             />
+          )}
+          {selectedUser && !error && b34Day && (
+            <B34DayCoveragePanel day={b34Day} />
           )}
           {selectedUser && !error && (
             <B30AllHouseholds

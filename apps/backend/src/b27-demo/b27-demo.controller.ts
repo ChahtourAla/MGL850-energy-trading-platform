@@ -131,52 +131,68 @@ export class B27DemoController {
       throw new ConflictException('Unexpected duplicate hourly measurements');
     }
 
-    // If no B21 snapshot exists, read previously imported energy records.
-    // Do not combine both sources, because they may describe the same hour.
-    const legacyRecords =
-      measurements.length === 0
-        ? await this.prisma.client.energyRecord.findMany({
-            where: {
-              userId,
-              timeSlot: {
-                gte: start,
-                lt: end,
-              },
-              snapshotId: { not: null },
-              snapshotImport: { isNot: null },
-            },
-            select: {
-              snapshotId: true,
-              timeSlot: true,
-              productionWh: true,
-              consumptionWh: true,
-            },
-            orderBy: { timeSlot: 'asc' },
-            take: 745,
-          })
-        : [];
+    // Query both trusted sources independently. A finalized V2 snapshot for
+    // ONE hour must not hide imported readings from the OTHER hours.
+    // Never sum two readings for the same UTC hour: finalized V2 is authoritative.
+    const legacyRecords = await this.prisma.client.energyRecord.findMany({
+      where: {
+        userId,
+        timeSlot: {
+          gte: start,
+          lt: end,
+        },
+        snapshotId: { not: null },
+        snapshotImport: { isNot: null },
+      },
+      select: {
+        snapshotId: true,
+        timeSlot: true,
+        productionWh: true,
+        consumptionWh: true,
+      },
+      orderBy: { timeSlot: 'asc' },
+      take: 745,
+    });
 
     if (legacyRecords.length > 744) {
       throw new ConflictException('Too many historical hourly measurements');
     }
 
-    const usingLegacy = measurements.length === 0;
+    const v2Hours = measurements.map((item) => ({
+      snapshotId: item.snapshot.id,
+      intervalStart: item.snapshot.intervalStart,
+      intervalEnd: item.snapshot.intervalEnd,
+      productionWh: item.productionWh,
+      consumptionWh: item.consumptionWh,
+      source: 'STORED_FINALIZED_HOURLY_SNAPSHOT' as const,
+    }));
 
-    const readings = usingLegacy
-      ? legacyRecords.map((item) => ({
-          snapshotId: item.snapshotId!,
-          intervalStart: item.timeSlot,
-          intervalEnd: new Date(item.timeSlot.getTime() + 60 * 60 * 1000),
-          productionWh: item.productionWh,
-          consumptionWh: item.consumptionWh,
-        }))
-      : measurements.map((item) => ({
-          snapshotId: item.snapshot.id,
-          intervalStart: item.snapshot.intervalStart,
-          intervalEnd: item.snapshot.intervalEnd,
-          productionWh: item.productionWh,
-          consumptionWh: item.consumptionWh,
-        }));
+    const v2TimeSlots = new Set<string>();
+    for (const item of v2Hours) {
+      const key = item.intervalStart.toISOString();
+      if (v2TimeSlots.has(key)) {
+        throw new ConflictException('Multiple finalized V2 readings for the same UTC hour');
+      }
+      v2TimeSlots.add(key);
+    }
+
+    const legacyHours = legacyRecords
+      .filter((item) => !v2TimeSlots.has(item.timeSlot.toISOString()))
+      .map((item) => ({
+        snapshotId: item.snapshotId!,
+        intervalStart: item.timeSlot,
+        intervalEnd: new Date(item.timeSlot.getTime() + 60 * 60 * 1000),
+        productionWh: item.productionWh,
+        consumptionWh: item.consumptionWh,
+        source: 'TRUSTED_IMPORTED_LEGACY_ENERGY_RECORD' as const,
+      }));
+
+    const readings = [...v2Hours, ...legacyHours].sort(
+      (a, b) => a.intervalStart.getTime() - b.intervalStart.getTime(),
+    );
+    if (readings.length > 744) {
+      throw new ConflictException('Too many unique historical hourly measurements');
+    }
 
     let totalProduction = 0n;
     let totalConsumption = 0n;
@@ -191,6 +207,7 @@ export class B27DemoController {
 
       return {
         snapshotId: item.snapshotId,
+        source: item.source,
         intervalStart: item.intervalStart.toISOString(),
         intervalEnd: item.intervalEnd.toISOString(),
         productionWh: production.toString(),
@@ -202,9 +219,11 @@ export class B27DemoController {
 
     return {
       simulationOnly: true,
-      source: usingLegacy
-        ? 'TRUSTED_IMPORTED_LEGACY_ENERGY_RECORDS'
-        : 'STORED_FINALIZED_HOURLY_SNAPSHOTS',
+      source: v2Hours.length > 0 && legacyHours.length > 0
+        ? 'MIXED_FINALIZED_V2_AND_TRUSTED_IMPORTED_LEGACY_HOURS'
+        : v2Hours.length > 0
+          ? 'STORED_FINALIZED_HOURLY_SNAPSHOTS'
+          : 'TRUSTED_IMPORTED_LEGACY_ENERGY_RECORDS',
       user,
       from: start.toISOString(),
       to: end.toISOString(),

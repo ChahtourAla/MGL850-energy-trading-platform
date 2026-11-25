@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {assertSevenHours,buildReview,assertApprovedFile,classifyAllocation,checkTransferCounts} from './b33-review-core.mjs';
+const day='2026-11-10';const hours=['04','09','10','11','12','13','15'].map(h=>({slot:`${day}T${h}:00:00Z`}));
+test('seven expected trading hours, never repromote 14:00',()=>{assert.doesNotThrow(()=>assertSevenHours(hours));assert.throws(()=>assertSevenHours([...hours.slice(1),{slot:`${day}T14:00:00Z`}]))});
+test('review digest detects modified financial allocation',()=>{const v=buildReview(day,hours);assertApprovedFile(v,v);assert.throws(()=>assertApprovedFile({...v,hours:hours.slice(1)},v));assert.throws(()=>assertApprovedFile({...v,reviewDigest:'0x'+'0'.repeat(64)},v))});
+test('only completely verified payments skip execution',()=>{const e=[{verificationStatus:'VERIFIED',receiptStatus:'SUCCESS'}];assert.equal(classifyAllocation({status:'CONFIRMED'},[],e,true),'CONFIRMED');assert.throws(()=>classifyAllocation({status:'CONFIRMED'},[],e,false));assert.equal(classifyAllocation(null,[],[],false),'ELIGIBLE');assert.throws(()=>classifyAllocation(null,[],[],true));});
+test('approval-only journal can resume but unknown state cannot',()=>{const x=[{transactionIdentity:'B28_APPROVAL',status:'CONFIRMED'}];assert.equal(classifyAllocation({status:'READY'},x,[],false),'RESUME_AFTER_APPROVAL');assert.throws(()=>classifyAllocation({status:'SUBMITTED'},x,[],false))});
+test('reject duplicate allocation before any payment',()=>{const id='0x'+'a'.repeat(64);assert.throws(()=>checkTransferCounts([{id},{id}]));assert.equal(checkTransferCounts([{id}]),1)});
