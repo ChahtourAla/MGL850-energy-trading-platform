@@ -38,6 +38,9 @@ function describeHour(hour: Hour): HourStatus {
   if (hour.state === 'B12_MATCHING_COMPLETED_ZERO_MATCHES') {
     return { label: 'No trades this hour', className: 'text-slate-300' };
   }
+  if (hour.state === 'HISTORICAL_MATCHES_NOT_AUTHORIZED' || (hour.b12Matches > 0 && hour.v2Allocations === 0)) {
+    return { label: 'Matches proposed — not paid', className: 'text-amber-200' };
+  }
   if (hour.state === 'NO_B12_MATCHING_RUN') {
     return { label: 'Not processed', className: 'text-amber-200' };
   }
@@ -77,13 +80,14 @@ export default async function B34DayCoveragePanel({ day }: { day: string }) {
   }
 
   const summary = info.summary;
-  const zeroTradeHours = info.hours.filter(h => h.state === 'B12_MATCHING_COMPLETED_ZERO_MATCHES').length;
-  const processingComplete = summary.b12RunHours === 24 && summary.importedHours === 24 && summary.requiresAttention.length === 0;
+  const zeroTradeHours = info.hours.filter(h => h.b12Runs > 0 && h.b12Matches === 0).length;
+  const proposedMatches = info.hours.reduce((total, h) => total + h.b12Matches, 0);
+  const processingComplete = summary.b12RunHours === 24 && summary.importedHours === 24 && summary.hoursWithoutB12Run === 0;
   const cards = [
     ['Hours with energy data', `${summary.importedHours}/24`],
     ['Hours processed', `${summary.b12RunHours}/24`],
-    ['Electricity trades', String(summary.v2Allocations)],
-    ['Hours without trades', String(zeroTradeHours)],
+    ['Matches found', String(proposedMatches)],
+    ['Hours without matches', String(zeroTradeHours)],
   ];
 
   return (
@@ -107,7 +111,7 @@ export default async function B34DayCoveragePanel({ day }: { day: string }) {
           ))}
         </div>
         <p className="mt-4 text-xs text-slate-400">
-          No trades means no buyer and seller were matched at that hour. Payment status is verified separately for each transaction in Trading History.
+          A match is a proposed energy exchange, not a payment. New simulation matches will appear here before any TEUSD settlement; only independently verified payments appear as Paid in trading history.
         </p>
       </header>
       <div className="overflow-x-auto">
@@ -117,7 +121,7 @@ export default async function B34DayCoveragePanel({ day }: { day: string }) {
             <tr>
               <th scope="col" className="px-5 py-3 font-medium">Hour (UTC)</th>
               <th scope="col" className="px-5 py-3 font-medium">Energy readings</th>
-              <th scope="col" className="px-5 py-3 font-medium">Trades</th>
+              <th scope="col" className="px-5 py-3 font-medium">Matches</th>
               <th scope="col" className="px-5 py-3 font-medium">Result</th>
             </tr>
           </thead>
@@ -128,7 +132,7 @@ export default async function B34DayCoveragePanel({ day }: { day: string }) {
                 <tr key={hour.hourUTC} className="border-t border-slate-800/80 hover:bg-slate-800/30">
                   <td className="whitespace-nowrap px-5 py-3 font-medium tabular-nums">{hour.hourUTC.slice(11, 16)}</td>
                   <td className="px-5 py-3 tabular-nums text-slate-300">{hour.measurements}/{hour.expectedHouseholds}</td>
-                  <td className="px-5 py-3 tabular-nums">{hour.v2Allocations}</td>
+                  <td className="px-5 py-3 tabular-nums">{hour.b12Matches}</td>
                   <td className={`px-5 py-3 font-medium ${result.className}`}>{result.label}</td>
                 </tr>
               );

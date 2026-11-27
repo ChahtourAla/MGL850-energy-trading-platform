@@ -1,0 +1,16 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {slots,checkManifest,checkParity,review} from './b38-day-core.mjs';
+const day='2020-11-20';const hours=slots(day).map(slot=>({slot,matchCount:0,market:null}));
+test('24 UTC slots',()=>assert.equal(slots(day).length,24));
+test('invalid date',()=>assert.throws(()=>slots('2020-02-30')));
+test('unfinished day',()=>assert.throws(()=>slots(day,Date.parse(day))));
+test('zero-match day',()=>assert.equal(review(day,hours,'x','y').summary.allocations,0));
+test('missing hour',()=>assert.throws(()=>review(day,hours.slice(1),'x','y')));
+test('duplicate hour',()=>assert.throws(()=>review(day,[hours[0],...hours.slice(0,23)],'x','y')));
+const row={buyer_id:'b',seller_id:'s',quantity_wh:'10',unit_price_microusd_per_kwh:'50',status:'SELECTED'};const alloc={buyerId:'b',sellerId:'s',quantityWh:'10',unitPriceMicrousdPerKwh:'50'};
+test('exact parity',()=>checkParity([row],[alloc]));
+test('changed party',()=>assert.throws(()=>checkParity([row],[{...alloc,sellerId:'other'}])));
+test('changed quantity',()=>assert.throws(()=>checkParity([row],[{...alloc,quantityWh:'11'}])));
+test('duplicate match',()=>assert.throws(()=>checkParity([row,row],[alloc,alloc])));
+test('nonselected match',()=>assert.throws(()=>checkParity([{...row,status:'PAID'}],[alloc])));
+test('manifest invalid',()=>assert.throws(()=>checkManifest({},day)));

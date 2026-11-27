@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {sha256} from './b38-day-core.mjs';
+import {verifyApproval,assertMeasurements} from './b38-commit-core.mjs';
+const body={format:'MGL850_B38_PREVIEW_V1',day:'2026-11-20',summary:{allocations:18}};
+const digest='0x'+sha256(JSON.stringify(body)),a={...body,reviewDigest:digest};
+const rows=Array.from({length:12},(_,i)=>({userId:String(i),productionWh:'10',consumptionWh:'12'}));
+test('exact approval',()=>verifyApproval(a,a,body.day,digest));
+test('wrong day',()=>assert.throws(()=>verifyApproval(a,a,'2026-11-21',digest)));
+test('wrong digest',()=>assert.throws(()=>verifyApproval(a,a,body.day,'0x'+'0'.repeat(64))));
+test('tampered preview',()=>assert.throws(()=>verifyApproval({...a,summary:{allocations:19}},a,body.day,digest)));
+test('changed replay',()=>assert.throws(()=>verifyApproval(a,{...a,summary:{allocations:19}},body.day,digest)));
+test('exact measurements',()=>assertMeasurements(rows,rows));
+test('missing measurement',()=>assert.throws(()=>assertMeasurements(rows,rows.slice(1))));
+test('duplicate measurement',()=>assert.throws(()=>assertMeasurements(rows,[...rows.slice(1),rows[1]])));
+test('changed measurement',()=>assert.throws(()=>assertMeasurements(rows,[{...rows[0],productionWh:'11'},...rows.slice(1)])));

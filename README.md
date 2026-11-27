@@ -1,217 +1,80 @@
-# Decentralized P2P Energy Trading Platform
+# MGL850 — Generate, import, match, and open the selected day
 
-A modular peer-to-peer electricity trading prototype developed
-for MGL850, designed for future integration with Hedera.
+This release replaces the previous `RUN_MGL850_DAY.ps1` with the same **single PowerShell entry point**, plus one tightly-scoped dashboard component update. Use the same script for both preview and commit. The original source of wallet keys or approvals is never included.
 
-The project simulates household electricity production,
-consumption, energy trading recommendations, and delivery
-evidence. It does not use physical smart meters or transfer
-real electricity.
+## What happens after import
 
-## Current Development Status
+When `-Mode CommitMatching` finishes successfully, the script reads the existing NestJS API and checks:
 
-### Implemented
+- all **12 newly generated households** are in the active simulated-user list (dedicated database assumed);
+- all **24 hours** have an imported energy snapshot;
+- all **24 hours** have a matching decision;
+- **each** of the 12 households has exactly **24 visible energy readings**;
+- the dashboard's actual daily API response corresponds to the selected UTC day.
 
-- Shared JSON Schemas and Python Pydantic models
-- Synthetic household and user-registry generation
-- Hourly electricity production and consumption simulation
-- Buyer, seller, and neutral household classification
-- Configurable energy types, prices, and scoring weights
-- Greedy buyer-seller matching
-- Deterministic match and delivery identifiers
-- Simulated energy delivery evidence
-- Python command-line interfaces
-- Automated unit, integration, and performance tests
-- Solidity smart contracts and Hedera deployment resources
+It creates a local verification record at `%LOCALAPPDATA%\MGL850\simulation-days\YYYY-MM-DD\dashboard-verification.json` and opens the correct day in the browser. If Next.js is not already running on port 3000, it starts `pnpm --dir apps/frontend dev` in a separate command window, then opens the page.
 
-### Not Integrated in the Current Python Subsystem
+The dashboard enhancement (installed **only if you pass `-UpdateDashboard`**) adds the number of *matches found* and the explicit message **"Matches proposed — not paid"**, instead of showing an unhelpful "Needs review" for fresh, unmatched-by-payment Python results. The existing user's payment history remains independent, and only verified on-chain payments can be labeled *Paid*.
 
-- NestJS backend and PostgreSQL persistence
-- Application authentication and custodial wallet onboarding
-- Oracle/gateway for validating delivery evidence
-- Frontend
-- Live match-to-blockchain trade execution
+## Prerequisites
 
-Smart-contract source code exists in packages/contracts/, but
-the Python simulation pipeline does not invoke these contracts.
+1. Run **in the cloned Git repository root** on your teammate's Windows computer, on the latest `feature/b26-autonomous-hourly-market-runs` commit containing the B36/B37 dashboard and B34 day-coverage API.
+2. `pnpm install`, Python virtualenv and its requirements installed, PostgreSQL running, Prisma migrations applied.
+3. New households (e.g. 12) **already imported** in the teammate's *own, dedicated PostgreSQL database*, with a verified Hedera Testnet wallet for every generated user. The stored original `users.json` must not contain wallet keys or fabricated addresses.
+4. Root `.env` has valid `DATABASE_URL`, `INTERNAL_IMPORT_API_KEY`, and `TRADING_API_READ_ADMIN_KEY` (>=32 chars). The **frontend** also needs working `B27_BACKEND_URL=http://127.0.0.1:3001` and exactly the same `TRADING_API_READ_ADMIN_KEY` via `apps/frontend/.env.local` or its normal environment.
+5. Backend is started via `pnpm --dir apps/backend start:dev` on port 3001. This script checks `/health/ready` before importing.
+6. Do **not** copy keys or the database from the first machine. You don't need operator/private signing keys to generate and match data, but each simulated household must have its verified wallet record as required by the import API.
 
-## Python Architecture
+## Extract the ZIP
 
-The implemented Python workflow is:
+```powershell
+Expand-Archive -LiteralPath "$HOME\Downloads\MGL850_DAY_VISIBLE_RELEASE.zip" -DestinationPath "$HOME\Downloads\MGL850_DAY_VISIBLE_RELEASE" -Force
 
-1. Generate synthetic household profiles.
-2. Enrich profiles with wallet identifiers.
-3. Generate hourly energy snapshots.
-4. Classify participants as BUYER, SELLER or NEUTRAL.
-5. Select eligible buyer-seller pairs.
-6. Calculate scores, matched quantities and payments.
-7. Produce proposed energy trades.
-8. Simulate delivery evidence for fictional active trades.
+$runner = "$HOME\Downloads\MGL850_DAY_VISIBLE_RELEASE\RUN_MGL850_DAY.ps1"
+$registry = Join-Path $env:LOCALAPPDATA 'MGL850\new-simulation\users.json'
+```
 
-The delivery stage requires active-trade identifiers. In the
-standalone simulation, these are test-only identifiers.
+## 1. Preview a NEW day (no DB changes)
 
-## Project Structure
+```powershell
+& $runner -Day '2026-11-27' -RegistryPath $registry -EnergySeed 20271127 -UpdateDashboard
+```
 
-packages/shared/
-Shared JSON Schemas, Pydantic models, and example fixtures.
+`-UpdateDashboard` first checks the exact known B36 dashboard source and creates a backup. If it is different, the runner stops rather than overwriting local modifications. The new panel passes local TypeScript validation or is restored automatically. This is a **frontend code change**, not a database or blockchain change.
 
-services/data-generator/
-Household generation, hourly energy simulation,
-delivery simulation, CLI commands, configurations, and tests.
+The preview produces exactly 24 immutable JSON snapshots and a `preview-manifest.json`. Inspect them before proceeding. Preview never imports energy or creates payments, and **will not show new energy data in the dashboard yet**.
 
-services/matching-engine/
-Eligibility, scoring, greedy allocation,
-output building, CLI, and integration tests.
+## 2. Import, match, verify the dashboard, and open the day
 
-packages/contracts/
-Solidity contracts, Hardhat tests, deployment scripts,
-and contract artifacts.
+```powershell
+& $runner -Day '2026-11-27' -RegistryPath $registry -EnergySeed 20271127 -Mode CommitMatching -UpdateDashboard
+```
 
-scripts/check_python_handoff.py
-Standalone cross-service readiness verification.
+When prompted, type the exact approval `IMPORT_AND_MATCH_2026-11-27`.
 
-docs/python-services-backend-contract.md
-Shared data formats, units, commands, and integration rules.
+The script imports the same immutable snapshots, records matching decisions for all 24 hours (including legitimate zero-match hours), checks the **actual backend dashboard read APIs**, and then opens `http://localhost:3000/?day=2026-11-27&userId=<generated-id>`.
 
-## Python Requirements
+**Do not change `-Day`, `-EnergySeed`, the original registry, or the energy config between preview and commit.** The same day cannot be re-previewed with a different dataset.
 
-- Python 3.11 or newer
-- pip
-- A Python virtual environment (recommended)
+## What to expect on-screen
 
-The repository also uses Node.js and pnpm for its separate
-JavaScript and Solidity workspaces.
+- Household names and energy history graph for the chosen day.
+- 24 energy readings per household, *if all validations passed*.
+- Daily overview: "Hours with energy data 24/24", "Hours processed 24/24", "Matches found N", "Hours without matches X".
+- Rows with matches but no Hedera settlement: **"Matches proposed — not paid"**.
+- The "More details" page contains the matching history for the selected household.
+- **No new TEUSD payments**. The main Electricity Trading History will not show paid transactions until a separate, secure and date-independent settlement workflow has actually completed.
 
-## Python Installation (Windows PowerShell)
+## Important safety boundaries
 
-From the repository root:
+- The previously approved Hedera settlement scripts were tied to the original 2026-11-10 market and wallet set. They **cannot** be replayed for arbitrary days/new users. This runner's `-Mode SettleTestnet` intentionally refuses to broadcast.
+- This workflow never claims physical electricity delivery.
+- If the import or matching stops partway through, do not discard the saved artifacts or rerun with a new seed. Investigate the partial DB state and source hash first.
+- Use the original latest GitHub dashboard component. If the source differs, merge the new component manually instead of bypassing its file-hash guard.
+- Windows-specific commands and a running local PostgreSQL/Hedera environment have **not** been executed in this build environment. The TypeScript panel syntax and package integrity have been checked here; the full Windows run must still be validated on your teammate's machine.
 
-    py -3 -m venv .venv
+## Optional flags
 
-Install the shared package and both services:
-
-    .\.venv\Scripts\python.exe -m pip install -e .\packages\shared\python -e .\services\data-generator -e .\services\matching-engine -r .\packages\shared\requirements-dev.txt
-
-The editable installations allow development without manually
-copying Python packages.
-
-## Available Commands
-
-### 1. Generate Households
-
-    .\.venv\Scripts\python.exe -m data_generator.cli generate-users --config services\data-generator\config\user-registry-config.json --output services\data-generator\output\static-users.json
-
-This generates fictional user profiles.
-
-Generated user profiles do not initially include Hedera wallets.
-
-### 2. Validate a Wallet-Enriched Registry
-
-    .\.venv\Scripts\python.exe -m data_generator.cli validate-users --input <enriched-registry.json> --require-wallets
-
-The registry must contain valid, unique Hedera account IDs
-and EVM addresses.
-
-Wallet creation is not performed by the Data Generator.
-
-### 3. Generate an Hourly Energy Snapshot
-
-    .\.venv\Scripts\python.exe -m data_generator.cli generate-snapshot --registry <enriched-registry.json> --config services\data-generator\config\energy-generation-config.json --time-slot 2026-10-18T12:00:00Z --output-dir services\data-generator\output
-
-An EnergySnapshot contains one hourly electricity record per
-user, including production, consumption, net energy, market
-role, price, and matching information.
-
-The optional --consumption-only-user-id argument may be
-repeated to designate households without local generation.
-
-### 4. Run the Matching Engine
-
-Using the included sample snapshot:
-
-    .\.venv\Scripts\python.exe -m matching_engine.cli --input packages\shared\fixtures\energy-snapshot.sample.json --config packages\shared\fixtures\matching-config.sample.json --output services\matching-engine\output\matching-result.json
-
-The Matching Engine writes a MatchingOutput JSON file with
-selected matches, unmatched buyers, and execution metadata.
-
-The output is a trading recommendation, not an executed trade.
-
-### 5. Simulate Energy Delivery
-
-    .\.venv\Scripts\python.exe -m data_generator.cli generate-delivery --input services\data-generator\fixtures\active-trade.sample.json --config services\data-generator\config\delivery-simulation-config.json --output services\data-generator\output\delivery-result.json
-
-Supported scenarios:
-
-- SUCCESS: expected energy was delivered.
-- INCOMPLETE: delivered energy is below expected energy.
-- INVALID: simulated evidence is outside the delivery window.
-- MISSING: no delivery record is generated.
-
-For MISSING, exit code 0 indicates the simulation succeeded,
-but the output JSON file must not exist.
-
-The --overwrite flag permits explicitly replacing an
-existing output for record-producing scenarios.
-
-The supplied active-trade fixture is fictional. It is not
-a trade created on Hedera.
-
-## Tests
-
-Run every Python test:
-
-    .\.venv\Scripts\python.exe -m pytest --import-mode=importlib packages\shared\tests packages\shared\python\tests services\data-generator\tests services\matching-engine\tests -q
-
-Last verified baseline:
-
-    567 passed
-
-This baseline includes shared contracts, both Python services,
-delivery scenarios, cross-service integration, and performance
-tests.
-
-## Standalone Integration Check
-
-    .\.venv\Scripts\python.exe scripts\check_python_handoff.py
-
-The script generates test households, adds fictional wallet
-identifiers, produces energy snapshots, runs matching, and
-validates the JSON interfaces.
-
-The full simulated matching-to-delivery workflow is also
-covered by:
-
-    services/matching-engine/tests/test_delivery_end_to_end.py
-
-## Technical Rules
-
-- Energy quantities are integer watt-hours (Wh).
-- Prices are integer micro-USD per kWh.
-- Payment amounts are integer micro-USD.
-- Time slots use UTC ISO 8601 timestamps.
-- Locations are simulated two-dimensional kilometre coordinates.
-- Buyer fulfillment must be complete in Matching V1.
-- The matching algorithm must never oversell energy.
-- Identical inputs produce stable allocation results and IDs.
-- Delivery evidence is simulated, not physically verified.
-
-The final implementation follows the shared data contracts
-under packages/shared/.
-
-## Security and Scope
-
-Do not commit environment secrets, private keys, real wallet
-credentials, or generated outputs containing sensitive data.
-
-Python services do not create real Hedera transactions,
-manage user private keys, or persist records in PostgreSQL.
-
-Actual trade creation, escrow, oracle confirmation, settlement,
-refunds and physical delivery verification are separate
-integration responsibilities.
-
-## Additional Documentation
-
-See docs/python-services-backend-contract.md for the
-backend-facing JSON and process integration rules.
+- `-NoBrowser` skips automatic browser opening.
+- `-NoFrontendAutoStart` won't start Next.js; it prints the URL if port 3000 is not available.
+- Omit `-UpdateDashboard` to leave the frontend code unchanged (data will still be available through the current energy charts, but the daily summary may label proposed matches less clearly).

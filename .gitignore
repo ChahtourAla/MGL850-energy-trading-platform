@@ -64,3 +64,21 @@ htmlcov/
 
 # Prisma Client generated from database/schema.prisma
 /apps/backend/src/generated/prisma/
+# Local database backups
+/energy.dump
+/globals.sql
+
+# Temporary development backups
+*.bak
+
+# Local source review exports
+/B38_DEPENDENCIES.txt
+/B38_SOURCE_REVIEW.txt
+
+# Obsolete settlement runner
+/RUN_MGL850_FULL_DAY.ps1
+/apps/backend/scripts/b38-full-settlement.mjs
+
+# Temporary diagnostics
+/apps/backend/scripts/b38-gas-check.mjs
+/apps/backend/scripts/b38-permission-check.mjs
